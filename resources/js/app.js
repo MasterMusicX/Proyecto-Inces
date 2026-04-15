@@ -1,0 +1,1 @@
+console.log("Inces Campus cargado correctamente");
