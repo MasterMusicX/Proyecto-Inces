@@ -1,5 +1,5 @@
 .git
 node_modules
-vendor
-public/hot
+vendo
+public/storage
 storage/logs
