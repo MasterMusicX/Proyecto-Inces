@@ -6,6 +6,8 @@
         "php": "^8.2",
         "ext-gd": "*",
         "ext-zip": "*",
+        "ext-pdo_pgsql": "*",
+        "ext-pgsql": "*",
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
