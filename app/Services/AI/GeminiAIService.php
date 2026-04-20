@@ -22,7 +22,7 @@ class GeminiAIService
     public function __construct()
     {
         $this->apiKey = config('services.gemini.api_key');
-        $this->model = config('services.gemini.model', 'gemini-1.5-pro');
+        $this->model = config('services.gemini.model', 'gemini-2.0-flash');
         $this->maxTokens = config('services.gemini.max_tokens', 8192);
         $this->temperature = config('services.gemini.temperature', 0.7);
     }
