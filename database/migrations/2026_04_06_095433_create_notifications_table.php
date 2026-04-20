@@ -11,6 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // EL PARCHE ANTIBALAS: Si la tabla ya existe por error, la borra primero para evitar el choque.
+        Schema::dropIfExists('notifications');
+
         Schema::create('notifications', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('type');
