@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         // ── Admin ────────────────────────────────────────────
         $admin = User::firstOrCreate(['email' => 'admin@inces.gob.ve'], [
             'name'      => 'Administrador INCES',
-            'password'  => Hash::make('password'),
+            'password'  => bcrypt('password'),
             'role'      => 'admin',
             'is_active' => true,
         ]);
@@ -26,19 +26,15 @@ class DatabaseSeeder extends Seeder
             'name' => 'José Davalillo',
             'email' => 'josemigueldav05@gmail.com',
             'password' => bcrypt('Zangetu1531'), // ¡Fíjate en el bcrypt()!
+            'role' => 'admin',
+            'is_active' => true,
         ]);
 
-        // 2. El usuario administrador genérico del Inces
-        \App\Models\User::create([
-            'name' => 'Administrador Inces',
-            'email' => 'admin@inces.gob.ve',
-            'password' => bcrypt('password'), // ¡Fíjate en el bcrypt()!
-        ]);
-
+     
         // ── Instructors ──────────────────────────────────────
         $instructor1 = User::firstOrCreate(['email' => 'instructor@inces.gob.ve'], [
             'name'      => 'Prof. María González',
-            'password'  => Hash::make('password'),
+            'password'  => bcrypt('password'),
             'role'      => 'instructor',
             'is_active' => true,
             'bio'       => 'Especialista en Administración y Gestión Empresarial con 10 años de experiencia.',
@@ -46,7 +42,7 @@ class DatabaseSeeder extends Seeder
 
         $instructor2 = User::firstOrCreate(['email' => 'instructor2@inces.gob.ve'], [
             'name'      => 'Prof. Carlos Rodríguez',
-            'password'  => Hash::make('password'),
+            'password'  => bcrypt('password'),
             'role'      => 'instructor',
             'is_active' => true,
             'bio'       => 'Técnico en Sistemas de Información y Tecnología.',
@@ -55,7 +51,7 @@ class DatabaseSeeder extends Seeder
         // ── Students ─────────────────────────────────────────
         $student = User::firstOrCreate(['email' => 'estudiante@inces.gob.ve'], [
             'name'      => 'José Davalillo',
-            'password'  => Hash::make('password'),
+            'password'  => bcrypt('password'),
             'role'      => 'student',
             'is_active' => true,
         ]);
