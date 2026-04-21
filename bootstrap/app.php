@@ -11,12 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health:   '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Tus alias de middleware registrados
         $middleware->alias([
             'role'         => \App\Http\Middleware\RoleMiddleware::class,
             'check.active' => \App\Http\Middleware\CheckActive::class,
         ]);
+        
+        // Middlewares globales para todas las rutas WEB
         $middleware->web(append: [
             \App\Http\Middleware\CheckActive::class,
+            \App\Http\Middleware\PreventBackHistory::class, // <-- Aquí está el nuevo guardia
         ]);
     })
     ->withCommands([
