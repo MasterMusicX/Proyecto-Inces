@@ -57,6 +57,16 @@
             <form method="POST" action="{{ route('register') }}" class="space-y-6" enctype="multipart/form-data">
                 @csrf
 
+                @if ($errors->any())
+                    <div class="bg-red-50 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl mb-6 shadow-sm">
+                        <strong class="font-bold text-sm">¡Atención! Hay un problema:</strong>
+                        <ul class="mt-1 list-disc list-inside text-xs font-medium">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 <div class="flex flex-col items-center justify-center mb-6">
                     <div class="relative w-24 h-24 mb-3">
                         <template x-if="photoPreview">
@@ -76,7 +86,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-widest mb-2">Nombres *</label>
-                        <input type="text" name="name" x-model="formData.name" @input="validateName"
+                        <input type="text" name="name" x-model="formData.name" @input="validateName" value="{{ old('name') }}"
                                class="w-full bg-white dark:bg-[#1e293b] border rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none transition-all focus:ring-2 focus:ring-blue-800"
                                :class="{'border-gray-200 dark:border-slate-700': !touched.name, 'border-red-500 ring-1 ring-red-500': errors.name && touched.name, 'border-blue-800 ring-1 ring-blue-800': !errors.name && touched.name}">
                         
@@ -88,7 +98,7 @@
 
                     <div>
                         <label class="block text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-widest mb-2">Apellidos *</label>
-                        <input type="text" name="last_name" x-model="formData.lastName" @input="validateLastName"
+                        <input type="text" name="last_name" x-model="formData.lastName" @input="validateLastName" value="{{ old('last_name') }}"
                                class="w-full bg-white dark:bg-[#1e293b] border rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none transition-all focus:ring-2 focus:ring-blue-800"
                                :class="{'border-gray-200 dark:border-slate-700': !touched.lastName, 'border-red-500 ring-1 ring-red-500': errors.lastName && touched.lastName, 'border-blue-800 ring-1 ring-blue-800': !errors.lastName && touched.lastName}">
                         
@@ -103,7 +113,7 @@
                     <label class="block text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-widest mb-2">Cédula de Identidad *</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 dark:text-slate-500 font-bold">V-</span>
-                        <input type="text" name="cedula" x-model="formData.cedula" @input="validateCedula" placeholder="Ej: 12345678"
+                        <input type="text" name="cedula" x-model="formData.cedula" @input="validateCedula" placeholder="Ej: 12345678" value="{{ old('cedula') }}"
                                class="w-full bg-white dark:bg-[#1e293b] border rounded-xl pl-10 pr-4 py-3 text-gray-900 dark:text-white outline-none transition-all focus:ring-2 focus:ring-blue-800"
                                :class="{'border-gray-200 dark:border-slate-700': !touched.cedula, 'border-red-500 ring-1 ring-red-500': errors.cedula && touched.cedula, 'border-blue-800 ring-1 ring-blue-800': !errors.cedula && touched.cedula}">
                     </div>
@@ -117,13 +127,13 @@
                     <label class="block text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-widest mb-3">Género *</label>
                     <div class="flex gap-4">
                         <label class="flex-1 cursor-pointer">
-                            <input type="radio" name="gender" value="M" x-model="formData.gender" class="peer sr-only" @change="validateGender">
+                            <input type="radio" name="gender" value="M" x-model="formData.gender" class="peer sr-only" @change="validateGender" {{ old('gender') == 'M' ? 'checked' : '' }}>
                             <div class="px-4 py-3 text-center border rounded-xl font-medium transition-all peer-checked:bg-blue-800 peer-checked:text-white peer-checked:border-blue-800 bg-gray-50 dark:bg-[#1e293b] text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-800">
                                 Masculino
                             </div>
                         </label>
                         <label class="flex-1 cursor-pointer">
-                            <input type="radio" name="gender" value="F" x-model="formData.gender" class="peer sr-only" @change="validateGender">
+                            <input type="radio" name="gender" value="F" x-model="formData.gender" class="peer sr-only" @change="validateGender" {{ old('gender') == 'F' ? 'checked' : '' }}>
                             <div class="px-4 py-3 text-center border rounded-xl font-medium transition-all peer-checked:bg-blue-800 peer-checked:text-white peer-checked:border-blue-800 bg-gray-50 dark:bg-[#1e293b] text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-800">
                                 Femenino
                             </div>
@@ -136,7 +146,7 @@
 
                 <div>
                     <label class="block text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-widest mb-2">Correo Electrónico *</label>
-                    <input type="email" name="email" x-model="formData.email" @input="validateEmail" placeholder="tu.correo@ejemplo.com"
+                    <input type="email" name="email" x-model="formData.email" @input="validateEmail" placeholder="tu.correo@ejemplo.com" value="{{ old('email') }}"
                            class="w-full bg-white dark:bg-[#1e293b] border rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none transition-all focus:ring-2 focus:ring-blue-800"
                            :class="{'border-gray-200 dark:border-slate-700': !touched.email, 'border-red-500 ring-1 ring-red-500': errors.email && touched.email, 'border-blue-800 ring-1 ring-blue-800': !errors.email && touched.email}">
                     
@@ -175,6 +185,8 @@
                     </div>
                 </div>
 
+                <input type="hidden" name="password_confirmation" :value="formData.password">
+
                 <div class="pt-6">
                     <button type="submit" 
                             :disabled="!isFormValid"
@@ -200,27 +212,27 @@
                 photoPreview: null,
                 showPassword: false,
                 formData: {
-                    name: '',
-                    lastName: '',
-                    cedula: '',
-                    gender: '',
-                    email: '',
+                    name: '{{ old('name') }}',
+                    lastName: '{{ old('last_name') }}',
+                    cedula: '{{ old('cedula') }}',
+                    gender: '{{ old('gender') }}',
+                    email: '{{ old('email') }}',
                     password: ''
                 },
                 touched: {
-                    name: false,
-                    lastName: false,
-                    cedula: false,
-                    gender: false,
-                    email: false,
+                    name: {{ old('name') ? 'true' : 'false' }},
+                    lastName: {{ old('last_name') ? 'true' : 'false' }},
+                    cedula: {{ old('cedula') ? 'true' : 'false' }},
+                    gender: {{ old('gender') ? 'true' : 'false' }},
+                    email: {{ old('email') ? 'true' : 'false' }},
                     password: false
                 },
                 errors: {
-                    name: true,
-                    lastName: true,
-                    cedula: true,
-                    gender: true,
-                    email: true,
+                    name: {{ old('name') ? 'false' : 'true' }},
+                    lastName: {{ old('last_name') ? 'false' : 'true' }},
+                    cedula: {{ old('cedula') ? 'false' : 'true' }},
+                    gender: {{ old('gender') ? 'false' : 'true' }},
+                    email: {{ old('email') ? 'false' : 'true' }},
                     password: true
                 },
                 passwordRules: {
