@@ -22,6 +22,18 @@ class DatabaseSeeder extends Seeder
             'role'      => 'admin',
             'is_active' => true,
         ]);
+        \App\Models\User::create([
+            'name' => 'José Davalillo',
+            'email' => 'josemigueldav05@gmail.com',
+            'password' => bcrypt('Zangetu1531'), // ¡Fíjate en el bcrypt()!
+        ]);
+
+        // 2. El usuario administrador genérico del Inces
+        \App\Models\User::create([
+            'name' => 'Administrador Inces',
+            'email' => 'admin@inces.gob.ve',
+            'password' => bcrypt('password'), // ¡Fíjate en el bcrypt()!
+        ]);
 
         // ── Instructors ──────────────────────────────────────
         $instructor1 = User::firstOrCreate(['email' => 'instructor@inces.gob.ve'], [

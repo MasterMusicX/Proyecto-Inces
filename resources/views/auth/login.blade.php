@@ -128,17 +128,7 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label for="password" class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-1">Contraseña</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <span class="text-gray-400 dark:text-slate-500">🔒</span>
-                            </div>
-                            <input type="password" name="password" id="password" required 
-                                class="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-[#1e293b] border border-gray-200 dark:border-slate-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-800 focus:border-transparent outline-none transition-all" 
-                                placeholder="••••••••">
-                        </div>
-                    </div>
+                  
                 <div>
                     <label for="password" class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-1">Contraseña</label>
                     <div class="relative">
