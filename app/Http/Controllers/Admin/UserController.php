@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -25,7 +26,10 @@ class UserController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
-    public function create() { return view('admin.users.create'); }
+    public function create() 
+    { 
+        return view('admin.users.create'); 
+    }
 
     public function store(Request $request)
     {
@@ -46,7 +50,8 @@ class UserController extends Controller
     }
 
     public function edit(User $user)
-    {   $user = \App\Models\User::findOrFail($user->id);
+    {   
+        // Limpiamos la búsqueda redundante, $user ya viene cargado
         return view('admin.users.edit', compact('user'));
     }
 
@@ -59,19 +64,39 @@ class UserController extends Controller
             'phone'     => 'nullable|string|max:20',
             'bio'       => 'nullable|string|max:500',
             'is_active' => 'boolean',
+            'avatar'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // Validación de la foto
         ]);
 
+        // 1. Lógica de la foto de perfil
+        if ($request->hasFile('avatar')) {
+            // Borramos la foto anterior si existe para ahorrar espacio
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            // Guardamos la nueva foto en la carpeta "avatars"
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        // 2. Lógica de la contraseña (solo si el usuario decidió cambiarla)
         if ($request->filled('password')) {
             $request->validate(['password' => 'min:8|confirmed']);
             $data['password'] = Hash::make($request->password);
+        } else {
+            // Si no escribió nada, quitamos 'password' para que no sobreescriba la clave actual
+            unset($data['password']);
         }
 
         $user->update($data);
-        return redirect()->route('admin.users.index')->with('success', 'Usuario actualizado.');
+        return redirect()->route('admin.users.index')->with('success', 'Usuario actualizado correctamente.');
     }
 
     public function destroy(User $user)
     {
+        // Bonus: Eliminar la foto del disco duro si se elimina el usuario
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+        
         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'Usuario eliminado.');
     }

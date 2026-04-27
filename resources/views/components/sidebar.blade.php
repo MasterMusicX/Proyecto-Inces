@@ -52,8 +52,11 @@
     <div class="p-4 border-t border-gray-100 dark:border-slate-700/50 bg-gray-50/50 dark:bg-[#1e293b]/20">
         
         <div class="flex items-center p-2 rounded-xl bg-white dark:bg-[#1e293b] shadow-sm border border-gray-100 dark:border-slate-700/30 mb-3 overflow-hidden">
-            <img src="{{ Auth::user()->avatar_url ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name) }}&background=1e40af&color=fff" 
-                 alt="Avatar" class="w-9 h-9 rounded-lg object-cover flex-shrink-0 border border-gray-200 dark:border-slate-600">
+            
+            {{-- LÓGICA DE AVATAR ACTUALIZADA --}}
+            <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=1e40af&color=fff' }}" 
+                 alt="Avatar de {{ Auth::user()->name }}" 
+                 class="w-9 h-9 rounded-lg object-cover flex-shrink-0 border border-gray-200 dark:border-slate-600">
             
             <div x-show="sidebarOpen" x-transition.opacity class="ml-3 min-w-0">
                 <div class="text-sm font-bold text-gray-900 dark:text-white truncate">
