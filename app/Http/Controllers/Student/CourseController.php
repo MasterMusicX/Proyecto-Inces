@@ -21,7 +21,7 @@ class CourseController extends Controller
 
     public function show($identifier)
     {
-        // 💡 MAGIA: Si es número busca por ID, si son letras busca por Slug
+    
         $field = is_numeric($identifier) ? 'id' : 'slug';
 
         $course = Course::with(['instructor', 'modules.resources', 'category'])
@@ -61,6 +61,30 @@ class CourseController extends Controller
         return redirect()->route('student.courses.show', $course->slug ?? $course->id)
             ->with('success', '¡Te has inscrito exitosamente en ' . $course->title . '!');
     }
+
+    // 👇 NUEVA FUNCIÓN PARA RETIRARSE DEL CURSO 👇
+    public function withdraw($identifier)
+    {
+        $field = is_numeric($identifier) ? 'id' : 'slug';
+        $course = Course::where($field, $identifier)->firstOrFail();
+        
+        $user = Auth::user();
+
+        // Buscamos si existe la inscripción
+        $enrollment = Enrollment::where('user_id', $user->id)
+                                ->where('course_id', $course->id)
+                                ->first();
+
+        if ($enrollment) {
+            // Eliminamos la inscripción de la base de datos
+            $enrollment->delete();
+            return redirect()->route('student.dashboard')
+                ->with('success', 'Te has retirado de ' . $course->title . ' exitosamente.');
+        }
+
+        return back()->with('error', 'No estás inscrito en este curso.');
+    }
+    // 👆 FIN DE LA MEJORA 👆
 
     public function learn($identifier)
     {

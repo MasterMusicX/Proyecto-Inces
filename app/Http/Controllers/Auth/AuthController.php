@@ -64,25 +64,29 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
+        // 1. AQUÍ VAN LAS REGLAS (El filtro de seguridad)
         $request->validate([
             'name' => 'required|string|min:3|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'confirmed', PasswordRule::defaults()], 
+            'gender' => 'required|in:M,F', // <-- La regla se pone aquí arriba
         ]);
 
-        // Creamos el usuario
+        // 2. AQUÍ SE GUARDA EL DATO (Lo que va a PostgreSQL)
         User::create([
             'name' => trim($request->name),
             'email' => strtolower(trim($request->email)),
             'password' => Hash::make($request->password),
             'role' => 'student',
             'is_active' => true,
+            'gender' => $request->gender, // <-- Aquí capturas la 'M' o 'F' que mandó el usuario
         ]);
 
         // NO iniciamos sesión — redirigimos a página de éxito
         return view('auth.register-success', [
             'name' => $request->name,
             'email' => $request->email,
+            'gender' => $request->gender,
         ]);
     }
 

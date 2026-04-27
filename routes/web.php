@@ -80,15 +80,13 @@ Route::middleware(['auth','check.active'])->prefix('student')->name('student.')-
     Route::get('/courses',                    [StudentCourses::class, 'catalog'])->name('courses.catalog');
     Route::get('/courses/{course}',           [StudentCourses::class, 'show']   )->name('courses.show');
     Route::post('/courses/{course}/enroll',   [StudentCourses::class, 'enroll'] )->name('courses.enroll');
+    Route::delete('/courses/{course}/withdraw', [StudentCourses::class, 'withdraw'])->name('courses.withdraw');
     Route::get('/courses/{course}/learn',     [StudentCourses::class, 'learn']  )->name('courses.learn');
     Route::get('/resources/{resource}',       [StudentResources::class,'show']  )->name('resources.show');
     Route::get('/profile',                    [StudentProfile::class, 'show']   )->name('profile');
     Route::post('/profile',                   [StudentProfile::class, 'update'] )->name('profile.update');
     Route::post('/profile/password',          [StudentProfile::class, 'changePassword'])->name('profile.password');
-    
-    // 👇 Corregimos la ruta de la vista y agregamos la ruta POST para procesar el mensaje 👇
     Route::get('/chatbot',                    fn() => view('student.chatbot')   )->name('chatbot');
     Route::post('/chatbot/send',              [ChatbotController::class, 'sendMessage'])->name('student.chatbot.send');
-    
     Route::get('/search',                     fn() => view('student.search')   )->name('search');
 });
