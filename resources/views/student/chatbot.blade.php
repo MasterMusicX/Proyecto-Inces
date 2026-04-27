@@ -31,7 +31,7 @@
                 🤖
             </div>
             <div class="bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 p-4 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-700 dark:text-slate-300">
-                ¡Hola José! Soy el Asistente Virtual del INCES. ¿En qué te puedo ayudar hoy con tu aprendizaje?
+                ¡Hola! Soy el Asistente Virtual del INCES. ¿En qué te puedo ayudar hoy con tu aprendizaje?
             </div>
         </div>
 
