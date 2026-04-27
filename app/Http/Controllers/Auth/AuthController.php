@@ -57,37 +57,40 @@ class AuthController extends Controller
         
         return view('auth.register');
     }
-
-    /**
-     * Registra un nuevo estudiante y muestra página de éxito
-     * SIN iniciar sesión automáticamente
-     */
-    public function register(Request $request)
+public function register(Request $request)
     {
-        // 1. AQUÍ VAN LAS REGLAS (El filtro de seguridad)
+        // 1. AQUÍ VAN LAS REGLAS (El filtro de seguridad completo)
         $request->validate([
-            'name' => 'required|string|min:3|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => ['required', 'confirmed', PasswordRule::defaults()], 
-            'gender' => 'required|in:M,F', // <-- La regla se pone aquí arriba
+            'name'      => 'required|string|min:2|max:255',
+            'last_name' => 'required|string|min:2|max:255', // <-- Faltaba el apellido
+            'cedula'    => 'required|string|min:6|max:10|unique:users', // <-- Faltaba la cédula
+            'email'     => 'required|string|email|max:255|unique:users',
+            'password'  => ['required', 'confirmed', PasswordRule::defaults()], 
+            'gender'    => 'required|in:M,F',
+            'avatar'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // <-- Faltaba la foto
         ]);
+
+        // Procesamos la foto si el estudiante subió una
+        $avatarPath = null;
+        if ($request->hasFile('avatar')) {
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+        }
 
         // 2. AQUÍ SE GUARDA EL DATO (Lo que va a PostgreSQL)
         User::create([
-            'name' => trim($request->name),
-            'email' => strtolower(trim($request->email)),
-            'password' => Hash::make($request->password),
-            'role' => 'student',
+            'name'      => trim($request->name),
+            'last_name' => trim($request->last_name),
+            'cedula'    => trim($request->cedula),
+            'email'     => strtolower(trim($request->email)),
+            'password'  => Hash::make($request->password),
+            'role'      => 'student',
             'is_active' => true,
-            'gender' => $request->gender, // <-- Aquí capturas la 'M' o 'F' que mandó el usuario
+            'gender'    => $request->gender,
+            'avatar'    => $avatarPath, // <-- Guardamos la ruta de la foto si existe
         ]);
 
-        // NO iniciamos sesión — redirigimos a página de éxito
-        return view('auth.register-success', [
-            'name' => $request->name,
-            'email' => $request->email,
-            'gender' => $request->gender,
-        ]);
+        // 3. AQUÍ SE RESPONDE (Lo que ve el usuario después de enviar el formulario)
+        return back()->with('success', '¡Cuenta creada exitosamente, ' . trim($request->name) . '! Ya puedes iniciar sesión.');
     }
 
     /**
