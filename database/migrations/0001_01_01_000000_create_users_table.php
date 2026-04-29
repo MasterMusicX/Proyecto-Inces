@@ -24,7 +24,6 @@ return new class extends Migration
             $table->string('last_name')->nullable();
             $table->string('cedula')->unique()->nullable();
             $table->string('gender')->nullable();
-            $table->string('avatar')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
