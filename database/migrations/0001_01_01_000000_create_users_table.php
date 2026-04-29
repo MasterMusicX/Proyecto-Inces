@@ -13,9 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            
-            // Aquí le metemos las columnas que pide tu sistema
+            $table->string('password');        
             $table->string('role')->default('student');
             $table->string('avatar')->nullable();
             $table->string('phone')->nullable();
@@ -23,7 +21,10 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamp('last_login_at')->nullable();
             $table->softDeletes();
-            
+            $table->string('last_name')->nullable();
+            $table->string('cedula')->unique()->nullable();
+            $table->string('gender')->nullable();
+            $table->string('avatar')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
