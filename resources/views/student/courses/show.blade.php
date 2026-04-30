@@ -47,11 +47,52 @@
                 </span>
             </div>
 
-            <div>
+            <div x-data="{ showWithdrawModal: false }">
                 @if($isEnrolled)
-                    <a href="{{ route('student.courses.learn', $course) }}" class="inline-flex items-center justify-center px-8 py-3.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-600/30 transition-all hover:-translate-y-0.5 gap-2 w-full sm:w-auto">
-                        📖 Continuar Aprendiendo
-                    </a>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <a href="{{ route('student.courses.learn', $course) }}" class="inline-flex items-center justify-center px-8 py-3.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-600/30 transition-all hover:-translate-y-0.5 gap-2 w-full sm:w-auto">
+                            📖 Continuar Aprendiendo
+                        </a>
+                        
+                        <button @click="showWithdrawModal = true" type="button" class="inline-flex items-center justify-center px-6 py-3.5 text-sm font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 border border-red-200 dark:border-red-800/50 rounded-xl transition-all hover:-translate-y-0.5 gap-2 w-full sm:w-auto">
+                            🚪 Abandonar Curso
+                        </button>
+                    </div>
+
+                    <div x-show="showWithdrawModal" style="display: none;" 
+                         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" 
+                         x-transition.opacity>
+                        
+                        <div @click.away="showWithdrawModal = false" 
+                             class="bg-white dark:bg-[#1e293b] rounded-3xl shadow-2xl p-8 max-w-md w-full border border-gray-100 dark:border-slate-700"
+                             x-transition:enter="transition ease-out duration-300" 
+                             x-transition:enter-start="opacity-0 scale-95" 
+                             x-transition:enter-end="opacity-100 scale-100">
+                            
+                            <div class="w-16 h-16 bg-red-50 dark:bg-red-500/10 text-red-600 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-6 shadow-inner border border-red-100 dark:border-red-900/30">
+                                ⚠️
+                            </div>
+                            
+                            <h3 class="text-2xl font-black text-center text-gray-900 dark:text-white mb-2">¿Estás seguro?</h3>
+                            <p class="text-center text-gray-500 dark:text-slate-400 mb-8 text-sm">
+                                Estás a punto de retirarte de <b class="text-gray-700 dark:text-slate-300">{{ $course->title }}</b>. Perderás todo tu progreso actual y tendrás que volver a inscribirte si deseas continuar luego.
+                            </p>
+                            
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <button @click="showWithdrawModal = false" type="button" class="flex-1 py-3 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-300 font-bold rounded-xl transition-colors">
+                                    Cancelar
+                                </button>
+                                
+                                <form action="{{ route('student.courses.withdraw', $course->slug ?? $course->id) }}" method="POST" class="flex-1 m-0">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="w-full py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-600/30 transition-colors">
+                                        Sí, retirarme
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 @else
                     <form method="POST" action="{{ route('student.courses.enroll', $course) }}" class="m-0">
                         @csrf
@@ -61,7 +102,7 @@
                     </form>
                 @endif
             </div>
-        </div>
+            </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -113,7 +154,7 @@
                 <div class="flex flex-col items-center text-center">
                     <div class="w-24 h-24 mb-4 rounded-full p-1 bg-white dark:bg-[#0f172a] shadow-md border border-gray-100 dark:border-slate-700">
                         @if($course->instructor->avatar_url)
-                            <img src="{{ $course->instructor->avatar_url }}" class="w-full h-full rounded-full object-cover" alt="{{ $course->instructor->name }}">
+                            <img src="{{ $course->instructor->instructor->avatar_url }}" class="w-full h-full rounded-full object-cover" alt="{{ $course->instructor->name }}">
                         @else
                             <div class="w-full h-full rounded-full bg-blue-800 text-white flex items-center justify-center text-3xl font-black">
                                 {{ strtoupper(substr($course->instructor->name, 0, 2)) }}
