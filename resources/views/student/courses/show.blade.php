@@ -154,7 +154,7 @@
                 <div class="flex flex-col items-center text-center">
                     <div class="w-24 h-24 mb-4 rounded-full p-1 bg-white dark:bg-[#0f172a] shadow-md border border-gray-100 dark:border-slate-700">
                         @if($course->instructor->avatar_url)
-                            <img src="{{ $course->instructor->instructor->avatar_url }}" class="w-full h-full rounded-full object-cover" alt="{{ $course->instructor->name }}">
+                            <img src="{{ $course->instructor->avatar_url }}" class="w-full h-full rounded-full object-cover" alt="{{ $course->instructor->name }}">
                         @else
                             <div class="w-full h-full rounded-full bg-blue-800 text-white flex items-center justify-center text-3xl font-black">
                                 {{ strtoupper(substr($course->instructor->name, 0, 2)) }}
