@@ -33,11 +33,11 @@ public function create()
 
     public function store(Request $request)
     {
-        // Validamos que no metan datos vacíos o locos
+        // Validamos los datos que el profe nos envió desde el formulario
         $data = $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'required|string',
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => 'required|exists:course_categories,id',
             'status'      => 'required|in:published,draft',
             'thumbnail'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // Máximo 2MB
         ]);
