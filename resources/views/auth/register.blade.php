@@ -206,6 +206,40 @@
         </div>
     </div>
 
+    @if(session('success'))
+    <div x-data="{ showSuccess: true }" x-show="showSuccess" style="display: none;" 
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        
+        <div class="bg-white dark:bg-[#1e293b] rounded-3xl shadow-2xl p-8 max-w-sm w-full border border-gray-100 dark:border-slate-700 transform"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 scale-90 translate-y-4"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0">
+            
+            <div class="w-20 h-20 bg-green-50 dark:bg-green-500/10 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            
+            <h3 class="text-2xl font-black text-center text-gray-900 dark:text-white mb-2 tracking-tight">¡Registro Exitoso!</h3>
+            
+            <p class="text-center text-gray-500 dark:text-slate-400 mb-8 text-sm font-medium">
+                {{ session('success') }}
+            </p>
+            
+            <a href="{{ route('login') }}" class="w-full flex items-center justify-center py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition-all hover:-translate-y-0.5 gap-2">
+                Ir al Inicio de Sesión
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </a>
+        </div>
+    </div>
+    @endif
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('registrationForm', () => ({

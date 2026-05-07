@@ -39,19 +39,22 @@ class CourseController extends Controller
             'objectives'     => 'nullable|string',
             'instructor_id'  => 'required|exists:users,id',
             'category_id'    => 'nullable|exists:course_categories,id',
-            'level'          => 'required|in:beginner,intermediate,advanced',
-            'duration_hours' => 'integer|min:0',
+            'level'          => 'required|in:basico,intermedio,avanzado',
+            'duration_hours' => 'nullable|integer|min:0',
             'max_students'   => 'nullable|integer|min:1',
             'status'         => 'required|in:draft,published,archived',
-            'is_featured'    => 'boolean',
             'thumbnail'      => 'nullable|image|max:2048',
         ]);
+
+        // Capturamos el checkbox (si está marcado es true, si no, false)
+        $data['is_featured'] = $request->has('is_featured');
 
         if ($request->hasFile('thumbnail')) {
             $data['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
         }
 
         $data['slug'] = Str::slug($data['title']) . '-' . Str::random(6);
+        
         Course::create($data);
 
         return redirect()->route('admin.courses.index')->with('success', 'Curso creado exitosamente.');
@@ -72,13 +75,14 @@ class CourseController extends Controller
             'objectives'     => 'nullable|string',
             'instructor_id'  => 'required|exists:users,id',
             'category_id'    => 'nullable|exists:course_categories,id',
-            'level'          => 'required|in:beginner,intermediate,advanced',
-            'duration_hours' => 'integer|min:0',
+            'level'          => 'required|in:basico,intermedio,avanzado',
+            'duration_hours' => 'nullable|integer|min:0',
             'max_students'   => 'nullable|integer|min:1',
             'status'         => 'required|in:draft,published,archived',
-            'is_featured'    => 'boolean',
             'thumbnail'      => 'nullable|image|max:2048',
         ]);
+
+        $data['is_featured'] = $request->has('is_featured');
 
         if ($request->hasFile('thumbnail')) {
             if ($course->thumbnail) Storage::disk('public')->delete($course->thumbnail);
@@ -86,6 +90,7 @@ class CourseController extends Controller
         }
 
         $course->update($data);
+        
         return redirect()->route('admin.courses.index')->with('success', 'Curso actualizado.');
     }
 
