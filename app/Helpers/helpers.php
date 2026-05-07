@@ -6,10 +6,10 @@ if (!function_exists('sidebarLink')) {
         // Verificamos si la ruta actual coincide con la del botón (le pongo un * por si son sub-rutas)
         $active = request()->routeIs($routeName . '*');
         
-        // Colores: Si está activo es verde, si no, es gris y cambia al pasar el mouse
+        // Colores ajustados: Brillo al máximo en el modo oscuro para que no se pierdan
         $activeClass = $active 
-            ? 'bg-[#10b981] text-gray-900 shadow-md font-bold' 
-            : 'text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800/50 hover:text-gray-900 dark:hover:text-white font-medium';
+            ? 'bg-[#10b981] text-white shadow-md font-bold dark:bg-[#10b981] dark:text-white' 
+            : 'text-gray-600 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800/50 hover:text-gray-900 dark:hover:text-white font-medium transition-colors';
         
         // Devolvemos el HTML con las variables de Alpine.js incrustadas
         return "
