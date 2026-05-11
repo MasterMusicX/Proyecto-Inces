@@ -5,18 +5,19 @@
     "require": {
         "php": "^8.2",
         "ext-gd": "*",
-        "ext-zip": "*",
         "ext-pdo_pgsql": "*",
         "ext-pgsql": "*",
+        "ext-zip": "*",
+        "barryvdh/laravel-dompdf": "^3.1",
+        "guzzlehttp/guzzle": "^7.8",
+        "intervention/image": "^3.0",
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
-        "spatie/laravel-permission": "^6.0",
-        "intervention/image": "^3.0",
-        "smalot/pdfparser": "^2.0",
-        "phpoffice/phpword": "^1.2",
         "phpoffice/phpspreadsheet": "^3.0",
-        "guzzlehttp/guzzle": "^7.8"
+        "phpoffice/phpword": "^1.2",
+        "smalot/pdfparser": "^2.0",
+        "spatie/laravel-permission": "^6.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.7",

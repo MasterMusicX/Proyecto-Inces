@@ -15,9 +15,11 @@ use App\Http\Controllers\Student\DashboardController    as StudentDash;
 use App\Http\Controllers\Student\CourseController       as StudentCourses;
 use App\Http\Controllers\Student\ResourceController     as StudentResources;
 use App\Http\Controllers\Student\ProfileController      as StudentProfile;
+use App\Http\Controllers\Instructor\QuizController as InstructorQuizzes;
 
-// 👇 IMPORTANTE: Añadimos el controlador del Chatbot de la API
+// 👇 IMPORTANTE: Añadimos el controlador del Chatbot y el de Reportes
 use App\Http\Controllers\Api\ChatbotController;
+use App\Http\Controllers\ReportController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -58,20 +60,43 @@ Route::middleware(['auth','role:admin','check.active'])->prefix('admin')->name('
 
 // ── Instructor ───────────────────────────────────────────────
 Route::middleware(['auth','role:admin,instructor','check.active'])->prefix('instructor')->name('instructor.')->group(function () {
-    Route::get('/dashboard',                  [InstructorDash::class,    'index'])->name('dashboard');
-    Route::get('/courses',                    [InstructorCourses::class, 'index'])->name('courses.index');// Rutas para Crear Cursos
-    Route::get('/courses/create', [App\Http\Controllers\Instructor\CourseController::class, 'create'])->name('courses.create');
-    Route::post('/courses', [App\Http\Controllers\Instructor\CourseController::class, 'store'])->name('courses.store');
-    Route::get('/courses/{course}',           [InstructorCourses::class, 'show'] )->name('courses.show');
-    Route::get('/courses/{course}/students',  [InstructorCourses::class, 'students'])->name('courses.students');
-    Route::post('/courses/{course}/students/{student}/grade', [InstructorCourses::class, 'updateGrade'])->name('courses.students.grade');
-    Route::get('/courses/{course}/modules',   [InstructorCourses::class, 'modules'])->name('courses.modules');
-    Route::post('/courses/{course}/modules',  [InstructorCourses::class, 'storeModule'])->name('courses.modules.store');
-    Route::delete('/courses/{course}/modules/{module}', [InstructorCourses::class,'destroyModule'])->name('courses.modules.destroy');
-    Route::get('/courses/{course}/resources',         [InstructorResources::class,'index']  )->name('courses.resources.index');
-    Route::get('/courses/{course}/resources/create',  [InstructorResources::class,'create'] )->name('courses.resources.create');
-    Route::post('/courses/{course}/resources',        [InstructorResources::class,'store']  )->name('courses.resources.store');
-    Route::delete('/courses/{course}/resources/{resource}', [InstructorResources::class,'destroy'])->name('courses.resources.destroy');
+    
+    // Dashboard y Estadísticas
+    Route::get('/dashboard', [InstructorDash::class, 'index'])->name('dashboard');
+
+    // Gestión de Cursos (CRUD Base)
+    Route::resource('courses', InstructorCourses::class); 
+    // Nota: Resource ya te crea index, create, store, show, edit, update, destroy.
+    // Si ya los tienes manuales, puedes dejar los tuyos, pero Resource es más limpio.
+
+    // Detalles específicos del Curso
+    Route::prefix('courses/{course}')->name('courses.')->group(function () {
+        
+        // Estudiantes y Notas
+        Route::get('/students', [InstructorCourses::class, 'students'])->name('students');
+        Route::post('/students/{student}/grade', [InstructorCourses::class, 'updateGrade'])->name('students.grade');
+        
+        // Módulos
+        Route::get('/modules', [InstructorCourses::class, 'modules'])->name('modules');
+        Route::post('/modules', [InstructorCourses::class, 'storeModule'])->name('modules.store');
+        Route::delete('/modules/{module}', [InstructorCourses::class, 'destroyModule'])->name('modules.destroy');
+        
+        // Recursos
+        Route::resource('resources', InstructorResources::class)->except(['update', 'edit']);
+
+        // 📝 NUEVO: Gestión de Evaluaciones (Quizzes)
+        // Esto generará: instructor.courses.quizzes.create y instructor.courses.quizzes.store
+        Route::prefix('quizzes')->name('quizzes.')->group(function () {
+            Route::get('/create', [InstructorQuizzes::class, 'create'])->name('create');
+            Route::post('/',      [InstructorQuizzes::class, 'store'])->name('store');
+        });
+
+        // Reportes del Curso
+        Route::get('/reportes/asistencia/{date}', [ReportController::class, 'downloadAttendance'])->name('reports.attendance');
+    });
+
+    // Rutas Globales de Quices (Cuando ya tienes el ID del Quiz, no necesitas el del curso)
+    Route::post('/quizzes/{quiz}/toggle', [InstructorQuizzes::class, 'status'])->name('quizzes.toggle');
 });
 
 // ── Student ──────────────────────────────────────────────────
