@@ -17,7 +17,7 @@
     <meta name="description" content="Plataforma de gestión educativa INCES Campus - Punto Fijo">
     <meta property="og:title" content="INCES Campus">
     <meta property="og:description" content="Formación técnica profesional y gestión de evaluaciones.">
-    <meta property="og:image" content="{{ asset('images/logo-512.png') }}">
+    <meta property="og:image" content="{{ asset('images/Logo app.png') }}">
 
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/Logo app.png') }}">
