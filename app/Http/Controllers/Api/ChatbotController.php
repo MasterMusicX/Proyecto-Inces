@@ -1,21 +1,23 @@
 <?php
-namespace App\Http\Controllers\Student;
-    namespace App\Http\Controllers\Api;
 
-    use App\Http\Controllers\Controller;
-    use App\Models\AiQuery;
-    use App\Models\ChatbotConversation;
-    use Illuminate\Http\JsonResponse;
-    use Illuminate\Http\Request;
-    use Illuminate\Support\Facades\Auth;
-    use Illuminate\Support\Facades\Http; 
+namespace App\Http\Controllers\Api; // Solo un namespace aquí
+
+use App\Http\Controllers\Controller;
+use App\Models\AiQuery;
+use App\Models\ChatbotConversation;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 
 class ChatbotController extends Controller
 {
-    /** Send a message to the chatbot */
+    /**
+     * Enviar un mensaje al chatbot (Gemini 3 Flash)
+     */
     public function sendMessage(Request $request): JsonResponse
     {
-        // Validamos los datos que llegan del chat
         $request->validate([
             'message'         => 'required|string|max:2000',
             'conversation_id' => 'nullable|integer',
@@ -26,19 +28,13 @@ class ChatbotController extends Controller
             $userMessage = $request->message;
             $apiKey = env('GEMINI_API_KEY');
 
-            // 1. Verificamos que la clave exista en el .env
             if (!$apiKey) {
-                return response()->json([
-                    'success' => false, 
-                    'error' => 'Falta la API Key de Gemini en el archivo .env'
-                ], 500);
+                return response()->json(['success' => false, 'error' => 'Configuración incompleta: Falta API Key.'], 500);
             }
 
-            // 2. Hacemos la llamada a Google saltando la verificación SSL local (withoutVerifying)
-            $response = Http::withoutVerifying()
-                ->withHeaders([
-                    'Content-Type' => 'application/json',
-                ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}", [
+            // 1. Llamada a la API de Gemini (Corregida la sintaxis del POST)
+            // Usamos Gemini 3 Flash según los estándares de 2026
+            $response = Http::withoutVerifying()->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key={$apiKey}", [
                 'contents' => [
                     [
                         'parts' => [
@@ -48,99 +44,106 @@ class ChatbotController extends Controller
                 ]
             ]);
 
-            // 3. Si Google responde OK (Código 200)
             if ($response->successful()) {
                 $botReply = $response->json('candidates.0.content.parts.0.text');
 
-                // Verificamos si la respuesta vino vacía por alguna razón de Google
                 if (!$botReply) {
-                    return response()->json([
-                        'success' => false, 
-                        'error' => 'Google respondió, pero el mensaje vino vacío.'
-                    ], 500);
+                    return response()->json(['success' => false, 'error' => 'Respuesta vacía de la IA.'], 500);
                 }
 
-                // Guardamos en la base de datos
-                AiQuery::create([
-                    'user_id'   => Auth::id(),
-                    'course_id' => $request->course_id,
-                    'question'  => $userMessage,
-                    'response'  => $botReply,
-                ]);
+                // 2. Lógica de Conversación (Para que getHistory funcione)
+                return DB::transaction(function () use ($request, $userMessage, $botReply) {
+                    
+                    // Si no hay ID, creamos una conversación nueva
+                    $conversationId = $request->conversation_id;
+                    if (!$conversationId) {
+                        $newConv = ChatbotConversation::create([
+                            'user_id' => Auth::id(),
+                            'course_id' => $request->course_id,
+                            'title' => substr($userMessage, 0, 50) . '...'
+                        ]);
+                        $conversationId = $newConv->id;
+                    }
 
-                return response()->json([
-                    'success' => true, 
-                    'data' => [
-                        'response' => $botReply,
-                        'conversation_id' => $request->conversation_id ?? uniqid(),
-                        'timestamp' => now()
-                    ]
-                ]);
-            } 
-            
-            // 4. Si Google rechaza la petición, sacamos el chisme exacto de por qué
-            $googleError = $response->json('error.message') ?? 'Error desconocido de la API';
-            
+                    // Guardamos el registro de la consulta
+                    $query = AiQuery::create([
+                        'user_id'         => Auth::id(),
+                        'course_id'       => $request->course_id,
+                        'conversation_id' => $conversationId, // Importante vincularlos
+                        'question'        => $userMessage,
+                        'response'        => $botReply,
+                    ]);
+
+                    return response()->json([
+                        'success' => true,
+                        'data' => [
+                            'response' => $botReply,
+                            'conversation_id' => $conversationId,
+                            'query_id' => $query->id,
+                            'timestamp' => now()
+                        ]
+                    ]);
+                });
+            }
+
             return response()->json([
-                'success' => false, 
-                'error' => 'Google dice: ' . $googleError
+                'success' => false,
+                'error' => 'Error de Gemini: ' . ($response->json('error.message') ?? 'Desconocido')
             ], 500);
 
         } catch (\Exception $e) {
-            // 5. Si explota Laravel (Base de datos, variables, etc), te muestra el error real
-            return response()->json([
-                'success' => false, 
-                'error' => 'Error interno de Laravel: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'error' => 'Error en el servidor: ' . $e->getMessage()], 500);
         }
     }
 
-    /** Get messages in a conversation */
+    /** Obtener el historial de una conversación específica */
     public function getHistory(int $conversationId): JsonResponse
     {
-        $conversation = ChatbotConversation::where('id', $conversationId)
+        // Buscamos la conversación y sus mensajes vinculados (AiQuery)
+        $history = AiQuery::where('conversation_id', $conversationId)
             ->where('user_id', Auth::id())
-            ->with('messages')
-            ->firstOrFail();
+            ->orderBy('created_at', 'asc')
+            ->get();
 
-        return response()->json(['success' => true, 'data' => $conversation]);
+        return response()->json(['success' => true, 'data' => $history]);
     }
 
-    /** List all user conversations */
+    /** Listar todas las conversaciones del usuario */
     public function getConversations(): JsonResponse
     {
         $conversations = ChatbotConversation::where('user_id', Auth::id())
             ->orderByDesc('updated_at')
-            ->limit(20)
             ->get()
-            ->map(function ($c) {
-                return [
-                    'id'         => $c->id,
-                    'title'      => $c->title ?? 'Conversación',
-                    'created_at' => $c->created_at->diffForHumans(),
-                    'messages'   => $c->messages()->count(),
-                ];
-            });
+            ->map(fn($c) => [
+                'id'         => $c->id,
+                'title'      => $c->title ?? 'Conversación nueva',
+                'created_at' => $c->created_at->diffForHumans(),
+                'course_id'  => $c->course_id,
+            ]);
 
         return response()->json(['success' => true, 'data' => $conversations]);
     }
 
-    /** Delete a conversation */
+    /** Eliminar una conversación y sus mensajes */
     public function deleteConversation(int $id): JsonResponse
     {
-        ChatbotConversation::where('id', $id)
-            ->where('user_id', Auth::id())
-            ->delete();
+        DB::transaction(function () use ($id) {
+            AiQuery::where('conversation_id', $id)->where('user_id', Auth::id())->delete();
+            ChatbotConversation::where('id', $id)->where('user_id', Auth::id())->delete();
+        });
 
         return response()->json(['success' => true]);
     }
 
-    /** Rate a chatbot response */
+    /** Calificar si la respuesta fue útil */
     public function rateResponse(Request $request, int $queryId): JsonResponse
     {
         $request->validate(['helpful' => 'required|boolean']);
-        AiQuery::where('id', $queryId)->where('user_id', Auth::id())
+        
+        AiQuery::where('id', $queryId)
+            ->where('user_id', Auth::id())
             ->update(['was_helpful' => $request->helpful]);
+            
         return response()->json(['success' => true]);
     }
 }
