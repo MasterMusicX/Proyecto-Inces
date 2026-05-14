@@ -20,7 +20,7 @@
     <meta property="og:image" content="{{ asset('images/logo-512.png') }}">
 
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/logo-192.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/Logo app.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/logo-180.png') }}">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#ce202a">
