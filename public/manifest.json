@@ -1,0 +1,20 @@
+{
+    "name": "INCES Campus",
+    "short_name": "IncesCampus",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ce202a",
+    "icons": [
+        {
+            "src": "/images/logo-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/logo-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

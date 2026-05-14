@@ -8,14 +8,27 @@
       :class="{ 'dark': darkMode }" 
       class="h-full">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'System Inces') — INCES LMS</title>
+
+    <title>@yield('title', 'Sistema Inces') — INCES Campus</title>
+
+    <meta name="description" content="Plataforma de gestión educativa INCES Campus - Punto Fijo">
+    <meta property="og:title" content="INCES Campus">
+    <meta property="og:description" content="Formación técnica profesional y gestión de evaluaciones.">
+    <meta property="og:image" content="{{ asset('images/logo-512.png') }}">
+
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/logo-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo-180.png') }}">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#ce202a">
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body class="h-full bg-gray-50 dark:bg-[#0b1120] text-gray-800 dark:text-slate-200 transition-colors duration-300 flex overflow-hidden">
