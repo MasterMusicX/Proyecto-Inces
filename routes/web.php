@@ -11,21 +11,26 @@ use App\Http\Controllers\Admin\KnowledgeBaseController  as AdminKB;
 use App\Http\Controllers\Instructor\DashboardController as InstructorDash;
 use App\Http\Controllers\Instructor\CourseController    as InstructorCourses;
 use App\Http\Controllers\Instructor\ResourceController  as InstructorResources;
+use App\Http\Controllers\Instructor\QuizController      as InstructorQuizzes;
 use App\Http\Controllers\Student\DashboardController    as StudentDash;
 use App\Http\Controllers\Student\CourseController       as StudentCourses;
 use App\Http\Controllers\Student\ResourceController     as StudentResources;
 use App\Http\Controllers\Student\ProfileController      as StudentProfile;
-use App\Http\Controllers\Instructor\QuizController as InstructorQuizzes;
-
-// 👇 IMPORTANTE: Añadimos el controlador del Chatbot y el de Reportes
+use App\Http\Controllers\Student\QuizController         as StudentQuizzes; // 🔥 Agregado para el sistema de exámenes
 use App\Http\Controllers\Api\ChatbotController;
 use App\Http\Controllers\ReportController;
-
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan; // 🔥 Agregado para el comando de Railway
 
-// ── Root ────────────────────────────────────────────────────
+// ── Root & Utils ────────────────────────────────────────────
 Route::get('/', function () {
     return view('welcome');
+});
+
+// 🔥 Ruta temporal para crear el enlace simbólico en Railway sin Error 502
+Route::get('/crear-enlace-fotos', function () {
+    Artisan::call('storage:link');
+    return '¡Listo, chamo! El enlace simbólico se creó con éxito. Ya puedes ver las fotos del INCES Campus.';
 });
 
 // ── Auth (Guest) ────────────────────────────────────────────
@@ -66,8 +71,6 @@ Route::middleware(['auth','role:admin,instructor','check.active'])->prefix('inst
 
     // Gestión de Cursos (CRUD Base)
     Route::resource('courses', InstructorCourses::class); 
-    // Nota: Resource ya te crea index, create, store, show, edit, update, destroy.
-    // Si ya los tienes manuales, puedes dejar los tuyos, pero Resource es más limpio.
 
     // Detalles específicos del Curso
     Route::prefix('courses/{course}')->name('courses.')->group(function () {
@@ -84,8 +87,7 @@ Route::middleware(['auth','role:admin,instructor','check.active'])->prefix('inst
         // Recursos
         Route::resource('resources', InstructorResources::class)->except(['update', 'edit']);
 
-        // 📝 NUEVO: Gestión de Evaluaciones (Quizzes)
-        // Esto generará: instructor.courses.quizzes.create y instructor.courses.quizzes.store
+        // Gestión de Evaluaciones (Quizzes)
         Route::prefix('quizzes')->name('quizzes.')->group(function () {
             Route::get('/create', [InstructorQuizzes::class, 'create'])->name('create');
             Route::post('/',      [InstructorQuizzes::class, 'store'])->name('store');
@@ -95,8 +97,8 @@ Route::middleware(['auth','role:admin,instructor','check.active'])->prefix('inst
         Route::get('/reportes/asistencia/{date}', [ReportController::class, 'downloadAttendance'])->name('reports.attendance');
     });
 
-    // Rutas Globales de Quices (Cuando ya tienes el ID del Quiz, no necesitas el del curso)
-    Route::post('/quizzes/{quiz}/toggle', [InstructorQuizzes::class, 'status'])->name('quizzes.toggle');
+    // Rutas Globales de Quices (Para activar/desactivar el examen)
+    Route::post('/quizzes/{quiz}/toggle', [InstructorQuizzes::class, 'toggleStatus'])->name('quizzes.toggle');
 });
 
 // ── Student ──────────────────────────────────────────────────
@@ -111,6 +113,11 @@ Route::middleware(['auth','check.active'])->prefix('student')->name('student.')-
     Route::get('/profile',                    [StudentProfile::class, 'show']   )->name('profile');
     Route::post('/profile',                   [StudentProfile::class, 'update'] )->name('profile.update');
     Route::post('/profile/password',          [StudentProfile::class, 'changePassword'])->name('profile.password');
+    
+    // 🔥 NUEVO: Rutas para que el estudiante presente el examen
+    Route::get('/quizzes/{quiz}',             [StudentQuizzes::class, 'show']   )->name('quizzes.show');
+    Route::post('/quizzes/{quiz}/submit',     [StudentQuizzes::class, 'submit'] )->name('quizzes.submit');
+
     Route::get('/chatbot',                    fn() => view('student.chatbot')   )->name('chatbot');
     Route::post('/chatbot/send',              [ChatbotController::class, 'sendMessage'])->name('student.chatbot.send');
     Route::get('/search',                     fn() => view('student.search')   )->name('search');
