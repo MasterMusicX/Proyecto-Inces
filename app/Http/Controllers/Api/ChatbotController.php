@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 class ChatbotController extends Controller
 {
     /**
-     * Enviar un mensaje al chatbot (Gemini 3 Flash con Instrucciones de Sistema)
+     * Enviar un mensaje al chatbot (Gemini 3 Flash con Instrucciones Estrictas de Sistema)
      */
     public function sendMessage(Request $request): JsonResponse
     {
@@ -32,22 +32,29 @@ class ChatbotController extends Controller
                 return response()->json(['success' => false, 'error' => 'Configuración incompleta: Falta API Key.'], 500);
             }
 
-            // 🔥 APLICAMOS LA MEJORA: Armamos el payload con la personalidad del MTP 🔥
+            // 🔥 MEJORA APLICADA: Estructura exacta y estricta para Gemini 3 Flash 🔥
             $payload = [
+                // 1. Instrucciones del sistema (Rol y Reglas de Oro)
+                'systemInstruction' => [
+                    'parts' => [
+                        [
+                            'text' => "Eres un Maestro Técnico Productivo (MTP) virtual del INCES Construcción. Tu objetivo es ayudar a los estudiantes exclusivamente con dudas sobre informática, programación, seguridad laboral y administración. Debes ser didáctico, respetuoso y profesional. REGLA ESTRICTA: Si el usuario te pregunta sobre CUALQUIER otro tema (recetas de cocina, chistes, deportes, política, etc.), DEBES responder EXACTAMENTE con esta frase y no agregar nada más: 'Lo siento, mi función como MTP del INCES es estrictamente académica. Solo puedo ayudarte con temas de nuestros cursos.'"
+                        ]
+                    ]
+                ],
+                // 2. Contenido de la petición con el rol definido
                 'contents' => [
                     [
+                        'role' => 'user',
                         'parts' => [
                             ['text' => $userMessage]
                         ]
                     ]
                 ],
-                'systemInstruction' => [
-                    'parts' => [
-                        ['text' => "Eres un Maestro Técnico Productivo (MTP) virtual del INCES Construcción. Tu objetivo es ayudar a los estudiantes con sus dudas sobre informática, programación, seguridad laboral y administración. Responde de manera clara, didáctica, respetuosa y profesional. Si te preguntan algo fuera del ámbito educativo o técnico, indícales amablemente que tu función es estrictamente académica."]
-                    ]
-                ],
+                // 3. Configuración de generación para evitar que "alucine"
                 'generationConfig' => [
-                    'temperature' => 0.7, // Balance perfecto entre precisión y naturalidad
+                    'temperature' => 0.1, // Casi en cero para que sea super estricto y no invente
+                    'maxOutputTokens' => 800,
                 ]
             ];
 
