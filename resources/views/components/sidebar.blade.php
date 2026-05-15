@@ -11,10 +11,13 @@
     <a href="{{ $role === 'admin' ? route('admin.dashboard') : ($role === 'instructor' ? route('instructor.dashboard') : route('student.dashboard')) }}"
        class="h-16 flex items-center px-4 border-b border-gray-100 dark:border-slate-700/50 overflow-hidden hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
         
-        <div class="text-2xl flex-shrink-0 w-10 h-10 flex items-center justify-center bg-red-50 dark:bg-red-500/20 text-red-600 rounded-xl shadow-inner">🎓</div>
+        <div class="text-2xl flex-shrink-0 w-10 h-10 flex items-center justify-center bg-red-50 dark:bg-red-500/20 text-red-600 rounded-xl shadow-inner">
+            🎓
+        </div>
         
         <div x-show="sidebarOpen" x-transition.opacity class="ml-3 flex items-center whitespace-nowrap">
-            <img src="{{ asset('images/Logo INCES.png') }}" alt="Logo INCES Campus" class="h-8 w-auto">
+            {{-- Tip de Ingeniero: Evita espacios en los nombres de archivos. Si puedes, renómbralo a 'logo-inces.png' --}}
+            <img src="{{ asset('images/Logo INCES.png') }}" alt="Logo INCES Campus" class="h-8 w-auto drop-shadow-sm">
         </div>
     </a>
 
@@ -53,16 +56,16 @@
         
         <div class="flex items-center p-2 rounded-xl bg-white dark:bg-[#1e293b] shadow-sm border border-gray-100 dark:border-slate-700/30 mb-3 overflow-hidden">
             
-            {{-- LÓGICA DE AVATAR ACTUALIZADA --}}
-            <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=1e40af&color=fff' }}" 
+            {{-- LÓGICA DE AVATAR ACTUALIZADA (Ahora con el rojo INCES: ce202a) --}}
+            <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=ce202a&color=fff&bold=true' }}" 
                  alt="Avatar de {{ Auth::user()->name }}" 
-                 class="w-9 h-9 rounded-lg object-cover flex-shrink-0 border border-gray-200 dark:border-slate-600">
+                 class="w-9 h-9 rounded-lg object-cover flex-shrink-0 border-2 border-gray-200 dark:border-slate-600 shadow-sm">
             
             <div x-show="sidebarOpen" x-transition.opacity class="ml-3 min-w-0">
                 <div class="text-sm font-bold text-gray-900 dark:text-white truncate">
                     {{ Auth::user()->name }}
                 </div>
-                <div class="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-tight">
+                <div class="text-[10px] text-red-600 dark:text-red-400 font-bold uppercase tracking-widest">
                     {{ Auth::user()->role }}
                 </div>
             </div>
@@ -72,7 +75,7 @@
             @csrf
             <button type="submit" class="w-full flex items-center px-4 py-2.5 text-sm font-medium text-gray-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all group" title="Cerrar Sesión">
                 <span class="text-xl mr-3 group-hover:scale-110 transition-transform">🚪</span>
-                <span x-show="sidebarOpen" x-transition.opacity>Cerrar Sesión</span>
+                <span x-show="sidebarOpen" x-transition.opacity class="font-semibold">Cerrar Sesión</span>
             </button>
         </form>
     </div>

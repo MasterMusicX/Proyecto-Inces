@@ -120,15 +120,20 @@ class Course extends Model
     | Accesores y Métodos de Ayuda (Helpers)
     |--------------------------------------------------------------------------
     */
-
-    /**
+/**
      * Accesor: Obtiene la ruta absoluta de la imagen de portada del curso.
      * Si no tiene imagen, retorna una por defecto.
+     * Nota: El signo de interrogación (?string) permite que devuelva un texto o un valor nulo.
      */
-    public function getThumbnailUrlAttribute(): string {
-        return $this->thumbnail
-            ? asset('storage/' . $this->thumbnail)
-            : asset('images/default-course.png');
+    public function getThumbnailUrlAttribute(): ?string 
+    {
+        // Usamos $this->thumbnail porque así está en tu $fillable y BD
+        if ($this->thumbnail) {
+            return asset('storage/' . $this->thumbnail);
+        }
+        
+        // Si no hay imagen, devolvemos null sin que PHP dé error
+        return null;
     }
     
     /**
