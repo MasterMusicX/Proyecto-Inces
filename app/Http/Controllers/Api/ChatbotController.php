@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api; // Solo un namespace aquí
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AiQuery;
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 class ChatbotController extends Controller
 {
     /**
-     * Enviar un mensaje al chatbot (Gemini 3 Flash)
+     * Enviar un mensaje al chatbot (Gemini 3 Flash con Instrucciones de Sistema)
      */
     public function sendMessage(Request $request): JsonResponse
     {
@@ -32,17 +32,31 @@ class ChatbotController extends Controller
                 return response()->json(['success' => false, 'error' => 'Configuración incompleta: Falta API Key.'], 500);
             }
 
-            // 1. Llamada a la API de Gemini (Corregida la sintaxis del POST)
-            // Usamos Gemini 3 Flash según los estándares de 2026
-            $response = Http::withoutVerifying()->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key={$apiKey}", [
+            // 🔥 APLICAMOS LA MEJORA: Armamos el payload con la personalidad del MTP 🔥
+            $payload = [
                 'contents' => [
                     [
                         'parts' => [
                             ['text' => $userMessage]
                         ]
                     ]
+                ],
+                'systemInstruction' => [
+                    'parts' => [
+                        ['text' => "Eres un Maestro Técnico Productivo (MTP) virtual del INCES Construcción. Tu objetivo es ayudar a los estudiantes con sus dudas sobre informática, programación, seguridad laboral y administración. Responde de manera clara, didáctica, respetuosa y profesional. Si te preguntan algo fuera del ámbito educativo o técnico, indícales amablemente que tu función es estrictamente académica."]
+                    ]
+                ],
+                'generationConfig' => [
+                    'temperature' => 0.7, // Balance perfecto entre precisión y naturalidad
                 ]
-            ]);
+            ];
+
+            // 1. Llamada a la API de Gemini enviando el $payload completo
+            $response = Http::withoutVerifying()
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])
+                ->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key={$apiKey}", $payload);
 
             if ($response->successful()) {
                 $botReply = $response->json('candidates.0.content.parts.0.text');
