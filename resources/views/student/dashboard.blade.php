@@ -1,14 +1,22 @@
 @extends('layouts.app')
-@section('title', 'Mi Panel')
+@section('title', 'Mi Panel Estudiantil')
 
 @section('content')
+{{-- Contenedor principal: max-w limita el ancho en pantallas gigantes, mx-auto lo centra --}}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 animate-fade-in-up">
 
+    {{-- =========================================================================
+         MODAL DE GUÍA DE BIENVENIDA (Usa Alpine.js para la interactividad)
+         ========================================================================= --}}
+    {{-- x-data inicia un componente Alpine. Revisa si en localStorage ya existe la variable 'hideIncesGuide'. Si no existe, muestra el modal. --}}
     <div x-data="{ showGuide: localStorage.getItem('hideIncesGuide') !== 'true' }">
+        
+        {{-- x-show controla la visibilidad. Si showGuide es true, se muestra el fondo negro transparente (backdrop-blur) --}}
         <div x-show="showGuide" style="display: none;"
              x-transition.opacity
              class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             
+            {{-- Panel blanco del modal. @click.away cierra el modal si el usuario hace clic afuera de la caja blanca --}}
             <div @click.away="showGuide = false; localStorage.setItem('hideIncesGuide', 'true')" 
                  x-show="showGuide"
                  x-transition:enter="transform transition ease-out duration-300"
@@ -17,6 +25,7 @@
                  class="bg-white dark:bg-[#1e293b] w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden border border-gray-100 dark:border-slate-700">
                 
                 <div class="p-8">
+                    {{-- Cabecera del Modal --}}
                     <div class="flex items-center gap-4 mb-6">
                         <div class="w-12 h-12 bg-blue-100 dark:bg-blue-500/20 text-2xl flex items-center justify-center rounded-2xl">🚀</div>
                         <div>
@@ -25,6 +34,7 @@
                         </div>
                     </div>
 
+                    {{-- Pasos de la Guía --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="p-4 rounded-2xl bg-gray-50 dark:bg-[#0f172a]/50 border border-gray-100 dark:border-slate-800">
                             <span class="font-bold text-blue-600 dark:text-blue-400 text-lg">01. Explora</span>
@@ -44,6 +54,7 @@
                         </div>
                     </div>
 
+                    {{-- Botón de Entendido: Al hacer clic, oculta el modal y guarda en el navegador que ya lo vio --}}
                     <button @click="showGuide = false; localStorage.setItem('hideIncesGuide', 'true')" 
                             class="w-full mt-8 py-4 bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-2xl transition-all shadow-lg shadow-blue-800/30 active:scale-95">
                         ¡Entendido, vamos a estudiar!
@@ -52,24 +63,106 @@
             </div>
         </div>
     </div>
-    <div class="bg-gradient-to-r from-blue-900 to-blue-700 rounded-3xl p-8 sm:p-10 mb-10 shadow-xl relative overflow-hidden text-white border border-blue-800">
+
+
+    {{-- =========================================================================
+         BANNER PRINCIPAL DE SALUDO
+         ========================================================================= --}}
+    <div class="bg-gradient-to-r from-blue-900 to-blue-700 rounded-3xl p-8 sm:p-10 mb-8 shadow-xl relative overflow-hidden text-white border border-blue-800">
+        {{-- Efecto de brillo rojo en el fondo derecho --}}
         <div class="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-red-600/20 rounded-full blur-3xl"></div>
         
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
             <div>
+                {{-- explode(' ', Auth::user()->name)[0] toma el nombre completo (Ej: "Jose Davalillo"), lo separa por espacios y muestra solo la primera palabra ("Jose") --}}
                 <h1 class="text-3xl sm:text-4xl font-black mb-2 flex items-center justify-center md:justify-start gap-3">
                     ¡Hola de nuevo, {{ explode(' ', Auth::user()->name)[0] }}! <span class="text-4xl animate-wave">👋</span>
                 </h1>
                 <p class="text-blue-100 text-lg">Tienes un progreso increíble. ¡Sigue así y obtén tu certificado!</p>
             </div>
             
+            {{-- Contador total de cursos inscritos en el banner --}}
             <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 text-center min-w-[120px] shadow-inner">
-                <span class="block text-4xl font-black text-white">{{ $enrolledCourses->count() ?? 0 }}</span>
+                <span class="block text-4xl font-black text-white">{{ count($enrolledCourses ?? []) }}</span>
                 <span class="text-[10px] font-bold uppercase tracking-widest text-blue-200 mt-1 block">Inscritos</span>
             </div>
         </div>
     </div>
 
+
+    {{-- =========================================================================
+         RESUMEN ACADÉMICO (Tarjetas Orgánicas y Fluidas - Estética Azul/Rojo)
+         ========================================================================= --}}
+    <div class="mb-10">
+        <h2 class="text-xl font-extrabold text-gray-900 dark:text-white mb-4">Resumen Académico</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            {{-- 1. Tarjeta: Totales (Azul Claro) --}}
+            <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700/50 hover:shadow-md hover:-translate-y-1 transition-all flex items-center gap-4 group">
+                <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-7 h-7 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                </div>
+                <div>
+                    {{-- Contamos cuántos cursos hay en la variable $enrolledCourses --}}
+                    <div class="text-3xl font-black text-gray-900 dark:text-white leading-none">{{ count($enrolledCourses ?? []) }}</div>
+                    <div class="text-[11px] font-bold text-gray-500 dark:text-slate-400 mt-1 uppercase tracking-wider">Cursos Totales</div>
+                </div>
+            </div>
+            
+            {{-- 2. Tarjeta: En Curso (Rojo Institucional) --}}
+            <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700/50 hover:shadow-md hover:-translate-y-1 transition-all flex items-center gap-4 group">
+                <div class="w-14 h-14 rounded-2xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-7 h-7 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    {{-- Usamos collect() para convertir el array en una Colección Laravel, luego filtramos (where) buscando solo los que en su tabla pivote (enrollments) tienen status 'active', y los contamos. ¡Esto ahorra hacer consultas adicionales a la BD! --}}
+                    <div class="text-3xl font-black text-gray-900 dark:text-white leading-none">
+                        {{ collect($enrolledCourses ?? [])->where('pivot.status', 'active')->count() }}
+                    </div>
+                    <div class="text-[11px] font-bold text-gray-500 dark:text-slate-400 mt-1 uppercase tracking-wider">En Curso</div>
+                </div>
+            </div>
+            
+            {{-- 3. Tarjeta: Culminadas (Azul Oscuro / Marino) --}}
+            <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700/50 hover:shadow-md hover:-translate-y-1 transition-all flex items-center gap-4 group">
+                <div class="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-800/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-7 h-7 text-blue-800 dark:text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                    </svg>
+                </div>
+                <div>
+                    {{-- Misma lógica matemática anterior, pero filtramos por los 'completed' --}}
+                    <div class="text-3xl font-black text-gray-900 dark:text-white leading-none">
+                        {{ collect($enrolledCourses ?? [])->where('pivot.status', 'completed')->count() }}
+                    </div>
+                    <div class="text-[11px] font-bold text-gray-500 dark:text-slate-400 mt-1 uppercase tracking-wider">Culminadas</div>
+                </div>
+            </div>
+            
+            {{-- 4. Tarjeta: Planificadas (Gris/Neutral) --}}
+            <div class="bg-white dark:bg-[#1e293b] rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700/50 hover:shadow-md hover:-translate-y-1 transition-all flex items-center gap-4 group">
+                <div class="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-gray-800/50 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-7 h-7 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    {{-- Valor estático por ahora, a futuro podrías conectarlo a un wishlist o calendario --}}
+                    <div class="text-3xl font-black text-gray-900 dark:text-white leading-none">0</div>
+                    <div class="text-[11px] font-bold text-gray-500 dark:text-slate-400 mt-1 uppercase tracking-wider">Planificadas</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {{-- =========================================================================
+         LISTADO DE CURSOS INSCRITOS (Donde el estudiante debe estudiar)
+         ========================================================================= --}}
     <div class="mb-12">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white">Continuar Aprendiendo</h2>
@@ -79,10 +172,12 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {{-- @forelse es un bucle mágico de Blade: si hay cursos los recorre, si el array está vacío, muestra lo que está después de @empty --}}
             @forelse($enrolledCourses ?? [] as $course)
                 <div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700/50 p-5 flex flex-col transition-all hover:shadow-lg hover:-translate-y-1">
                     <div class="flex items-start gap-4 mb-4">
                         <div class="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0">
+                            {{-- El operador ?? asigna una imagen por defecto si el curso no tiene thumbnail --}}
                             <img src="{{ $course->thumbnail ?? 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2070' }}" class="w-full h-full object-cover">
                         </div>
                         <div>
@@ -91,25 +186,29 @@
                         </div>
                     </div>
                     
+                    {{-- Barra de progreso y botón (Empujados hacia abajo con mt-auto) --}}
                     <div class="mt-auto">
                         <div class="flex justify-between text-xs font-bold text-gray-500 mb-2">
                             <span>Progreso</span>
+                            {{-- Extrae el progreso guardado en la tabla pivote de la BD --}}
                             <span class="text-blue-600">{{ $course->pivot->progress_percentage ?? 0 }}%</span>
                         </div>
                         <div class="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden mb-4">
-                            <div class="h-full bg-blue-600 rounded-full" style="width: {{ $course->pivot->progress_percentage ?? 0 }}%"></div>
+                            {{-- Dibuja la barra de progreso en Rojo INCES rellenando el % correspondiente --}}
+                            <div class="h-full bg-red-600 rounded-full transition-all duration-1000" style="width: {{ $course->pivot->progress_percentage ?? 0 }}%"></div>
                         </div>
-                        <a href="{{ route('student.courses.show', $course->id) }}" class="block w-full py-2.5 text-center text-sm font-bold text-white bg-blue-800 hover:bg-blue-900 rounded-xl transition-colors shadow-sm">
+                        <a href="{{ route('student.courses.show', $course->slug ?? $course->id) }}" class="block w-full py-2.5 text-center text-sm font-bold text-white bg-[#0088cc] hover:bg-blue-700 rounded-xl transition-colors shadow-sm">
                             Ir a clases
                         </a>
                     </div>
                 </div>
             @empty
+                {{-- Estado Vacío: Si no tiene cursos, muestra este mensaje amigable invitándolo al catálogo --}}
                 <div class="col-span-full bg-white dark:bg-[#1e293b] rounded-3xl border border-dashed border-gray-300 dark:border-slate-700 p-10 text-center">
                     <div class="text-5xl mb-4">📚</div>
                     <h3 class="text-xl font-extrabold text-gray-900 dark:text-white mb-2">Aún no te has inscrito en ningún curso</h3>
                     <p class="text-gray-500 dark:text-slate-400 mb-6">Tu panel de aprendizaje está esperando por ti. ¡Anímate a empezar!</p>
-                    <a href="{{ route('student.courses.catalog') }}" class="inline-block bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-red-600/30 transition-transform hover:-translate-y-1">
+                    <a href="{{ route('student.courses.catalog') }}" class="inline-block bg-[#ce202a] hover:bg-red-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-red-600/30 transition-transform hover:-translate-y-1">
                         Ir al Catálogo de Cursos
                     </a>
                 </div>
@@ -117,15 +216,21 @@
         </div>
     </div>
 
+
+    {{-- =========================================================================
+         CURSOS DESTACADOS (Sugerencias del sistema)
+         ========================================================================= --}}
     <div>
         <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white mb-6">Cursos Destacados</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             @forelse($featuredCourses ?? [] as $course)
                 <div class="group bg-white dark:bg-[#1e293b] rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-slate-700/50 hover:shadow-lg transition-all">
                     <div class="h-32 overflow-hidden relative">
+                        {{-- group-hover:scale-110 hace el efecto de zoom suave en la imagen al pasar el mouse por la tarjeta --}}
                         <img src="{{ $course->thumbnail ?? 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2070' }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                     </div>
                     <div class="p-4 flex flex-col">
+                        {{-- line-clamp-2 recorta el texto a máximo 2 líneas añadiendo puntos suspensivos si es muy largo --}}
                         <h3 class="text-sm font-bold text-gray-900 dark:text-white line-clamp-2 mb-3 group-hover:text-blue-600 transition-colors">{{ $course->title }}</h3>
                         <a href="{{ route('student.courses.show', $course->slug ?? $course->id) }}" class="mt-auto px-4 py-2 bg-gray-50 hover:bg-blue-800 text-gray-700 hover:text-white dark:bg-slate-800 dark:text-slate-300 rounded-lg text-xs font-bold text-center transition-colors">
                             Ver detalles

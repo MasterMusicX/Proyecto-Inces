@@ -100,4 +100,57 @@ class CourseController extends Controller
         $course->delete();
         return redirect()->route('admin.courses.index')->with('success', 'Curso eliminado.');
     }
+
+    // ========================================================================
+    // 🔥 MÓDULO DE INSCRIPCIÓN FORZADA (SUPERPODER DEL ADMIN) 🔥
+    // ========================================================================
+
+    /**
+     * Muestra el formulario de inscripción forzada.
+     */
+    public function showForceEnroll()
+    {
+        // Traemos todos los cursos disponibles para el select
+        $courses = Course::orderBy('title', 'asc')->get();
+        return view('admin.courses.force-enroll', compact('courses'));
+    }
+
+    /**
+     * Procesa la inscripción saltándose las prelaciones.
+     */
+    public function forceEnroll(Request $request)
+    {
+        $request->validate([
+            'email'     => 'required|email|exists:users,email',
+            'course_id' => 'required|exists:courses,id',
+        ], [
+            'email.exists' => 'El correo electrónico ingresado no coincide con ningún estudiante registrado.',
+        ]);
+
+        // 1. Buscar al estudiante por su identificador único (Email)
+        $student = User::where('email', $request->email)->first();
+
+        // 2. Verificar el rol para asegurar que no estemos inscribiendo a un admin o instructor por error
+        if ($student->role !== 'student') {
+            return back()->withInput()->with('error', 'El usuario seleccionado no tiene un rol de estudiante.');
+        }
+
+        // 3. Verificar si ya se encuentra inscrito en ese curso
+        $alreadyEnrolled = $student->enrollments()->where('course_id', $request->course_id)->exists();
+        if ($alreadyEnrolled) {
+            return back()->withInput()->with('error', 'El estudiante ya se encuentra inscrito en esta formación.');
+        }
+
+        // 4. ¡EL SUPERPODER! Inscripción directa a la base de datos
+        $student->enrollments()->create([
+            'course_id' => $request->course_id,
+            'status'    => 'active',
+            'progress_percentage' => 0.00
+        ]);
+
+        $courseTitle = Course::find($request->course_id)->title;
+
+        return redirect()->route('admin.courses.force-enroll')
+            ->with('success', "¡Acción ejecutada! El estudiante {$student->name} ha sido inscrito forzosamente en: \"{$courseTitle}\".");
+    }
 }

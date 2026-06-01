@@ -16,11 +16,11 @@ use App\Http\Controllers\Student\DashboardController    as StudentDash;
 use App\Http\Controllers\Student\CourseController       as StudentCourses;
 use App\Http\Controllers\Student\ResourceController     as StudentResources;
 use App\Http\Controllers\Student\ProfileController      as StudentProfile;
-use App\Http\Controllers\Student\QuizController         as StudentQuizzes; // 🔥 Agregado para el sistema de exámenes
+use App\Http\Controllers\Student\QuizController         as StudentQuizzes;
 use App\Http\Controllers\Api\ChatbotController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan; // 🔥 Agregado para el comando de Railway
+use Illuminate\Support\Facades\Artisan;
 
 // ── Root & Utils ────────────────────────────────────────────
 Route::get('/', function () {
@@ -52,13 +52,21 @@ Route::middleware(['auth','role:admin','check.active'])->prefix('admin')->name('
     Route::get('/statistics',  [AdminStats::class, 'index'])->name('statistics');
     Route::resource('users',   AdminUsers::class);
     Route::post('users/{user}/toggle', [AdminUsers::class,'toggle'])->name('users.toggle');
+    
+    // 🔥 NUEVO: Rutas para Inscripción Forzada (Superpoder de Admin)
+    // Se colocan antes del resource para que Laravel no las confunda con "show"
+    Route::get('courses/force-enroll', [AdminCourses::class, 'showForceEnroll'])->name('courses.force-enroll');
+    Route::post('courses/force-enroll', [AdminCourses::class, 'forceEnroll'])->name('courses.force-enroll.post');
+    
     Route::resource('courses', AdminCourses::class);
+    
     Route::prefix('courses/{course}/modules')->name('courses.modules.')->group(function () {
         Route::get('/',           [AdminModules::class,'index']  )->name('index');
         Route::post('/',          [AdminModules::class,'store']  )->name('store');
         Route::put('/{module}',   [AdminModules::class,'update'] )->name('update');
         Route::delete('/{module}',[AdminModules::class,'destroy'])->name('destroy');
     });
+    
     Route::resource('categories',    AdminCategories::class)->except(['show']);
     Route::resource('knowledge-base', AdminKB::class)->except(['show']);
 });
@@ -108,13 +116,19 @@ Route::middleware(['auth','check.active'])->prefix('student')->name('student.')-
     Route::get('/courses/{course}',           [StudentCourses::class, 'show']   )->name('courses.show');
     Route::post('/courses/{course}/enroll',   [StudentCourses::class, 'enroll'] )->name('courses.enroll');
     Route::delete('/courses/{course}/withdraw', [StudentCourses::class, 'withdraw'])->name('courses.withdraw');
+    
+    // Ruta para el salón de clases (Learn)
     Route::get('/courses/{course}/learn',     [StudentCourses::class, 'learn']  )->name('courses.learn');
+    
+    // 🔥 NUEVO: Ruta para guardar el progreso del estudiante en tiempo real
+    Route::post('/courses/{course}/progress', [StudentCourses::class, 'updateProgress'])->name('courses.progress');
+    
     Route::get('/resources/{resource}',       [StudentResources::class,'show']  )->name('resources.show');
     Route::get('/profile',                    [StudentProfile::class, 'show']   )->name('profile');
     Route::post('/profile',                   [StudentProfile::class, 'update'] )->name('profile.update');
     Route::post('/profile/password',          [StudentProfile::class, 'changePassword'])->name('profile.password');
     
-    // 🔥 NUEVO: Rutas para que el estudiante presente el examen
+    // Rutas para que el estudiante presente el examen
     Route::get('/quizzes/{quiz}',             [StudentQuizzes::class, 'show']   )->name('quizzes.show');
     Route::post('/quizzes/{quiz}/submit',     [StudentQuizzes::class, 'submit'] )->name('quizzes.submit');
 
