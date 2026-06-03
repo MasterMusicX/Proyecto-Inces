@@ -32,7 +32,16 @@
 
             <div class="mb-6 p-4 bg-gray-50 dark:bg-[#0f172a]/50 rounded-2xl border border-dashed border-gray-300 dark:border-slate-700 flex flex-col sm:flex-row items-center gap-6">
                 <div class="relative shrink-0">
-                    <img src="{{ $user->avatar ? asset('storage/'.$user->avatar) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=1e40af&color=fff' }}" 
+                    
+                    {{-- 🔥 LÓGICA DE AVATAR ACTUALIZADA PARA IMGBB 🔥 --}}
+                    @php
+                        $avatar = $user->avatar;
+                        $avatarUrl = $avatar 
+                            ? (str_starts_with($avatar, 'http') ? $avatar : asset('storage/' . $avatar))
+                            : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=ce202a&color=fff&bold=true';
+                    @endphp
+
+                    <img src="{{ $avatarUrl }}" 
                          id="preview-avatar" alt="Avatar actual" 
                          class="w-24 h-24 rounded-2xl object-cover shadow-md border border-gray-200 dark:border-slate-600">
                 </div>
@@ -143,7 +152,6 @@
 </div>
 
 <script>
-    // 1. Script para el Ojito de la Contraseña
     function togglePassword(inputId, eyeOpenId, eyeClosedId) {
         const input = document.getElementById(inputId);
         const eyeOpen = document.getElementById(eyeOpenId);
@@ -160,7 +168,6 @@
         }
     }
 
-    // 2. Script para previsualizar la foto de perfil al instante
     function previewImage(event) {
         const reader = new FileReader();
         reader.onload = function(){

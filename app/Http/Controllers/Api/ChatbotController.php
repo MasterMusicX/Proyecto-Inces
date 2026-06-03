@@ -5,16 +5,18 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AiQuery;
 use App\Models\ChatbotConversation;
+use App\Models\KnowledgeBase;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ChatbotController extends Controller
 {
     /**
-     * Enviar un mensaje al chatbot (Gemini 3 Flash con Instrucciones Estrictas de Sistema)
+     * Enviar un mensaje al chatbot (Groq Cloud con Base de Conocimientos e Historial)
      */
     public function sendMessage(Request $request): JsonResponse
     {
@@ -26,57 +28,51 @@ class ChatbotController extends Controller
 
         try {
             $userMessage = $request->message;
-            $apiKey = env('GEMINI_API_KEY');
+            $apiKey = env('GROQ_API_KEY');
+            $model = env('GROQ_MODEL', 'llama3-8b-8192');
 
             if (!$apiKey) {
-                return response()->json(['success' => false, 'error' => 'Configuración incompleta: Falta API Key.'], 500);
+                return response()->json(['success' => false, 'error' => 'Configuración incompleta: Falta API Key de Groq.'], 500);
             }
 
-            // 🔥 MEJORA APLICADA: Estructura exacta y estricta para Gemini 3 Flash 🔥
-            $payload = [
-                // 1. Instrucciones del sistema (Rol y Reglas de Oro)
-                'systemInstruction' => [
-                    'parts' => [
-                        [
-                            'text' => "Eres un Maestro Técnico Productivo (MTP) virtual del INCES Construcción. Tu objetivo es ayudar a los estudiantes exclusivamente con dudas sobre informática, programación, seguridad laboral y administración. Debes ser didáctico, respetuoso y profesional. REGLA ESTRICTA: Si el usuario te pregunta sobre CUALQUIER otro tema (recetas de cocina, chistes, deportes, política, etc.), DEBES responder EXACTAMENTE con esta frase y no agregar nada más: 'Lo siento, mi función como MTP del INCES es estrictamente académica. Solo puedo ayudarte con temas de nuestros cursos.'"
-                        ]
-                    ]
-                ],
-                // 2. Contenido de la petición con el rol definido
-                'contents' => [
-                    [
-                        'role' => 'user',
-                        'parts' => [
-                            ['text' => $userMessage]
-                        ]
-                    ]
-                ],
-                // 3. Configuración de generación para evitar que "alucine"
-                'generationConfig' => [
-                    'temperature' => 0.1, // Casi en cero para que sea super estricto y no invente
-                    'maxOutputTokens' => 800,
-                ]
-            ];
+            // 1. Extraemos el contexto del INCES (Los manuales que subió el Admin)
+            $knowledge = KnowledgeBase::where('status', 'active')
+                ->pluck('content')
+                ->implode("\n\n");
 
-            // 1. Llamada a la API de Gemini enviando el $payload completo
-            $response = Http::withoutVerifying()
-                ->withHeaders([
-                    'Content-Type' => 'application/json',
-                ])
-                ->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key={$apiKey}", $payload);
+            // 2. Combinamos tus reglas estrictas con la base de conocimientos
+            $systemPrompt = "Eres un Maestro Técnico Productivo (MTP) virtual del INCES Construcción. Tu objetivo es ayudar a los estudiantes exclusivamente con dudas sobre informática, programación, seguridad laboral y administración. Debes ser didáctico, respetuoso y profesional.\n\n" .
+                            "REGLA ESTRICTA: Si el usuario te pregunta sobre CUALQUIER otro tema (recetas de cocina, chistes, deportes, política, etc.), DEBES responder EXACTAMENTE con esta frase y no agregar nada más: 'Lo siento, mi función como MTP del INCES es estrictamente académica. Solo puedo ayudarte con temas de nuestros cursos.'\n\n" .
+                            "BASA TUS RESPUESTAS EN ESTA INFORMACIÓN INSTITUCIONAL:\n" . $knowledge;
+
+            // 3. Llamada a la API ultrarrápida de Groq
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type'  => 'application/json',
+            ])->timeout(15)->post('https://api.groq.com/openai/v1/chat/completions', [
+                'model' => $model,
+                'messages' => [
+                    ['role' => 'system', 'content' => $systemPrompt],
+                    ['role' => 'user', 'content' => $userMessage],
+                ],
+                'temperature' => 0.1, // Súper estricto para que no alucine
+                'max_tokens' => 800,
+            ]);
 
             if ($response->successful()) {
-                $botReply = $response->json('candidates.0.content.parts.0.text');
+                // Navegamos por la respuesta JSON que nos manda Groq
+                $botReply = $response->json('choices.0.message.content');
 
                 if (!$botReply) {
                     return response()->json(['success' => false, 'error' => 'Respuesta vacía de la IA.'], 500);
                 }
 
-                // 2. Lógica de Conversación (Para que getHistory funcione)
+                // 4. Lógica de Persistencia (DB Transaction)
                 return DB::transaction(function () use ($request, $userMessage, $botReply) {
                     
-                    // Si no hay ID, creamos una conversación nueva
                     $conversationId = $request->conversation_id;
+                    
+                    // Si no hay ID, creamos una conversación nueva
                     if (!$conversationId) {
                         $newConv = ChatbotConversation::create([
                             'user_id' => Auth::id(),
@@ -84,13 +80,16 @@ class ChatbotController extends Controller
                             'title' => substr($userMessage, 0, 50) . '...'
                         ]);
                         $conversationId = $newConv->id;
+                    } else {
+                        // Actualizamos el updated_at para que suba en la lista
+                        ChatbotConversation::where('id', $conversationId)->touch();
                     }
 
                     // Guardamos el registro de la consulta
                     $query = AiQuery::create([
                         'user_id'         => Auth::id(),
                         'course_id'       => $request->course_id,
-                        'conversation_id' => $conversationId, // Importante vincularlos
+                        'conversation_id' => $conversationId,
                         'question'        => $userMessage,
                         'response'        => $botReply,
                     ]);
@@ -107,20 +106,21 @@ class ChatbotController extends Controller
                 });
             }
 
+            Log::error('Error de Groq API: ' . $response->body());
             return response()->json([
                 'success' => false,
-                'error' => 'Error de Gemini: ' . ($response->json('error.message') ?? 'Desconocido')
+                'error' => 'Error de conexión con el motor de IA.'
             ], 500);
 
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'error' => 'Error en el servidor: ' . $e->getMessage()], 500);
+            Log::error('Excepción en Chatbot: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => 'Error interno procesando tu solicitud.'], 500);
         }
     }
 
     /** Obtener el historial de una conversación específica */
     public function getHistory(int $conversationId): JsonResponse
     {
-        // Buscamos la conversación y sus mensajes vinculados (AiQuery)
         $history = AiQuery::where('conversation_id', $conversationId)
             ->where('user_id', Auth::id())
             ->orderBy('created_at', 'asc')

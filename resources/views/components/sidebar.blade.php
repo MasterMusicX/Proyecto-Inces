@@ -73,7 +73,15 @@
         
         <div class="flex items-center p-2 rounded-xl bg-white dark:bg-[#1e293b] shadow-sm border border-gray-100 dark:border-slate-700/30 mb-3 overflow-hidden">
             
-            <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=ce202a&color=fff&bold=true' }}" 
+            {{-- 🔥 LÓGICA DE AVATAR ACTUALIZADA PARA IMGBB 🔥 --}}
+            @php
+                $avatar = Auth::user()->avatar;
+                $avatarUrl = $avatar 
+                    ? (str_starts_with($avatar, 'http') ? $avatar : asset('storage/' . $avatar))
+                    : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=ce202a&color=fff&bold=true';
+            @endphp
+            
+            <img src="{{ $avatarUrl }}" 
                  alt="Avatar de {{ Auth::user()->name }}" 
                  class="w-9 h-9 rounded-lg object-cover flex-shrink-0 border-2 border-gray-200 dark:border-slate-600 shadow-sm">
             
