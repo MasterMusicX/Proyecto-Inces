@@ -24,19 +24,30 @@
          BUSCADOR FLOTANTE (Inspirado en el Sistema HACER)
          ========================================================================= --}}
     {{-- El margen negativo (-mt-24) hace que esta caja flote por encima del borde del banner azul --}}
-    <div class="relative z-20 max-w-4xl mx-auto -mt-24 mb-12">
-        <form action="{{ route('student.courses.catalog') }}" method="GET" class="bg-white dark:bg-[#1e293b] p-3 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 flex flex-col md:flex-row gap-3">
+    <div class="relative z-20 max-w-3xl mx-auto -mt-8 mb-12 px-4 sm:px-0">
+        <form action="{{ route('student.courses.catalog') }}" method="GET" 
+              class="bg-white dark:bg-[#1e293b] p-2 rounded-full shadow-2xl shadow-blue-900/10 border border-gray-100 dark:border-slate-700 flex flex-col sm:flex-row items-center gap-2">
             
-            <div class="relative flex-grow">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <span class="text-gray-400 text-xl">🔍</span>
-                </div>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="¿Qué te gustaría estudiar hoy?..." 
-                       class="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-[#0f172a] border border-transparent dark:border-slate-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500 outline-none transition-all">
+            {{-- Ícono SVG en lugar de Emoji para alineación perfecta --}}
+            <div class="pl-6 pr-2 text-gray-400 hidden sm:block">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
             </div>
 
-            <button type="submit" class="w-full md:w-auto px-8 py-4 bg-red-600 hover:bg-red-700 rounded-xl font-bold text-white transition-colors shadow-lg shadow-red-600/30 flex items-center justify-center gap-2">
-                Buscar Cursos
+            {{-- Input sin fondo gris para que se funda con la caja principal --}}
+            <div class="flex-grow w-full">
+                <input type="text" name="search" value="{{ request('search') }}" 
+                       placeholder="¿Qué te gustaría estudiar hoy?" 
+                       class="w-full py-3 px-4 sm:px-0 bg-transparent border-none text-gray-900 dark:text-white placeholder-gray-400 focus:ring-0 outline-none text-base">
+            </div>
+
+            {{-- Botón adaptado a la curva de la píldora --}}
+            <button type="submit" class="w-full sm:w-auto px-8 py-3.5 bg-red-600 hover:bg-red-700 rounded-full font-bold text-white transition-colors shadow-md shrink-0 flex justify-center items-center gap-2">
+                <svg class="w-5 h-5 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                Buscar
             </button>
         </form>
     </div>

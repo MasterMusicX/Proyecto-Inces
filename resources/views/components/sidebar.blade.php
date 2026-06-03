@@ -1,6 +1,24 @@
 <?php
   $role = Auth::user()->role;
   $current = request()->route()->getName() ?? '';
+
+  // 🔥 LÓGICA CORREGIDA: Controlamos los colores del texto y el fondo dinámicamente
+  if (!function_exists('sidebarLink')) {
+      function sidebarLink($url, $icon, $label, $routePattern, $current) {
+          $isActive = request()->routeIs($routePattern);
+          
+          // Si está activo: Fondo blanco y texto azul oscuro. Si no: Fondo transparente y texto gris.
+          $activeClasses = $isActive 
+              ? 'bg-white dark:bg-slate-800 text-blue-900 dark:text-white font-extrabold shadow-sm' 
+              : 'text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800/50 hover:text-blue-800 dark:hover:text-blue-400';
+          
+          return '
+          <a href="'.$url.'" class="flex items-center px-4 py-3 mb-1 rounded-xl transition-all group '.$activeClasses.'" title="'.$label.'">
+              <span class="text-xl flex-shrink-0 w-8 flex justify-center group-hover:scale-110 transition-transform">'.$icon.'</span>
+              <span x-show="sidebarOpen" x-transition.opacity class="ml-1 whitespace-nowrap">'.$label.'</span>
+          </a>';
+      }
+  }
 ?>
 
 <aside 
@@ -16,7 +34,6 @@
         </div>
         
         <div x-show="sidebarOpen" x-transition.opacity class="ml-3 flex items-center whitespace-nowrap">
-            {{-- Tip de Ingeniero: Evita espacios en los nombres de archivos. Si puedes, renómbralo a 'logo-inces.png' --}}
             <img src="{{ asset('images/Logo INCES.png') }}" alt="Logo INCES Campus" class="h-8 w-auto drop-shadow-sm">
         </div>
     </a>
@@ -56,7 +73,6 @@
         
         <div class="flex items-center p-2 rounded-xl bg-white dark:bg-[#1e293b] shadow-sm border border-gray-100 dark:border-slate-700/30 mb-3 overflow-hidden">
             
-            {{-- LÓGICA DE AVATAR ACTUALIZADA (Ahora con el rojo INCES: ce202a) --}}
             <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=ce202a&color=fff&bold=true' }}" 
                  alt="Avatar de {{ Auth::user()->name }}" 
                  class="w-9 h-9 rounded-lg object-cover flex-shrink-0 border-2 border-gray-200 dark:border-slate-600 shadow-sm">

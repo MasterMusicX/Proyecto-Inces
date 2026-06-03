@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http; // 🔥 IMPORTANTE: Importamos el cliente HTTP
 
 class CourseController extends Controller
 {
@@ -46,11 +47,23 @@ class CourseController extends Controller
             'thumbnail'      => 'nullable|image|max:2048',
         ]);
 
-        // Capturamos el checkbox (si está marcado es true, si no, false)
         $data['is_featured'] = $request->has('is_featured');
 
+        // 🔥 PLAN B: SUBIDA A IMGBB PARA CREAR (STORE) 🔥
         if ($request->hasFile('thumbnail')) {
-            $data['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+            $imagePath = $request->file('thumbnail')->getRealPath();
+            $imageBase64 = base64_encode(file_get_contents($imagePath));
+
+            $response = Http::asForm()->post('https://api.imgbb.com/1/upload', [
+                'key' => env('IMGBB_API_KEY'),
+                'image' => $imageBase64,
+            ]);
+
+            if ($response->successful()) {
+                $data['thumbnail'] = $response->json('data.url');
+            } else {
+                return back()->withInput()->with('error', 'Hubo un problema de conexión al subir la imagen. Intenta de nuevo.');
+            }
         }
 
         $data['slug'] = Str::slug($data['title']) . '-' . Str::random(6);
@@ -84,19 +97,31 @@ class CourseController extends Controller
 
         $data['is_featured'] = $request->has('is_featured');
 
+        // 🔥 PLAN B: SUBIDA A IMGBB PARA ACTUALIZAR (UPDATE) 🔥
         if ($request->hasFile('thumbnail')) {
-            if ($course->thumbnail) Storage::disk('public')->delete($course->thumbnail);
-            $data['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+            $imagePath = $request->file('thumbnail')->getRealPath();
+            $imageBase64 = base64_encode(file_get_contents($imagePath));
+
+            $response = Http::asForm()->post('https://api.imgbb.com/1/upload', [
+                'key' => env('IMGBB_API_KEY'),
+                'image' => $imageBase64,
+            ]);
+
+            if ($response->successful()) {
+                $data['thumbnail'] = $response->json('data.url');
+            } else {
+                return back()->withInput()->with('error', 'Hubo un problema de conexión al actualizar la imagen. Intenta de nuevo.');
+            }
         }
 
         $course->update($data);
         
-        return redirect()->route('admin.courses.index')->with('success', 'Curso actualizado.');
+        return redirect()->route('admin.courses.index')->with('success', 'Curso actualizado exitosamente.');
     }
 
     public function destroy(Course $course)
     {
-        if ($course->thumbnail) Storage::disk('public')->delete($course->thumbnail);
+        // Nota: Como la imagen está en ImgBB (URL externa), ya no necesitamos borrarla del Storage local.
         $course->delete();
         return redirect()->route('admin.courses.index')->with('success', 'Curso eliminado.');
     }
@@ -105,19 +130,12 @@ class CourseController extends Controller
     // 🔥 MÓDULO DE INSCRIPCIÓN FORZADA (SUPERPODER DEL ADMIN) 🔥
     // ========================================================================
 
-    /**
-     * Muestra el formulario de inscripción forzada.
-     */
     public function showForceEnroll()
     {
-        // Traemos todos los cursos disponibles para el select
         $courses = Course::orderBy('title', 'asc')->get();
         return view('admin.courses.force-enroll', compact('courses'));
     }
 
-    /**
-     * Procesa la inscripción saltándose las prelaciones.
-     */
     public function forceEnroll(Request $request)
     {
         $request->validate([
@@ -127,21 +145,17 @@ class CourseController extends Controller
             'email.exists' => 'El correo electrónico ingresado no coincide con ningún estudiante registrado.',
         ]);
 
-        // 1. Buscar al estudiante por su identificador único (Email)
         $student = User::where('email', $request->email)->first();
 
-        // 2. Verificar el rol para asegurar que no estemos inscribiendo a un admin o instructor por error
         if ($student->role !== 'student') {
             return back()->withInput()->with('error', 'El usuario seleccionado no tiene un rol de estudiante.');
         }
 
-        // 3. Verificar si ya se encuentra inscrito en ese curso
         $alreadyEnrolled = $student->enrollments()->where('course_id', $request->course_id)->exists();
         if ($alreadyEnrolled) {
             return back()->withInput()->with('error', 'El estudiante ya se encuentra inscrito en esta formación.');
         }
 
-        // 4. ¡EL SUPERPODER! Inscripción directa a la base de datos
         $student->enrollments()->create([
             'course_id' => $request->course_id,
             'status'    => 'active',
