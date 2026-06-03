@@ -73,34 +73,35 @@
         
         <div class="flex items-center p-2 rounded-xl bg-white dark:bg-[#1e293b] shadow-sm border border-gray-100 dark:border-slate-700/30 mb-3 overflow-hidden">
             
-            {{-- 🔥 LÓGICA DE AVATAR ACTUALIZADA PARA IMGBB 🔥 --}}
-            @php
-                $avatar = Auth::user()->avatar;
-                $avatarUrl = $avatar 
-                    ? (str_starts_with($avatar, 'http') ? $avatar : asset('storage/' . $avatar))
-                    : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=ce202a&color=fff&bold=true';
-            @endphp
-            
-            <img src="{{ $avatarUrl }}" 
-                 alt="Avatar de {{ Auth::user()->name }}" 
-                 class="w-9 h-9 rounded-lg object-cover flex-shrink-0 border-2 border-gray-200 dark:border-slate-600 shadow-sm">
-            
-            <div x-show="sidebarOpen" x-transition.opacity class="ml-3 min-w-0">
-                <div class="text-sm font-bold text-gray-900 dark:text-white truncate">
-                    {{ Auth::user()->name }}
-                </div>
-                <div class="text-[10px] text-red-600 dark:text-red-400 font-bold uppercase tracking-widest">
-                    {{ Auth::user()->role }}
-                </div>
+           {{-- 🔥 LÓGICA DE AVATAR ACTUALIZADA PARA IMGBB 🔥 --}}
+        @php
+            $avatar = Auth::user()->avatar;
+            $avatarUrl = $avatar 
+                ? (str_starts_with($avatar, 'http') ? $avatar : asset('storage/' . $avatar))
+                : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=ce202a&color=fff&bold=true';
+        @endphp
+        
+        <img src="{{ $avatarUrl }}" 
+            onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }} &background=ce202a&color=fff&bold=true';"
+             alt="Avatar de {{ Auth::user()->name }}" 
+             class="w-9 h-9 rounded-lg object-cover flex-shrink-0 border-2 border-gray-200 dark:border-slate-600 shadow-sm">
+        
+        <div x-show="sidebarOpen" x-transition.opacity class="ml-3 min-w-0">
+            <div class="text-sm font-bold text-gray-900 dark:text-white truncate">
+                {{ Auth::user()->name }}
+            </div>
+            <div class="text-[10px] text-red-600 dark:text-red-400 font-bold uppercase tracking-widest">
+                {{ Auth::user()->role }}
             </div>
         </div>
-
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="w-full flex items-center px-4 py-2.5 text-sm font-medium text-gray-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all group" title="Cerrar Sesión">
-                <span class="text-xl mr-3 group-hover:scale-110 transition-transform">🚪</span>
-                <span x-show="sidebarOpen" x-transition.opacity class="font-semibold">Cerrar Sesión</span>
-            </button>
-        </form>
     </div>
+
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button type="submit" class="w-full flex items-center px-4 py-2.5 text-sm font-medium text-gray-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all group" title="Cerrar Sesión">
+            <span class="text-xl mr-3 group-hover:scale-110 transition-transform">🚪</span>
+            <span x-show="sidebarOpen" x-transition.opacity class="font-semibold">Cerrar Sesión</span>
+        </button>
+    </form>
+</div>
 </aside>

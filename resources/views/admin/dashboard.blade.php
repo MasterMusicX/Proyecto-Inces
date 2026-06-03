@@ -46,42 +46,54 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {{-- Recent Users --}}
-        <div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700/50 flex flex-col overflow-hidden animate-fade-in-up" style="animation-delay: 200ms;">
-            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-700/50 flex items-center justify-between bg-gray-50/50 dark:bg-[#0f172a]/50">
-                <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <span>👥</span> Usuarios Recientes
-                </h2>
-                <a href="{{ route('admin.users.index') }}" class="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
-                    Ver todos &rarr;
-                </a>
+<div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700/50 flex flex-col overflow-hidden animate-fade-in-up" style="animation-delay: 200ms;">
+    <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-700/50 flex items-center justify-between bg-gray-50/50 dark:bg-[#0f172a]/50">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <span>👥</span> Usuarios Recientes
+        </h2>
+        <a href="{{ route('admin.users.index') }}" class="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+            Ver todos &rarr;
+        </a>
+    </div>
+    
+    <div class="flex-1 overflow-y-auto">
+        @forelse($recentUsers ?? [] as $u)
+        <div class="flex items-center gap-4 px-6 py-4 border-b border-gray-50 dark:border-slate-700/50 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors group cursor-pointer">
+            
+            {{-- 🔥 LÓGICA DE AVATAR CORREGIDA PARA EL BUCLE 🔥 --}}
+            @php
+                $avatar = $u->avatar;
+                $avatarUrl = $avatar 
+                    ? (str_starts_with($avatar, 'http') ? $avatar : asset('storage/' . $avatar))
+                    : 'https://ui-avatars.com/api/?name='.urlencode($u->name).'&background=ce202a&color=fff&bold=true';
+            @endphp
+            
+            <img src="{{ $avatarUrl }}" 
+                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($u->name) }}&background=ce202a&color=fff&bold=true';"
+                 alt="Avatar de {{ $u->name }}"
+                 class="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-slate-700 shadow-sm">
+            
+            <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {{ $u->name }}
+                </div>
+                <div class="text-xs text-gray-500 dark:text-slate-400 truncate">
+                    {{ $u->email }}
+                </div>
             </div>
             
-            <div class="flex-1 overflow-y-auto">
-                @forelse($recentUsers ?? [] as $u)
-                <div class="flex items-center gap-4 px-6 py-4 border-b border-gray-50 dark:border-slate-700/50 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors group cursor-pointer">
-                    <img src="{{ $u->avatar_url ?? 'https://ui-avatars.com/api/?name='.$u->name }}" class="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-slate-700 shadow-sm">
-                    
-                    <div class="flex-1 min-w-0">
-                        <div class="text-sm font-bold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                            {{ $u->name }}
-                        </div>
-                        <div class="text-xs text-gray-500 dark:text-slate-400 truncate">
-                            {{ $u->email }}
-                        </div>
-                    </div>
-                    
-                    <span class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full 
-                        {{ $u->role === 'admin' ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400' : 
-                          ($u->role === 'instructor' ? 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400' : 
-                          'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400') }}">
-                        {{ $u->role }}
-                    </span>
-                </div>
-                @empty
-                <div class="p-8 text-center text-gray-500 dark:text-slate-400 text-sm">No hay usuarios recientes.</div>
-                @endforelse
-            </div>
+            <span class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full 
+                {{ $u->role === 'admin' ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400' : 
+                  ($u->role === 'instructor' ? 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400' : 
+                  'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400') }}">
+                {{ $u->role }}
+            </span>
         </div>
+        @empty
+        <div class="p-8 text-center text-gray-500 dark:text-slate-400 text-sm">No hay usuarios recientes.</div>
+        @endforelse
+    </div>
+</div>
 
         {{-- Popular Courses --}}
         <div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700/50 flex flex-col overflow-hidden animate-fade-in-up" style="animation-delay: 300ms;">
