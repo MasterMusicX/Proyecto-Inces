@@ -1,5 +1,6 @@
 .git
 node_modules
-vendo
+vendor
 public/storage
 storage/logs
+.env
