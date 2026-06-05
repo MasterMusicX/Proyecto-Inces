@@ -73,7 +73,7 @@ class UserController extends Controller
             $imageBase64 = base64_encode(file_get_contents($imagePath));
 
             $response = \Illuminate\Support\Facades\Http::asForm()->post('https://api.imgbb.com/1/upload', [
-                'key' => env('IMGBB_API_KEY'),
+                'key' => config('IMGBB_API_KEY'),
                 'image' => $imageBase64,
             ]);
 
