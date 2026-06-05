@@ -55,11 +55,11 @@ class UserController extends Controller
         return view('admin.users.edit', compact('user'));
     }
 
-    public function update(Request $request, User $user)
+   public function update(Request $request, User $user)
     {
         $data = $request->validate([
             'name'      => 'required|string|max:255',
-            'email'     => ['required', 'email', Rule::unique('users')->ignore($user)],
+            'email'     => ['required', 'email', \Illuminate\Validation\Rule::unique('users')->ignore($user)],
             'role'      => 'required|in:admin,instructor,student',
             'phone'     => 'nullable|string|max:20',
             'bio'       => 'nullable|string|max:500',
@@ -67,15 +67,25 @@ class UserController extends Controller
             'avatar'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // Validación de la foto
         ]);
 
-        // 1. Lógica de la foto de perfil
+        // 🔥 LÓGICA DE IMGBB PARA EL ADMINISTRADOR 🔥
         if ($request->hasFile('avatar')) {
-            // Borramos la foto anterior si existe para ahorrar espacio
-            if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
+            $imagePath = $request->file('avatar')->getRealPath();
+            $imageBase64 = base64_encode(file_get_contents($imagePath));
+
+            $response = \Illuminate\Support\Facades\Http::asForm()->post('https://api.imgbb.com/1/upload', [
+                'key' => env('IMGBB_API_KEY'),
+                'image' => $imageBase64,
+            ]);
+
+            if ($response->successful()) {
+                // Guardamos el enlace directo de ImgBB
+                $data['avatar'] = $response->json('data.url');
+            } else {
+                return back()->withInput()->with('error', 'Hubo un problema al subir la imagen a la nube. Intenta de nuevo.');
             }
-            // Guardamos la nueva foto en la carpeta "avatars"
-            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
+
+     
 
         // 2. Lógica de la contraseña (solo si el usuario decidió cambiarla)
         if ($request->filled('password')) {
