@@ -5,7 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http; // 🔥 Importación necesaria para ImgBB
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -40,9 +40,29 @@ class UserController extends Controller
             'role'     => 'required|in:admin,instructor,student',
             'phone'    => 'nullable|string|max:20',
             'bio'      => 'nullable|string|max:500',
+            'avatar'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // 🔥 Validación de foto añadida
         ]);
 
         $data['password'] = Hash::make($data['password']);
+
+        // 🔥 LÓGICA DE IMGBB PARA CREAR USUARIO 🔥
+        if ($request->hasFile('avatar')) {
+            $imagePath = $request->file('avatar')->getRealPath();
+            $imageBase64 = base64_encode(file_get_contents($imagePath));
+
+            $response = Http::asForm()->post('https://api.imgbb.com/1/upload', [
+                'key' => config('services.imgbb.key'), // Llamado correcto al config de services
+                'image' => $imageBase64,
+            ]);
+
+            if ($response->successful()) {
+                $data['avatar'] = $response->json('data.url');
+            } else {
+                // Chismoso de errores activado
+                return back()->withInput()->with('error', 'Error ImgBB: ' . $response->body());
+            }
+        }
+
         User::create($data);
 
         return redirect()->route('admin.users.index')
@@ -59,7 +79,7 @@ class UserController extends Controller
     {
         $data = $request->validate([
             'name'      => 'required|string|max:255',
-            'email'     => ['required', 'email', \Illuminate\Validation\Rule::unique('users')->ignore($user)],
+            'email'     => ['required', 'email', Rule::unique('users')->ignore($user)],
             'role'      => 'required|in:admin,instructor,student',
             'phone'     => 'nullable|string|max:20',
             'bio'       => 'nullable|string|max:500',
@@ -67,13 +87,13 @@ class UserController extends Controller
             'avatar'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // Validación de la foto
         ]);
 
-        // 🔥 LÓGICA DE IMGBB PARA EL ADMINISTRADOR 🔥
+        // 🔥 LÓGICA DE IMGBB PARA ACTUALIZAR USUARIO 🔥
         if ($request->hasFile('avatar')) {
             $imagePath = $request->file('avatar')->getRealPath();
             $imageBase64 = base64_encode(file_get_contents($imagePath));
 
-            $response = \Illuminate\Support\Facades\Http::asForm()->post('https://api.imgbb.com/1/upload', [
-                'key' => config('IMGBB_API_KEY'),
+            $response = Http::asForm()->post('https://api.imgbb.com/1/upload', [
+                'key' => config('services.imgbb.key'), // Llamado correcto al config de services
                 'image' => $imageBase64,
             ]);
 
@@ -81,11 +101,10 @@ class UserController extends Controller
                 // Guardamos el enlace directo de ImgBB
                 $data['avatar'] = $response->json('data.url');
             } else {
-                return back()->withInput()->with('error', 'Hubo un problema al subir la imagen a la nube. Intenta de nuevo.');
+                // Chismoso de errores activado
+                return back()->withInput()->with('error', 'Error ImgBB: ' . $response->body());
             }
         }
-
-     
 
         // 2. Lógica de la contraseña (solo si el usuario decidió cambiarla)
         if ($request->filled('password')) {
@@ -102,11 +121,7 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        // Bonus: Eliminar la foto del disco duro si se elimina el usuario
-        if ($user->avatar) {
-            Storage::disk('public')->delete($user->avatar);
-        }
-        
+        // Como ahora todo está en ImgBB, eliminamos la lógica del disco duro local
         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'Usuario eliminado.');
     }

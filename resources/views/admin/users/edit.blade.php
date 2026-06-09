@@ -20,9 +20,11 @@
             @csrf
             @method('PUT') 
             
-            @if($errors->any())
+            @if($errors->any() || session('error'))
                 <div class="p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-800/50 rounded-xl mb-6">
-                    <ul class="list-disc list-inside text-xs font-bold text-red-600 dark:text-red-400">
+                    <strong class="font-bold text-sm text-red-700 dark:text-red-400">¡Atención! Hubo un problema:</strong>
+                    <ul class="list-disc list-inside mt-1 text-xs font-bold text-red-600 dark:text-red-400">
+                        @if(session('error')) <li>{{ session('error') }}</li> @endif
                         @foreach($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
