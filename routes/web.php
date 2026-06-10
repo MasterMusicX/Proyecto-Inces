@@ -128,14 +128,13 @@ Route::middleware(['auth','check.active'])->prefix('student')->name('student.')-
     Route::get('/profile',                    [StudentProfile::class, 'show']   )->name('profile');
     Route::post('/profile',                   [StudentProfile::class, 'update'] )->name('profile.update');
     Route::post('/profile/password',          [StudentProfile::class, 'changePassword'])->name('profile.password');
-    
-    // Rutas para que el estudiante presente el examen
-    Route::get('/quizzes/{quiz}',             [StudentQuizzes::class, 'show']   )->name('quizzes.show');
-    Route::post('/quizzes/{quiz}/submit',     [StudentQuizzes::class, 'submit'] )->name('quizzes.submit');
 
+    // Chatbot e IA
     Route::get('/chatbot',                    fn() => view('student.chatbot')   )->name('chatbot');
     Route::post('/chatbot/send',              [ChatbotController::class, 'sendMessage'])->name('student.chatbot.send');
     Route::get('/search',                     fn() => view('student.search')   )->name('search');
-    Route::get('/courses/{course}/quizzes/{quiz}', [\App\Http\Controllers\Student\QuizController::class, 'show'])->name('quizzes.show');
+    
+    // 🔥 Rutas Definitivas para la Evaluación Final (Examen) 🔥
+    Route::get('/courses/{course}/quizzes/{quiz}',  [\App\Http\Controllers\Student\QuizController::class, 'show'])->name('quizzes.show');
     Route::post('/courses/{course}/quizzes/{quiz}', [\App\Http\Controllers\Student\QuizController::class, 'submit'])->name('quizzes.submit');
 });
