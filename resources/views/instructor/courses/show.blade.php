@@ -16,6 +16,7 @@
         </span>
     </div>
 
+    {{-- 🔥 TARJETAS DE ESTADÍSTICAS 🔥 --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-10">
         <div class="bg-white dark:bg-[#1e293b] rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-slate-700/50 flex flex-col sm:flex-row items-center sm:items-start gap-4 hover:-translate-y-1 transition-transform text-center sm:text-left">
             <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center text-3xl shadow-inner shrink-0 mx-auto sm:mx-0">👨🏽‍🎓</div>
@@ -50,7 +51,8 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    {{-- 🔥 GRILLA DE ESTUDIANTES Y MÓDULOS 🔥 --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         
         <div class="bg-white dark:bg-[#1e293b] rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700/50 overflow-hidden flex flex-col">
             <div class="p-6 border-b border-gray-100 dark:border-slate-700/50 flex justify-between items-center bg-gray-50/50 dark:bg-[#0f172a]/50">
@@ -132,7 +134,33 @@
                 </ul>
             </div>
         </div>
-
     </div>
+
+    {{-- 🔥 SECCIÓN NUEVA: GESTIÓN DE EVALUACIÓN (EXAMEN) 🔥 --}}
+    <div class="bg-gradient-to-r from-blue-900 to-blue-950 dark:from-slate-800 dark:to-slate-900 rounded-3xl shadow-xl border border-blue-800 dark:border-slate-700 overflow-hidden relative">
+        <div class="absolute inset-0 bg-white/5 opacity-20" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 20px 20px;"></div>
+        
+        <div class="relative p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6">
+                <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-4xl shadow-inner border border-white/20 shrink-0">
+                    📝
+                </div>
+                <div>
+                    <h2 class="text-2xl font-black text-white tracking-tight mb-2">Evaluación Final del Curso</h2>
+                    <p class="text-blue-200 dark:text-slate-300 font-medium text-sm max-w-xl">
+                        Configura las preguntas, opciones correctas y el estado del examen final. Esta evaluación es obligatoria para que los estudiantes del INCES puedan obtener su calificación final de forma automática.
+                    </p>
+                </div>
+            </div>
+
+            <div class="shrink-0 w-full md:w-auto">
+                <a href="{{ route('instructor.courses.quizzes.create', $course) }}" class="w-full md:w-auto px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all hover:-translate-y-1 flex items-center justify-center gap-2 group">
+                    <span>⚙️ Gestionar Examen</span>
+                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
 </div>
 @endsection

@@ -24,7 +24,8 @@ class CourseController extends Controller
             ->paginate(12);
         return view('instructor.courses.index', compact('courses'));
     }
-public function create()
+
+    public function create()
     {
         // Traemos las categorías para llenar el "select" del formulario
         $categories = Category::all();
@@ -99,13 +100,13 @@ public function create()
         return view('instructor.courses.students', compact('course', 'students'));
     }
 
-    // 👇 AQUÍ ESTÁ LA NUEVA FUNCIÓN PARA GUARDAR LA NOTA 👇
+    // 👇 AQUÍ ESTÁ LA FUNCIÓN CORREGIDA PARA GUARDAR LA NOTA 👇
     public function updateGrade(Request $request, $courseId, $studentId)
     {
-        // Validamos que el instructor no meta números locos
+        // Validamos usando los nombres exactos que vienen del formulario Modal
         $request->validate([
             'final_grade' => 'required|numeric|min:0|max:20',
-            'is_approved' => 'required|boolean'
+            'status'      => 'required|in:in_progress,approved,failed', // 🔥 Corregido a 'status'
         ]);
 
         $course = Course::findOrFail($courseId);
@@ -116,21 +117,27 @@ public function create()
         // Actualizamos las columnas en la tabla pivote de ese estudiante específico
         $course->students()->updateExistingPivot($studentId, [
             'final_grade' => $request->final_grade,
-            'is_approved' => $request->is_approved,
+            'status'      => $request->status, // 🔥 Guardando el 'status' correctamente
         ]);
 
-        /* // Si activaste las notificaciones, puedes descomentar esto:
-        $student = \App\Models\User::find($studentId);
-        $student->notify(new GradeAssignedNotification($course, $request->final_grade, $request->is_approved));
-        */
+        return back()->with('success', '¡Calificación guardada y actualizada exitosamente!');
+    }
 
-        return back()->with('success', '¡Nota guardada y actualizada exitosamente!');
+    // 👇 NUEVA FUNCIÓN PARA EXPORTAR LA LISTA DE ASISTENCIA 👇
+    public function exportStudents(Course $course)
+    {
+        Gate::authorize('view', $course);
+        
+        // Traemos a los estudiantes ordenados alfabéticamente por nombre
+        $students = $course->students()->orderBy('name')->get();
+        
+        // Retornamos una vista especial lista para imprimir
+        return view('instructor.courses.print-attendance', compact('course', 'students'));
     }
 
     public function modules(Course $course)
     {
         Gate::authorize('view', $course);
-        // 🛠️ CORRECCIÓN: Cambiado 'order' por 'sort_order'
         $modules = $course->modules()->withCount('resources')->orderBy('sort_order')->get();
         return view('instructor.courses.modules', compact('course', 'modules'));
     }
@@ -138,7 +145,6 @@ public function create()
     public function storeModule(Request $request, Course $course)
     {
         Gate::authorize('update', $course);
-        // 🛠️ CORRECCIÓN: Cambiado 'is_published' por 'is_visible' para que coincida con tu BD
         $data = $request->validate([
             'title'        => 'required|string|max:255',
             'description'  => 'nullable|string',
@@ -146,7 +152,6 @@ public function create()
         ]);
         
         $data['course_id'] = $course->id;
-        // 🛠️ CORRECCIÓN: Cambiado 'order' por 'sort_order'
         $data['sort_order'] = $course->modules()->max('sort_order') + 1;
         
         Module::create($data);

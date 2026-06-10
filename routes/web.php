@@ -83,9 +83,10 @@ Route::middleware(['auth','role:admin,instructor','check.active'])->prefix('inst
     // Detalles específicos del Curso
     Route::prefix('courses/{course}')->name('courses.')->group(function () {
         
-        // Estudiantes y Notas
+        // 🔥 Estudiantes, Notas y Asistencia 🔥
         Route::get('/students', [InstructorCourses::class, 'students'])->name('students');
         Route::post('/students/{student}/grade', [InstructorCourses::class, 'updateGrade'])->name('students.grade');
+        Route::get('/export-students', [InstructorCourses::class, 'exportStudents'])->name('export-students'); // RUTA NUEVA PARA EL PDF
         
         // Módulos
         Route::get('/modules', [InstructorCourses::class, 'modules'])->name('modules');
@@ -135,4 +136,6 @@ Route::middleware(['auth','check.active'])->prefix('student')->name('student.')-
     Route::get('/chatbot',                    fn() => view('student.chatbot')   )->name('chatbot');
     Route::post('/chatbot/send',              [ChatbotController::class, 'sendMessage'])->name('student.chatbot.send');
     Route::get('/search',                     fn() => view('student.search')   )->name('search');
+    Route::get('/courses/{course}/quizzes/{quiz}', [\App\Http\Controllers\Student\QuizController::class, 'show'])->name('quizzes.show');
+    Route::post('/courses/{course}/quizzes/{quiz}', [\App\Http\Controllers\Student\QuizController::class, 'submit'])->name('quizzes.submit');
 });

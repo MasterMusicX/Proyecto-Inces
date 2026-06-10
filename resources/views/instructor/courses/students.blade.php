@@ -18,7 +18,7 @@
         }
      }">
 
-    <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <a href="{{ route('instructor.courses.show', $course->id) }}" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors mb-3">
                 ← Volver a Detalles del Curso
@@ -29,17 +29,31 @@
             <p class="text-gray-500 dark:text-slate-400 mt-1">Curso: <span class="font-bold text-blue-600 dark:text-blue-400">{{ $course->title }}</span></p>
         </div>
         
-        <div class="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-800/50 rounded-xl px-4 py-3 flex items-center gap-3">
-            <span class="text-2xl">👥</span>
-            <div>
-                <p class="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Total Inscritos</p>
-                <p class="text-xl font-black text-blue-800 dark:text-blue-400">{{ $students->count() }}</p>
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+            {{-- 🔥 BOTÓN NUEVO: Exportar Lista de Asistencia 🔥 --}}
+            <a href="{{ route('instructor.courses.export-students', $course->id) }}" target="_blank" class="w-full sm:w-auto px-5 py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-600/30 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Lista de Asistencia
+            </a>
+
+            <div class="w-full sm:w-auto bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-800/50 rounded-xl px-4 py-3 flex items-center justify-center gap-3">
+                <span class="text-2xl">👥</span>
+                <div>
+                    <p class="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Total Inscritos</p>
+                    <p class="text-xl font-black text-blue-800 dark:text-blue-400 leading-none">{{ $students->count() }}</p>
+                </div>
             </div>
         </div>
     </div>
 
+    {{-- 🔥 MENSAJES DE ÉXITO O ERROR 🔥 --}}
+    @if(session('success'))
+        <div class="mb-6 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl text-green-700 dark:text-green-400 font-bold text-sm flex items-center gap-2">
+            ✅ {{ session('success') }}
+        </div>
+    @endif
+
     <div class="bg-white dark:bg-[#1e293b] rounded-2xl overflow-hidden shadow-sm border border-gray-200 dark:border-slate-700/50 transition-colors">
-        
         <div class="overflow-x-auto w-full custom-scrollbar">
             <table class="w-full text-left text-sm text-gray-600 dark:text-slate-300 whitespace-nowrap">
                 <thead class="bg-gray-50 dark:bg-[#0f172a]/50 text-gray-500 dark:text-slate-400 border-b border-gray-200 dark:border-slate-700/50">
@@ -57,7 +71,13 @@
                         
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-4">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($student->name) }}&background=1e40af&color=fff" class="w-10 h-10 rounded-xl shadow-sm border border-gray-200 dark:border-slate-600">
+                                @php
+                                    $avatar = $student->avatar;
+                                    $avatarUrl = $avatar 
+                                        ? (str_starts_with($avatar, 'http') ? $avatar : asset('storage/' . $avatar))
+                                        : 'https://ui-avatars.com/api/?name='.urlencode($student->name).'&background=1e40af&color=fff&bold=true';
+                                @endphp
+                                <img src="{{ $avatarUrl }}" class="w-10 h-10 rounded-xl object-cover shadow-sm border border-gray-200 dark:border-slate-600">
                                 <div>
                                     <div class="font-bold text-gray-900 dark:text-white text-base">{{ $student->name }}</div>
                                     <div class="text-xs text-gray-500 dark:text-slate-400 font-medium">V-{{ $student->cedula ?? 'N/A' }}</div>
@@ -68,7 +88,7 @@
                         <td class="px-6 py-4">
                             <div class="flex flex-col items-center gap-1">
                                 <div class="w-24 h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                                    <div class="h-full bg-blue-500 rounded-full" style="width: {{ $student->pivot->progress_percentage ?? 0 }}%"></div>
+                                    <div class="h-full bg-blue-500 rounded-full transition-all duration-500" style="width: {{ $student->pivot->progress_percentage ?? 0 }}%"></div>
                                 </div>
                                 <span class="text-[10px] font-black text-gray-500">{{ $student->pivot->progress_percentage ?? 0 }}%</span>
                             </div>
@@ -76,7 +96,7 @@
 
                         <td class="px-6 py-4 text-center">
                             @if($student->pivot->status === 'approved')
-                                <span class="px-3 py-1 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-black uppercase tracking-widest rounded-lg border border-blue-200 dark:border-blue-800/50">Aprobado</span>
+                                <span class="px-3 py-1 bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] font-black uppercase tracking-widest rounded-lg border border-green-200 dark:border-green-800/50">Aprobado</span>
                             @elseif($student->pivot->status === 'failed')
                                 <span class="px-3 py-1 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-black uppercase tracking-widest rounded-lg border border-red-200 dark:border-red-800/50">Reprobado</span>
                             @else
@@ -86,16 +106,17 @@
 
                         <td class="px-6 py-4 text-center">
                             @if($student->pivot->final_grade)
-                                <span class="text-lg font-black text-gray-900 dark:text-white">{{ $student->pivot->final_grade }}</span><span class="text-xs text-gray-500">/20</span>
+                                <span class="text-lg font-black text-gray-900 dark:text-white">{{ $student->pivot->final_grade }}</span>
+                                <span class="text-xs text-gray-500 font-bold">/20</span>
                             @else
-                                <span class="text-sm font-medium text-gray-400">-</span>
+                                <span class="text-sm font-bold text-gray-400 dark:text-slate-600">Sin nota</span>
                             @endif
                         </td>
 
                         <td class="px-6 py-4 text-center">
-                            <button @click="openModal({{ $student->id }}, '{{ $student->name }}', '{{ $student->pivot->final_grade }}', '{{ $student->pivot->status }}')" 
+                            <button @click="openModal({{ $student->id }}, '{{ addslashes($student->name) }}', '{{ $student->pivot->final_grade }}', '{{ $student->pivot->status }}')" 
                                     class="inline-flex items-center px-4 py-2 bg-blue-800 hover:bg-blue-900 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-colors shadow-sm">
-                                Calificar
+                                ✏️ Calificar
                             </button>
                         </td>
                     </tr>
@@ -109,6 +130,7 @@
         </div>
     </div>
 
+    {{-- 🔥 MODAL DE CALIFICACIÓN CORREGIDO 🔥 --}}
     <div x-show="showModal" 
          class="fixed inset-0 z-50 overflow-y-auto" 
          style="display: none;"
@@ -127,7 +149,8 @@
                  @click.away="showModal = false"
                  class="relative bg-white dark:bg-[#1e293b] rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-lg w-full border border-gray-100 dark:border-slate-700">
                 
-                <form :action="`/instructor/courses/{{ $course->id }}/students/${studentId}/grade`" method="POST">
+                {{-- 🔥 AQUÍ EL FIX: Sintaxis correcta de AlpineJS para que lea el ID del estudiante 🔥 --}}
+                <form :action="'/instructor/courses/{{ $course->id }}/students/' + studentId + '/grade'" method="POST">
                     @csrf
                     
                     <div class="px-6 pt-6 pb-6 sm:p-8">
@@ -136,23 +159,23 @@
                         </div>
                         <div class="text-center mb-6">
                             <h3 class="text-xl font-extrabold text-gray-900 dark:text-white" id="modal-title">Calificar Estudiante</h3>
-                            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1" x-text="studentName"></p>
+                            <p class="text-sm font-bold text-blue-600 dark:text-blue-400 mt-1" x-text="studentName"></p>
                         </div>
                         
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Nota (0 - 20)</label>
-                                <input type="number" name="final_grade" x-model="grade" min="0" max="20" step="0.1" required
-                                       class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold text-lg text-center">
+                                <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Nota Final (0 - 20)</label>
+                                <input type="number" name="final_grade" x-model="grade" min="0" max="20" step="0.1"
+                                       class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all font-black text-2xl text-center text-blue-800 dark:text-blue-400 placeholder-gray-300">
                             </div>
                             
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Estado Final</label>
+                                <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Estado</label>
                                 <select name="status" x-model="status" required
-                                        class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer">
+                                        class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer font-bold">
                                     <option value="in_progress">Cursando</option>
-                                    <option value="approved">Aprobado</option>
-                                    <option value="failed">Reprobado</option>
+                                    <option value="approved">✅ Aprobado</option>
+                                    <option value="failed">❌ Reprobado</option>
                                 </select>
                             </div>
                         </div>
@@ -160,7 +183,7 @@
                     
                     <div class="px-6 py-4 bg-gray-50 dark:bg-[#0f172a]/50 border-t border-gray-100 dark:border-slate-700/50 flex flex-col sm:flex-row-reverse gap-3">
                         <button type="submit" class="w-full sm:w-auto px-6 py-3 text-sm font-bold text-white bg-blue-800 hover:bg-blue-900 dark:bg-blue-600 dark:hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-800/30 transition-all hover:-translate-y-0.5">
-                            Guardar Calificación
+                            💾 Guardar Calificación
                         </button>
                         <button type="button" @click="showModal = false" class="w-full sm:w-auto px-6 py-3 text-sm font-bold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-sm">
                             Cancelar
