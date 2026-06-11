@@ -86,7 +86,7 @@ Route::middleware(['auth','role:admin,instructor','check.active'])->prefix('inst
         // 🔥 Estudiantes, Notas y Asistencia 🔥
         Route::get('/students', [InstructorCourses::class, 'students'])->name('students');
         Route::post('/students/{student}/grade', [InstructorCourses::class, 'updateGrade'])->name('students.grade');
-        Route::get('/export-students', [InstructorCourses::class, 'exportStudents'])->name('export-students'); // RUTA NUEVA PARA EL PDF
+        Route::get('/export-students', [InstructorCourses::class, 'exportStudents'])->name('export-students'); 
         
         // Módulos
         Route::get('/modules', [InstructorCourses::class, 'modules'])->name('modules');
@@ -98,16 +98,16 @@ Route::middleware(['auth','role:admin,instructor','check.active'])->prefix('inst
 
         // Gestión de Evaluaciones (Quizzes)
         Route::prefix('quizzes')->name('quizzes.')->group(function () {
-            Route::get('/create', [InstructorQuizzes::class, 'create'])->name('create');
-            Route::post('/',      [InstructorQuizzes::class, 'store'])->name('store');
+            Route::get('/create', [\App\Http\Controllers\Instructor\QuizController::class, 'create'])->name('create');
+            Route::post('/',      [\App\Http\Controllers\Instructor\QuizController::class, 'store'])->name('store');
+            
+            // 🔥 CORRECCIÓN: Ahora el toggle está adentro, recibe el {course} y el {quiz} 🔥
+            Route::post('/{quiz}/toggle', [\App\Http\Controllers\Instructor\QuizController::class, 'toggleStatus'])->name('toggle');
         });
 
         // Reportes del Curso
         Route::get('/reportes/asistencia/{date}', [ReportController::class, 'downloadAttendance'])->name('reports.attendance');
     });
-
-    // Rutas Globales de Quices (Para activar/desactivar el examen)
-    Route::post('/quizzes/{quiz}/toggle', [InstructorQuizzes::class, 'toggleStatus'])->name('quizzes.toggle');
 });
 
 // ── Student ──────────────────────────────────────────────────
