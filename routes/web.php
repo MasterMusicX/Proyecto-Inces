@@ -77,13 +77,11 @@ Route::middleware(['auth','role:admin,instructor','check.active'])->prefix('inst
     // Dashboard y Estadísticas
     Route::get('/dashboard', [InstructorDash::class, 'index'])->name('dashboard');
 
-    // Gestión de Cursos (CRUD Base)
-    Route::resource('courses', InstructorCourses::class); 
-
+    // 🔥 1. LAS RUTAS ESPECÍFICAS VAN PRIMERO (Regla de Oro) 🔥
     // Detalles específicos del Curso
     Route::prefix('courses/{course}')->name('courses.')->group(function () {
         
-        // 🔥 Estudiantes, Notas y Asistencia 🔥
+        // Estudiantes, Notas y Asistencia
         Route::get('/students', [InstructorCourses::class, 'students'])->name('students');
         Route::post('/students/{student}/grade', [InstructorCourses::class, 'updateGrade'])->name('students.grade');
         Route::get('/export-students', [InstructorCourses::class, 'exportStudents'])->name('export-students'); 
@@ -101,15 +99,18 @@ Route::middleware(['auth','role:admin,instructor','check.active'])->prefix('inst
             Route::get('/create', [\App\Http\Controllers\Instructor\QuizController::class, 'create'])->name('create');
             Route::post('/',      [\App\Http\Controllers\Instructor\QuizController::class, 'store'])->name('store');
             
-            // 🔥 CORRECCIÓN: Ahora el toggle está adentro, recibe el {course} y el {quiz} 🔥
+            // Toggle para activar/desactivar la evaluación
             Route::post('/{quiz}/toggle', [\App\Http\Controllers\Instructor\QuizController::class, 'toggleStatus'])->name('toggle');
         });
 
         // Reportes del Curso
         Route::get('/reportes/asistencia/{date}', [ReportController::class, 'downloadAttendance'])->name('reports.attendance');
     });
-});
 
+    // 🔥 2. EL RESOURCE BASE VA DE ÚLTIMO (Para que no atrape las rutas de arriba) 🔥
+    // Gestión de Cursos (CRUD Base)
+    Route::resource('courses', InstructorCourses::class); 
+});
 // ── Student ──────────────────────────────────────────────────
 Route::middleware(['auth','check.active'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard',                  [StudentDash::class,    'index']  )->name('dashboard');
