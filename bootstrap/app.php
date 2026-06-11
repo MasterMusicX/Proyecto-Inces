@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -11,27 +12,32 @@ return Application::configure(basePath: dirname(__DIR__))
         health:   '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Tus alias de middleware registrados
+        
+        // 1. Alias de middlewares (Para llamarlos en web.php cuando sea necesario)
         $middleware->alias([
             'role'         => \App\Http\Middleware\RoleMiddleware::class,
             'check.active' => \App\Http\Middleware\CheckActive::class,
         ]);
         
-        // Middlewares globales para todas las rutas WEB
+        // 2. Middlewares globales para todas las rutas WEB (Se aplican a TODO)
         $middleware->web(append: [
-            \App\Http\Middleware\CheckActive::class,
-            \App\Http\Middleware\PreventBackHistory::class, // <-- Aquí está el nuevo guardia
+            // 🚨 Quitamos CheckActive de aquí para que no bloquee el Login/Register 🚨
+            \App\Http\Middleware\PreventBackHistory::class, 
         ]);
+        
     })
     ->withCommands([
         \App\Console\Commands\AnalyzeAllDocuments::class,
         \App\Console\Commands\LmsStats::class,
     ])
     ->withExceptions(function (Exceptions $exceptions) {
+        
+        // Manejo de errores personalizados (Página 403 bonita en vez de la de Laravel)
         $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
             if ($e->getStatusCode() === 403) {
                 return response()->view('errors.403', [], 403);
             }
         });
+        
     })
     ->create();

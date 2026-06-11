@@ -4,16 +4,26 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 animate-fade-in-up">
 
-    <div class="mb-8">
-        <a href="{{ route('instructor.courses.index') }}" class="inline-flex items-center text-sm font-bold text-gray-500 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-400 transition-colors mb-3">
-            ← Volver a Mis Cursos
-        </a>
-        <h1 class="text-3xl lg:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">
-            {{ $course->title }}
-        </h1>
-        <span class="inline-block mt-3 px-3 py-1 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-black uppercase tracking-widest rounded-lg border border-red-100 dark:border-red-800/50">
-            {{ $course->category->name ?? 'General' }}
-        </span>
+    <div class="mb-8 flex flex-col md:flex-row md:items-start justify-between gap-4">
+        <div>
+            <a href="{{ route('instructor.courses.index') }}" class="inline-flex items-center text-sm font-bold text-gray-500 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-400 transition-colors mb-3">
+                ← Volver a Mis Cursos
+            </a>
+            <h1 class="text-3xl lg:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">
+                {{ $course->title }}
+            </h1>
+            <span class="inline-block mt-3 px-3 py-1 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-black uppercase tracking-widest rounded-lg border border-red-100 dark:border-red-800/50">
+                {{ $course->category->name ?? 'General' }}
+            </span>
+        </div>
+
+        {{-- 🔥 BOTÓN NUEVO: Exportar Lista de Asistencia desde el Inicio 🔥 --}}
+        <div class="shrink-0 mt-4 md:mt-0">
+            <a href="{{ route('instructor.courses.export-students', $course->id) }}" target="_blank" class="w-full md:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-600/30 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Lista de Asistencia PDF
+            </a>
+        </div>
     </div>
 
     {{-- 🔥 TARJETAS DE ESTADÍSTICAS 🔥 --}}
