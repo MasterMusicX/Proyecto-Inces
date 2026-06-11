@@ -5,7 +5,8 @@
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 animate-fade-in-up" x-data="quizBuilder()">
     
     <div class="mb-8">
-        <a href="{{ route('instructor.courses.show', $course) }}" class="inline-flex items-center text-sm font-bold text-gray-500 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-400 transition-colors mb-3">
+        {{-- 🔥 CORRECCIÓN: ->id explícito --}}
+        <a href="{{ route('instructor.courses.show', $course->id) }}" class="inline-flex items-center text-sm font-bold text-gray-500 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-400 transition-colors mb-3">
             ← Volver al Curso
         </a>
         <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
@@ -14,7 +15,8 @@
         <p class="text-gray-500 dark:text-slate-400 mt-2">Diseña las preguntas y opciones para el curso: <span class="font-bold text-blue-600 dark:text-blue-400">{{ $course->title }}</span></p>
     </div>
 
-    <form action="{{ route('instructor.quizzes.store', $course) }}" method="POST" class="space-y-8">
+    {{-- 🔥 CORRECCIÓN: Ruta anidada exacta y con ->id 🔥 --}}
+    <form action="{{ route('instructor.courses.quizzes.store', $course->id) }}" method="POST" class="space-y-8">
         @csrf
 
         @if ($errors->any())
@@ -132,7 +134,8 @@
         </div>
 
         <div class="flex items-center justify-end gap-4 pt-4">
-            <a href="{{ route('instructor.courses.show', $course) }}" class="px-6 py-3 font-bold text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+            {{-- 🔥 CORRECCIÓN: ->id explícito también aquí --}}
+            <a href="{{ route('instructor.courses.show', $course->id) }}" class="px-6 py-3 font-bold text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors">
                 Cancelar
             </a>
             <button type="submit" class="px-8 py-3.5 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl shadow-lg shadow-red-600/30 transition-all hover:-translate-y-1 flex items-center gap-2">
