@@ -135,7 +135,7 @@
 
         <div class="flex items-center justify-end gap-4 pt-4">
             {{-- 🔥 CORRECCIÓN: ->id explícito también aquí --}}
-            <a href="{{ route('instructor.courses.show', $course->id) }}" class="px-6 py-3 font-bold text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+            <a href="{{ route('instructor.courses.show', $course) }}" class="px-6 py-3 font-bold text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors">
                 Cancelar
             </a>
             <button type="submit" class="px-8 py-3.5 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl shadow-lg shadow-red-600/30 transition-all hover:-translate-y-1 flex items-center gap-2">
