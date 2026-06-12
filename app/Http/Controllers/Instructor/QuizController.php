@@ -7,7 +7,7 @@ use App\Models\Course;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate; // 🔥 Importante para la seguridad
+use Illuminate\Support\Facades\Gate;
 
 class QuizController extends Controller
 {
@@ -16,7 +16,7 @@ class QuizController extends Controller
      */
     public function create(Course $course)
     {
-        Gate::authorize('update', $course); // Seguridad: Solo el dueño del curso
+        Gate::authorize('update', $course); 
         
         return view('instructor.quizzes.create', compact('course'));
     }
@@ -28,11 +28,12 @@ class QuizController extends Controller
     {
         Gate::authorize('update', $course);
 
-        // 1. Validar los datos básicos
+        // 1. Validar los datos básicos (Agregué validación de nota máxima 20)
         $request->validate([
             'title'               => 'required|string|max:255',
-            'passing_score'       => 'required|numeric|min:0',
+            'passing_score'       => 'required|numeric|min:1|max:20',
             'time_limit'          => 'required|integer|min:1',
+            'max_attempts'        => 'nullable|integer|min:1',
             'questions'           => 'required|array|min:1',
             'questions.*.text'    => 'required|string',
             'questions.*.points'  => 'required|integer|min:1',
@@ -42,10 +43,14 @@ class QuizController extends Controller
         try {
             DB::beginTransaction();
 
-            // 2. Crear el Quiz vinculado al curso
-            $quiz = $course->quizzes()->create([
+            // 🔥 CORRECCIÓN 1: Si ya existía un examen viejo, lo borramos para no acumular basura
+            if ($course->quiz) {
+                $course->quiz->delete();
+            }
+
+            // 🔥 CORRECCIÓN 2: Usamos quiz() en SINGULAR
+            $quiz = $course->quiz()->create([
                 'title'         => $request->title,
-                'description'   => $request->description, // Asegúrate de mandar esto en el formulario si lo usas
                 'time_limit'    => $request->time_limit,
                 'passing_score' => $request->passing_score,
                 'max_attempts'  => $request->max_attempts ?? 1,
@@ -64,7 +69,6 @@ class QuizController extends Controller
                 foreach ($qData['options'] as $oIndex => $oData) {
                     $question->options()->create([
                         'option_text' => $oData['text'],
-                        // Verificamos cuál índice marcó el profe como la respuesta correcta
                         'is_correct'  => ($request->questions[$index]['correct_index'] == $oIndex),
                     ]);
                 }
@@ -72,17 +76,16 @@ class QuizController extends Controller
 
             DB::commit();
             return redirect()->route('instructor.courses.show', $course->id)
-                             ->with('success', '¡Evaluación creada exitosamente!');
+                             ->with('success', '¡Evaluación creada y guardada exitosamente!');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Error técnico al crear la evaluación: ' . $e->getMessage())->withInput();
+            return back()->with('error', 'Error técnico al guardar la evaluación: ' . $e->getMessage())->withInput();
         }
     }
 
     /**
      * Activar o desactivar el quiz (El switch del profe).
-     * 🔥 NOTA: Agregamos Course $course para que empate con la ruta anidada
      */
     public function toggleStatus(Course $course, Quiz $quiz)
     {
@@ -96,7 +99,6 @@ class QuizController extends Controller
 
     /**
      * Eliminar evaluación.
-     * 🔥 NOTA: También le pasamos el curso por si acaso
      */
     public function destroy(Course $course, Quiz $quiz)
     {
