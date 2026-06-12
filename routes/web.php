@@ -97,7 +97,9 @@ Route::middleware(['auth','role:admin,instructor','check.active'])->prefix('inst
         // Gestión de Evaluaciones (Quizzes)
         Route::prefix('quizzes')->name('quizzes.')->group(function () {
             Route::get('/create', [\App\Http\Controllers\Instructor\QuizController::class, 'create'])->name('create');
-            Route::post('/',      [\App\Http\Controllers\Instructor\QuizController::class, 'store'])->name('store');
+            
+            // 🔥 EL PARCHE: Aquí está el '/save' para que no explote el formulario 🔥
+            Route::post('/save',  [\App\Http\Controllers\Instructor\QuizController::class, 'store'])->name('store');
             
             // Toggle para activar/desactivar la evaluación
             Route::post('/{quiz}/toggle', [\App\Http\Controllers\Instructor\QuizController::class, 'toggleStatus'])->name('toggle');
@@ -111,6 +113,7 @@ Route::middleware(['auth','role:admin,instructor','check.active'])->prefix('inst
     // Gestión de Cursos (CRUD Base)
     Route::resource('courses', InstructorCourses::class); 
 });
+
 // ── Student ──────────────────────────────────────────────────
 Route::middleware(['auth','check.active'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard',                  [StudentDash::class,    'index']  )->name('dashboard');
@@ -122,7 +125,7 @@ Route::middleware(['auth','check.active'])->prefix('student')->name('student.')-
     // Ruta para el salón de clases (Learn)
     Route::get('/courses/{course}/learn',     [StudentCourses::class, 'learn']  )->name('courses.learn');
     
-    // 🔥 NUEVO: Ruta para guardar el progreso del estudiante en tiempo real
+    // Ruta para guardar el progreso del estudiante en tiempo real
     Route::post('/courses/{course}/progress', [StudentCourses::class, 'updateProgress'])->name('courses.progress');
     
     Route::get('/resources/{resource}',       [StudentResources::class,'show']  )->name('resources.show');
@@ -135,7 +138,7 @@ Route::middleware(['auth','check.active'])->prefix('student')->name('student.')-
     Route::post('/chatbot/send',              [ChatbotController::class, 'sendMessage'])->name('student.chatbot.send');
     Route::get('/search',                     fn() => view('student.search')   )->name('search');
     
-    // 🔥 Rutas Definitivas para la Evaluación Final (Examen) 🔥
+    // Rutas Definitivas para la Evaluación Final (Examen)
     Route::get('/courses/{course}/quizzes/{quiz}',  [\App\Http\Controllers\Student\QuizController::class, 'show'])->name('quizzes.show');
     Route::post('/courses/{course}/quizzes/{quiz}', [\App\Http\Controllers\Student\QuizController::class, 'submit'])->name('quizzes.submit');
 });
