@@ -56,7 +56,7 @@
                 {{ $course->description }}
             </p>
 
-            {{-- Fichas de información (Estilo HACER modernizado) --}}
+            {{-- Fichas de información --}}
             <div class="flex flex-wrap items-center gap-3 text-xs font-bold text-blue-50 mb-8">
                 <span class="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-xl border border-white/20">
                     👨🏽‍🏫 {{ $course->instructor->name ?? 'INCES' }}
@@ -202,34 +202,23 @@
                         {{ $course->instructor->bio ?? 'Instructor capacitado y avalado por el INCES para la enseñanza de oficios productivos.' }}
                     </p>
                     
-                    {{-- =========================================================================
-                         LÓGICA DEL BOTÓN DE WHATSAPP
-                         ========================================================================= --}}
+                    {{-- Lógica de WhatsApp --}}
                     @php
-                        // Obtenemos el teléfono de la BD
                         $phone = $course->instructor->phone ?? null;
-                        
-                        // Limpiamos todo lo que no sea número (espacios, guiones, etc)
                         $cleanPhone = $phone ? preg_replace('/[^0-9]/', '', $phone) : null;
-                        
-                        // Si el número empieza con 04 (ej. 0412, 0414) le ponemos el 58 de Venezuela
                         if($cleanPhone && substr($cleanPhone, 0, 2) === '04') {
                             $cleanPhone = '58' . substr($cleanPhone, 1);
                         }
-                        
-                        // Mensaje predeterminado que le llegará al profe
                         $instructorName = $course->instructor->name ?? 'Profesor';
                         $waMessage = "Saludos {$instructorName}, le escribo desde la plataforma IncesCampus. Soy estudiante y tengo una duda respecto a la formación: *{$course->title}*.";
                     @endphp
 
                     @if($cleanPhone)
-                        {{-- Si TIENE un número válido, abre la API de WhatsApp en otra pestaña --}}
                         <a href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode($waMessage) }}" target="_blank" class="mt-6 w-full inline-flex items-center justify-center px-4 py-3 text-sm font-bold text-white bg-[#25D366] hover:bg-[#128C7E] rounded-xl transition-all shadow-lg shadow-green-600/30 gap-2 hover:-translate-y-0.5">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.385 0 12.031c0 2.125.553 4.195 1.603 6.012L.15 23.85l5.961-1.564A11.956 11.956 0 0012.031 24c6.646 0 12.031-5.385 12.031-12.031S18.677 0 12.031 0zm0 22.016a9.92 9.92 0 01-5.088-1.393l-.364-.216-3.774.99.998-3.68-.236-.376a9.927 9.927 0 01-1.52-5.31C2.047 5.485 7.423.109 13.93.109c6.507 0 11.883 5.376 11.883 11.883s-5.376 11.883-11.883 11.883zm5.498-7.514c-.302-.151-1.782-.88-2.058-.98-.276-.1-.477-.151-.678.151-.201.302-.779.98-1.055 1.181-.276.201-.553.226-.855.075-.302-.151-1.272-.469-2.424-1.496-.897-.8-1.503-1.789-1.679-2.091-.176-.302-.019-.465.132-.616.135-.135.302-.352.453-.528.151-.176.201-.302.302-.503.1-.201.05-.377-.025-.528-.075-.151-.678-1.634-.93-2.238-.246-.59-.496-.51-.678-.519-.176-.009-.377-.009-.578-.009-.201 0-.528.075-.804.377-.276.302-1.055 1.031-1.055 2.514s1.08 2.916 1.231 3.117c.151.201 2.124 3.243 5.143 4.544 2.124.915 2.943.981 3.998.831 1.231-.176 3.774-1.544 4.302-3.033.528-1.489.528-2.766.377-3.033-.151-.267-.553-.418-.855-.569z"/></svg>
                             Contactar al Profesor
                         </a>
                     @else
-                        {{-- Si NO TIENE número, cambia la variable de Alpine showPhoneAlert a true por 4 segundos --}}
                         <button @click="showPhoneAlert = true; setTimeout(() => showPhoneAlert = false, 4000)" type="button" class="mt-6 w-full inline-flex items-center justify-center px-4 py-3 text-sm font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-400 border border-gray-200 dark:border-slate-600 rounded-xl transition-all gap-2">
                             <svg class="w-5 h-5 opacity-50" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.385 0 12.031c0 2.125.553 4.195 1.603 6.012L.15 23.85l5.961-1.564A11.956 11.956 0 0012.031 24c6.646 0 12.031-5.385 12.031-12.031S18.677 0 12.031 0zm0 22.016a9.92 9.92 0 01-5.088-1.393l-.364-.216-3.774.99.998-3.68-.236-.376a9.927 9.927 0 01-1.52-5.31C2.047 5.485 7.423.109 13.93.109c6.507 0 11.883 5.376 11.883 11.883s-5.376 11.883-11.883 11.883zm5.498-7.514c-.302-.151-1.782-.88-2.058-.98-.276-.1-.477-.151-.678.151-.201.302-.779.98-1.055 1.181-.276.201-.553.226-.855.075-.302-.151-1.272-.469-2.424-1.496-.897-.8-1.503-1.789-1.679-2.091-.176-.302-.019-.465.132-.616.135-.135.302-.352.453-.528.151-.176.201-.302.302-.503.1-.201.05-.377-.025-.528-.075-.151-.678-1.634-.93-2.238-.246-.59-.496-.51-.678-.519-.176-.009-.377-.009-.578-.009-.201 0-.528.075-.804.377-.276.302-1.055 1.031-1.055 2.514s1.08 2.916 1.231 3.117c.151.201 2.124 3.243 5.143 4.544 2.124.915 2.943.981 3.998.831 1.231-.176 3.774-1.544 4.302-3.033.528-1.489.528-2.766.377-3.033-.151-.267-.553-.418-.855-.569z"/></svg>
                             Contactar al Profesor
@@ -238,7 +227,58 @@
                 </div>
             </div>
         </div>
-
     </div>
+
+    {{-- =========================================================================
+         SECCIÓN DE LA EVALUACIÓN FINAL (Solo para estudiantes inscritos)
+         ========================================================================= --}}
+    @if(isset($isEnrolled) && $isEnrolled && $course->quiz && $course->quiz->is_active)
+        <div class="mt-8 bg-gradient-to-r from-blue-900 to-blue-950 dark:from-slate-800 dark:to-slate-900 rounded-3xl shadow-xl border border-blue-800 dark:border-slate-700 p-8 sm:p-10 relative overflow-hidden">
+            <div class="absolute inset-0 bg-white/5 opacity-20" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 20px 20px;"></div>
+            
+            <div class="relative flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6">
+                    <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-4xl shadow-inner border border-white/20 shrink-0">
+                        🎓
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black text-white tracking-tight mb-2">Evaluación Final: {{ $course->quiz->title }}</h2>
+                        <p class="text-blue-200 dark:text-slate-300 font-medium text-sm max-w-xl">
+                            Demuestra los conocimientos adquiridos en el curso. Tienes <strong>{{ $course->quiz->time_limit }} minutos</strong> para completarla. Calificación mínima aprobatoria: <strong>{{ $course->quiz->passing_score }} pts</strong>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="shrink-0 w-full md:w-auto text-center md:text-right">
+                    @php
+                        // Buscamos la nota en la tabla pivote para este estudiante
+                        $enrollment = $course->students()->where('user_id', Auth::id())->first();
+                    @endphp
+
+                    @if($enrollment && $enrollment->pivot->status === 'approved')
+                        <div class="bg-green-500/20 border border-green-500/50 rounded-xl px-8 py-4 text-center shadow-inner">
+                            <p class="text-green-300 text-xs font-black uppercase tracking-widest mb-1">¡Aprobado!</p>
+                            <p class="text-4xl font-black text-white">{{ $enrollment->pivot->final_grade }} <span class="text-xl text-green-200">/ 20</span></p>
+                        </div>
+                    @elseif($enrollment && $enrollment->pivot->status === 'failed')
+                        <div class="bg-red-500/20 border border-red-500/50 rounded-xl px-8 py-4 text-center shadow-inner mb-4">
+                            <p class="text-red-300 text-xs font-black uppercase tracking-widest mb-1">Reprobado</p>
+                            <p class="text-4xl font-black text-white">{{ $enrollment->pivot->final_grade }} <span class="text-xl text-red-200">/ 20</span></p>
+                        </div>
+                        <p class="text-xs text-blue-200 font-bold mb-3">¿Deseas intentarlo de nuevo?</p>
+                        <a href="{{ route('student.quizzes.show', [$course->id, $course->quiz->id]) }}" class="w-full md:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2">
+                            🔄 Reintentar
+                        </a>
+                    @else
+                        <a href="{{ route('student.quizzes.show', [$course->id, $course->quiz->id]) }}" class="w-full md:w-auto px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all hover:-translate-y-1 flex items-center justify-center gap-2 group">
+                            <span>📝 Iniciar Evaluación</span>
+                            <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
+
 </div>
 @endsection
