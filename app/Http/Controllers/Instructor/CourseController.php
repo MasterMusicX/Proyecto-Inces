@@ -9,10 +9,8 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http; // 🔥 IMPORTANTE: Agregamos Http para hablar con ImgBB
 use Illuminate\Support\Str;
-
-// Si estás usando la notificación, asegúrate de importarla aquí arriba
-// use App\Notifications\GradeAssignedNotification;
 
 class CourseController extends Controller
 {
@@ -48,9 +46,29 @@ class CourseController extends Controller
         // Creamos una URL amigable (slug) automáticamente basada en el título
         $data['slug'] = Str::slug($data['title'] . '-' . uniqid());
 
-        // Si el profe subió una foto, la guardamos en la carpeta 'courses/thumbnails'
+        // 🔥 NUEVA LÓGICA: Subir la foto a ImgBB 🔥
         if ($request->hasFile('thumbnail')) {
-            $data['thumbnail'] = $request->file('thumbnail')->store('courses/thumbnails', 'public');
+            try {
+                // Convertimos la imagen a Base64 para enviarla
+                $imageContent = base64_encode(file_get_contents($request->file('thumbnail')->path()));
+                
+                // Hacemos la petición POST a ImgBB
+                $response = Http::asForm()->post('https://api.imgbb.com/1/upload', [
+                    'key'   => env('IMGBB_API_KEY'), // Asegúrate de tener esta variable en tu .env
+                    'image' => $imageContent,
+                ]);
+
+                if ($response->successful()) {
+                    // Si todo sale bien, guardamos el link directo en la base de datos
+                    $data['thumbnail'] = $response->json('data.url');
+                } else {
+                    // Plan B: Si ImgBB rechaza la imagen, guardamos local
+                    $data['thumbnail'] = $request->file('thumbnail')->store('courses/thumbnails', 'public');
+                }
+            } catch (\Exception $e) {
+                // Plan C: Si no hay internet o explota la API, guardamos local
+                $data['thumbnail'] = $request->file('thumbnail')->store('courses/thumbnails', 'public');
+            }
         }
 
         Course::create($data);
@@ -60,19 +78,12 @@ class CourseController extends Controller
   
     public function show($identifier)
     {
-        // 1. Averiguar si buscar por ID o por Slug
         $field = is_numeric($identifier) ? 'id' : 'slug';
-
-        // 2. Buscar el curso en la base de datos PRIMERO
         $course = \App\Models\Course::where($field, $identifier)->firstOrFail();
 
-        // 3. AHORA SÍ, pasamos por el Gate de seguridad (El vigilante)
         Gate::authorize('view', $course);
-
-        // 4. Cargamos las relaciones que necesitas para tu vista
         $course->load(['modules.resources', 'category']);
         
-        // 5. Calculamos tus estadísticas
         $stats = [
             'students'  => $course->enrollments()->count(),
             'modules'   => $course->modules()->count(),
@@ -80,10 +91,8 @@ class CourseController extends Controller
             'completed' => $course->enrollments()->where('status', 'completed')->count(),
         ];
         
-        // 6. Traemos los estudiantes
         $students = $course->students()->latest('enrollments.created_at')->limit(10)->get();
         
-        // 7. Retornamos la vista
         return view('instructor.courses.show', compact('course', 'stats', 'students'));
     }
 
@@ -91,7 +100,6 @@ class CourseController extends Controller
     {
         Gate::authorize('view', $course);
         
-        // Aquí traemos a los estudiantes y las columnas adicionales de la tabla pivote
         $students = $course->students()
             ->withPivot('id', 'status', 'progress_percentage', 'completed_at', 'created_at', 'final_grade', 'is_approved')
             ->orderByPivot('created_at', 'desc')
@@ -100,38 +108,29 @@ class CourseController extends Controller
         return view('instructor.courses.students', compact('course', 'students'));
     }
 
-    // 👇 AQUÍ ESTÁ LA FUNCIÓN CORREGIDA PARA GUARDAR LA NOTA 👇
     public function updateGrade(Request $request, $courseId, $studentId)
     {
-        // Validamos usando los nombres exactos que vienen del formulario Modal
         $request->validate([
             'final_grade' => 'required|numeric|min:0|max:20',
-            'status'      => 'required|in:in_progress,approved,failed', // 🔥 Corregido a 'status'
+            'status'      => 'required|in:in_progress,approved,failed',
         ]);
 
         $course = Course::findOrFail($courseId);
-        
-        // Verificamos que este instructor sea el dueño del curso
         Gate::authorize('update', $course); 
 
-        // Actualizamos las columnas en la tabla pivote de ese estudiante específico
         $course->students()->updateExistingPivot($studentId, [
             'final_grade' => $request->final_grade,
-            'status'      => $request->status, // 🔥 Guardando el 'status' correctamente
+            'status'      => $request->status, 
         ]);
 
         return back()->with('success', '¡Calificación guardada y actualizada exitosamente!');
     }
 
-    // 👇 NUEVA FUNCIÓN PARA EXPORTAR LA LISTA DE ASISTENCIA 👇
     public function exportStudents(Course $course)
     {
         Gate::authorize('view', $course);
         
-        // Traemos a los estudiantes ordenados alfabéticamente por nombre
         $students = $course->students()->orderBy('name')->get();
-        
-        // Retornamos una vista especial lista para imprimir
         return view('instructor.courses.print-attendance', compact('course', 'students'));
     }
 
