@@ -22,7 +22,8 @@
                 <div class="h-36 bg-gradient-to-br from-blue-900 to-blue-600 relative overflow-hidden flex items-center justify-center">
                     
                     @if($course->thumbnail)
-                        <img src="{{ $course->thumbnail_url }}" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50 transition-transform duration-500 group-hover:scale-105" alt="{{ $course->title }}">
+                        {{-- 🔥 LÓGICA INTELIGENTE: Si viene de ImgBB (http) la pone directa, si no, usa el storage local 🔥 --}}
+                        <img src="{{ str_starts_with($course->thumbnail, 'http') ? $course->thumbnail : asset('storage/' . $course->thumbnail) }}" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50 transition-transform duration-500 group-hover:scale-105" alt="{{ $course->title }}">
                     @else
                         <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 20px 20px;"></div>
                         <div class="text-4xl opacity-50 drop-shadow-md">🎓</div>
