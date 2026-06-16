@@ -50,7 +50,7 @@
         </form>
     </div>
 
-    {{-- Grid de Tarjetas de Cursos --}}
+   {{-- Grid de Tarjetas de Cursos --}}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         @forelse($courses as $i => $course)
         <div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700/50 overflow-hidden flex flex-col transition-all hover:-translate-y-1 hover:shadow-md group animate-fade-in-up" style="animation-delay: {{ ($i + 2) * 100 }}ms;">
@@ -58,7 +58,11 @@
             {{-- Imagen / Portada del Curso --}}
             <div class="h-40 bg-gradient-to-br from-blue-500/20 to-blue-500/20 dark:from-blue-500/10 dark:to-blue-500/10 relative overflow-hidden flex items-center justify-center border-b border-gray-100 dark:border-slate-700/50">
                 @if($course->thumbnail)
-                    <img src="{{ $course->thumbnail_url }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="{{ $course->title }}">
+                    {{-- 🔥 LÓGICA INTELIGENTE APLICADA AQUÍ 🔥 --}}
+                    <img src="{{ str_starts_with($course->thumbnail, 'http') ? $course->thumbnail : asset('storage/' . $course->thumbnail) }}" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" 
+                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                         alt="{{ $course->title }}">
                     <div style="display:none;" class="absolute inset-0 flex items-center justify-center text-5xl opacity-50 dark:opacity-30 mix-blend-overlay">📚</div>
                 @else
                     <div class="absolute inset-0 flex items-center justify-center text-5xl opacity-50 dark:opacity-30 mix-blend-overlay">📚</div>
