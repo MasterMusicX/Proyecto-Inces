@@ -8,15 +8,12 @@
     {{-- =========================================================================
          MODAL DE GUÍA DE BIENVENIDA (Usa Alpine.js para la interactividad)
          ========================================================================= --}}
-    {{-- x-data inicia un componente Alpine. Revisa si en localStorage ya existe la variable 'hideIncesGuide'. Si no existe, muestra el modal. --}}
     <div x-data="{ showGuide: localStorage.getItem('hideIncesGuide') !== 'true' }">
         
-        {{-- x-show controla la visibilidad. Si showGuide es true, se muestra el fondo negro transparente (backdrop-blur) --}}
         <div x-show="showGuide" style="display: none;"
              x-transition.opacity
              class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             
-            {{-- Panel blanco del modal. @click.away cierra el modal si el usuario hace clic afuera de la caja blanca --}}
             <div @click.away="showGuide = false; localStorage.setItem('hideIncesGuide', 'true')" 
                  x-show="showGuide"
                  x-transition:enter="transform transition ease-out duration-300"
@@ -27,7 +24,11 @@
                 <div class="p-8">
                     {{-- Cabecera del Modal --}}
                     <div class="flex items-center gap-4 mb-6">
-                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-500/20 text-2xl flex items-center justify-center rounded-2xl">🚀</div>
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center rounded-2xl shrink-0">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+                            </svg>
+                        </div>
                         <div>
                             <h2 class="text-2xl font-black text-gray-900 dark:text-white">¡Bienvenido a Inces Campus!</h2>
                             <p class="text-gray-500 dark:text-slate-400 text-sm">Guía rápida para tu formación profesional.</p>
@@ -54,7 +55,7 @@
                         </div>
                     </div>
 
-                    {{-- Botón de Entendido: Al hacer clic, oculta el modal y guarda en el navegador que ya lo vio --}}
+                    {{-- Botón de Entendido --}}
                     <button @click="showGuide = false; localStorage.setItem('hideIncesGuide', 'true')" 
                             class="w-full mt-8 py-4 bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-2xl transition-all shadow-lg shadow-blue-800/30 active:scale-95">
                         ¡Entendido, vamos a estudiar!
@@ -74,9 +75,13 @@
         
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
             <div>
-                {{-- explode(' ', Auth::user()->name)[0] toma el nombre completo (Ej: "Jose Davalillo"), lo separa por espacios y muestra solo la primera palabra ("Jose") --}}
                 <h1 class="text-3xl sm:text-4xl font-black mb-2 flex items-center justify-center md:justify-start gap-3">
-                    ¡Hola de nuevo, {{ explode(' ', Auth::user()->name)[0] }}! <span class="text-4xl animate-wave">👋</span>
+                    ¡Hola de nuevo, {{ explode(' ', Auth::user()->name)[0] }}! 
+                    <span class="inline-block text-yellow-300 animate-pulse">
+                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09l2.846.813-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+                        </svg>
+                    </span>
                 </h1>
                 <p class="text-blue-100 text-lg">Tienes un progreso increíble. ¡Sigue así y obtén tu certificado!</p>
             </div>
@@ -105,7 +110,6 @@
                     </svg>
                 </div>
                 <div>
-                    {{-- Contamos cuántos cursos hay en la variable $enrolledCourses --}}
                     <div class="text-3xl font-black text-gray-900 dark:text-white leading-none">{{ count($enrolledCourses ?? []) }}</div>
                     <div class="text-[11px] font-bold text-gray-500 dark:text-slate-400 mt-1 uppercase tracking-wider">Cursos Totales</div>
                 </div>
@@ -119,7 +123,6 @@
                     </svg>
                 </div>
                 <div>
-                    {{-- Usamos collect() para convertir el array en una Colección Laravel, luego filtramos (where) buscando solo los que en su tabla pivote (enrollments) tienen status 'active', y los contamos. ¡Esto ahorra hacer consultas adicionales a la BD! --}}
                     <div class="text-3xl font-black text-gray-900 dark:text-white leading-none">
                         {{ collect($enrolledCourses ?? [])->where('pivot.status', 'active')->count() }}
                     </div>
@@ -135,7 +138,6 @@
                     </svg>
                 </div>
                 <div>
-                    {{-- Misma lógica matemática anterior, pero filtramos por los 'completed' --}}
                     <div class="text-3xl font-black text-gray-900 dark:text-white leading-none">
                         {{ collect($enrolledCourses ?? [])->where('pivot.status', 'completed')->count() }}
                     </div>
@@ -151,7 +153,6 @@
                     </svg>
                 </div>
                 <div>
-                    {{-- Valor estático por ahora, a futuro podrías conectarlo a un wishlist o calendario --}}
                     <div class="text-3xl font-black text-gray-900 dark:text-white leading-none">0</div>
                     <div class="text-[11px] font-bold text-gray-500 dark:text-slate-400 mt-1 uppercase tracking-wider">Planificadas</div>
                 </div>
@@ -172,12 +173,10 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {{-- @forelse es un bucle mágico de Blade: si hay cursos los recorre, si el array está vacío, muestra lo que está después de @empty --}}
             @forelse($enrolledCourses ?? [] as $course)
                 <div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700/50 p-5 flex flex-col transition-all hover:shadow-lg hover:-translate-y-1">
                     <div class="flex items-start gap-4 mb-4">
                         <div class="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0">
-                            {{-- El operador ?? asigna una imagen por defecto si el curso no tiene thumbnail --}}
                             <img src="{{ $course->thumbnail ?? 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2070' }}" class="w-full h-full object-cover">
                         </div>
                         <div>
@@ -186,15 +185,12 @@
                         </div>
                     </div>
                     
-                    {{-- Barra de progreso y botón (Empujados hacia abajo con mt-auto) --}}
                     <div class="mt-auto">
                         <div class="flex justify-between text-xs font-bold text-gray-500 mb-2">
                             <span>Progreso</span>
-                            {{-- Extrae el progreso guardado en la tabla pivote de la BD --}}
                             <span class="text-blue-600">{{ $course->pivot->progress_percentage ?? 0 }}%</span>
                         </div>
                         <div class="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden mb-4">
-                            {{-- Dibuja la barra de progreso en Rojo INCES rellenando el % correspondiente --}}
                             <div class="h-full bg-red-600 rounded-full transition-all duration-1000" style="width: {{ $course->pivot->progress_percentage ?? 0 }}%"></div>
                         </div>
                         <a href="{{ route('student.courses.show', $course->slug ?? $course->id) }}" class="block w-full py-2.5 text-center text-sm font-bold text-white bg-[#0088cc] hover:bg-blue-700 rounded-xl transition-colors shadow-sm">
@@ -203,16 +199,20 @@
                     </div>
                 </div>
             @empty
-                {{-- Estado Vacío: Si no tiene cursos, muestra este mensaje amigable invitándolo al catálogo --}}
+                {{-- Estado Vacío --}}
                 <div class="col-span-full bg-white dark:bg-[#1e293b] rounded-3xl border border-dashed border-gray-300 dark:border-slate-700 p-10 text-center">
-                    <div class="text-5xl mb-4">📚</div>
+                    <div class="flex justify-center mb-4 text-gray-300 dark:text-slate-600">
+                        <svg class="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                        </svg>
+                    </div>
                     <h3 class="text-xl font-extrabold text-gray-900 dark:text-white mb-2">Aún no te has inscrito en ningún curso</h3>
                     <p class="text-gray-500 dark:text-slate-400 mb-6">Tu panel de aprendizaje está esperando por ti. ¡Anímate a empezar!</p>
                     <a href="{{ route('student.courses.catalog') }}" class="inline-block bg-[#ce202a] hover:bg-red-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-red-600/30 transition-transform hover:-translate-y-1">
                         Ir al Catálogo de Cursos
                     </a>
                 </div>
-            @endforelse
+            @endempty
         </div>
     </div>
 
@@ -226,11 +226,9 @@
             @forelse($featuredCourses ?? [] as $course)
                 <div class="group bg-white dark:bg-[#1e293b] rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-slate-700/50 hover:shadow-lg transition-all">
                     <div class="h-32 overflow-hidden relative">
-                        {{-- group-hover:scale-110 hace el efecto de zoom suave en la imagen al pasar el mouse por la tarjeta --}}
                         <img src="{{ $course->thumbnail ?? 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2070' }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                     </div>
                     <div class="p-4 flex flex-col">
-                        {{-- line-clamp-2 recorta el texto a máximo 2 líneas añadiendo puntos suspensivos si es muy largo --}}
                         <h3 class="text-sm font-bold text-gray-900 dark:text-white line-clamp-2 mb-3 group-hover:text-blue-600 transition-colors">{{ $course->title }}</h3>
                         <a href="{{ route('student.courses.show', $course->slug ?? $course->id) }}" class="mt-auto px-4 py-2 bg-gray-50 hover:bg-blue-800 text-gray-700 hover:text-white dark:bg-slate-800 dark:text-slate-300 rounded-lg text-xs font-bold text-center transition-colors">
                             Ver detalles
