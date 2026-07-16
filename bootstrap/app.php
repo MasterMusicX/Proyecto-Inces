@@ -22,7 +22,6 @@ return Application::configure(basePath: dirname(__DIR__))
         // 2. Middlewares globales para todas las rutas WEB (Se aplican a TODO)
         $middleware->web(append: [
             // 🚨 Quitamos CheckActive de aquí para que no bloquee el Login/Register 🚨
-            \App\Http\Middleware\PreventBackHistory::class, 
         ]);
         
     })
