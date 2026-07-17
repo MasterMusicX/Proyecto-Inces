@@ -130,7 +130,7 @@
                         </div>
                         <div>
                             <h4 class="text-lg font-bold text-gray-900 dark:text-white">Misión</h4>
-                            <p class="text-gray-600 dark:text-slate-400 mt-1">Formación integral y continua de los trabajadores para el desarrollo productivo.</p>
+                            <p class="text-gray-600 dark:text-slate-400 mt-1">El INCES es la institución del Estado encargada de la formación y autoformación colectiva, integral, continua y permanente de los trabajadores y trabajadoras, orientada al desarrollo de sus capacidades para la producción de bienes y prestación de servicios.</p>
                         </div>
                     </div>
                     <div class="flex gap-4">
@@ -139,7 +139,7 @@
                         </div>
                         <div>
                             <h4 class="text-lg font-bold text-gray-900 dark:text-white">Visión</h4>
-                            <p class="text-gray-600 dark:text-slate-400 mt-1">Ser vanguardia en la educación técnica, reconocida por su excelencia y pertinencia social.</p>
+                            <p class="text-gray-600 dark:text-slate-400 mt-1">Convertirse en una poderosa herramienta para la transformación y consolidación de una economía soberana y diversificada. Ser un referente nacional e internacional de la formación técnica profesional inclusiva y colectiva.</p>
                         </div>
                     </div>
                 </div>
