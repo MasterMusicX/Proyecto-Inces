@@ -76,7 +76,7 @@ Route::middleware(['auth', PreventBackHistory::class])->group(function () {
         Route::resource('knowledge-base', AdminKB::class)->except(['show']);
     });
 
-    // Instructor
+  // Instructor
     Route::middleware(['role:admin,instructor','check.active'])->prefix('instructor')->name('instructor.')->group(function () {
         
         Route::get('/dashboard', [InstructorDash::class, 'index'])->name('dashboard');
@@ -86,8 +86,13 @@ Route::middleware(['auth', PreventBackHistory::class])->group(function () {
             Route::get('/students', [InstructorCourses::class, 'students'])->name('students');
             Route::post('/students/{student}/grade', [InstructorCourses::class, 'updateGrade'])->name('students.grade');
             Route::get('/export-students', [InstructorCourses::class, 'exportStudents'])->name('export-students'); 
-            Route::get('/courses/{course}/resources/{resource}/download', [InstructorResources::class, 'download'])
-    ->name('courses.resources.download');
+            
+            // RUTA DE DESCARGA CORREGIDA: 
+            // Hereda automáticamente "/instructor/courses/{course}" del grupo padre
+            // Hereda automáticamente "instructor.courses." en el nombre
+            Route::get('/resources/{resource}/download', [InstructorResources::class, 'download'])
+                ->name('resources.download');
+            
             Route::get('/modules', [InstructorCourses::class, 'modules'])->name('modules');
             Route::post('/modules', [InstructorCourses::class, 'storeModule'])->name('modules.store');
             Route::delete('/modules/{module}', [InstructorCourses::class, 'destroyModule'])->name('modules.destroy');
