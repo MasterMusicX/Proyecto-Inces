@@ -46,8 +46,8 @@ class ResourceController extends Controller
         $data['created_by'] = Auth::id();
 
         if ($request->hasFile('file')) {
-            $file            = $request->file('file');
-            $path            = $file->store("courses/{$course->id}/resources", 'public');
+            $file               = $request->file('file');
+            $path               = $file->store("courses/{$course->id}/resources", 'public');
             $data['file_path']  = $path;
             $data['mime_type']  = $file->getMimeType();
             $data['file_size']  = $file->getSize();
@@ -55,7 +55,6 @@ class ResourceController extends Controller
 
         $resource = Resource::create($data);
 
-        // Dispatch background job for document analysis
         if ($resource->isDocument()) {
             ProcessDocumentJob::dispatch($resource);
         }
@@ -70,5 +69,22 @@ class ResourceController extends Controller
         if ($resource->file_path) Storage::disk('public')->delete($resource->file_path);
         $resource->delete();
         return back()->with('success', 'Recurso eliminado.');
+    }
+
+    // Nuevo método para manejar la descarga de forma segura
+    public function download(Course $course, Resource $resource)
+    {
+        Gate::authorize('view', $course);
+
+        $filePath = $resource->file_path;
+
+        if (!$filePath || !Storage::disk('public')->exists($filePath)) {
+            return back()->withErrors(['error' => 'El archivo no se encuentra disponible en el servidor en este momento.']);
+        }
+
+        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+        $filename = \Illuminate\Support\Str::slug($resource->title) . '.' . $extension;
+
+        return Storage::disk('public')->download($filePath, $filename);
     }
 }

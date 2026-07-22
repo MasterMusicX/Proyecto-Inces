@@ -86,7 +86,8 @@ Route::middleware(['auth', PreventBackHistory::class])->group(function () {
             Route::get('/students', [InstructorCourses::class, 'students'])->name('students');
             Route::post('/students/{student}/grade', [InstructorCourses::class, 'updateGrade'])->name('students.grade');
             Route::get('/export-students', [InstructorCourses::class, 'exportStudents'])->name('export-students'); 
-            
+            Route::get('/courses/{course}/resources/{resource}/download', [InstructorResources::class, 'download'])
+    ->name('courses.resources.download');
             Route::get('/modules', [InstructorCourses::class, 'modules'])->name('modules');
             Route::post('/modules', [InstructorCourses::class, 'storeModule'])->name('modules.store');
             Route::delete('/modules/{module}', [InstructorCourses::class, 'destroyModule'])->name('modules.destroy');

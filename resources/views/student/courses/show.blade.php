@@ -2,12 +2,10 @@
 @section('title', $course->title)
 
 @section('content')
-{{-- Inicializamos Alpine.js con dos variables: una para el modal de retiro y otra para la alerta de WhatsApp --}}
+{{-- Inicializamos Alpine.js con dos variables: modal de retiro y alerta de WhatsApp --}}
 <div x-data="{ showWithdrawModal: false, showPhoneAlert: false }" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 animate-fade-in-up">
 
-    {{-- =========================================================================
-         ALERTA FLOTANTE (TOAST) PARA WHATSAPP NO DISPONIBLE
-         ========================================================================= --}}
+    {{-- ALERTA FLOTANTE PARA WHATSAPP NO DISPONIBLE --}}
     <div x-show="showPhoneAlert" style="display: none;"
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0 translate-y-[-1rem]"
@@ -25,29 +23,30 @@
         </div>
     </div>
 
-    {{-- =========================================================================
-         HERO SECTION (Banner Principal unificado con la estética del sistema)
-         ========================================================================= --}}
+    {{-- HERO SECTION --}}
     <div class="bg-white dark:bg-[#1e293b] rounded-3xl shadow-xl border border-gray-100 dark:border-slate-700/50 overflow-hidden mb-8 flex flex-col md:flex-row">
 
-        {{-- Columna Izquierda: Imagen del curso --}}
+        {{-- Columna Izquierda: Imagen del curso con Lógica Inteligente --}}
         <div class="w-full md:w-2/5 lg:w-1/3 relative h-64 md:h-auto bg-gradient-to-br from-blue-900 to-blue-700 shrink-0">
-            @if($course->thumbnail)
-                <img src="{{ $course->thumbnail_url ?? asset($course->thumbnail) }}" class="w-full h-full object-cover shadow-inner opacity-90 mix-blend-overlay" alt="{{ $course->title }}">
+            @php
+                $thumbnailUrl = $course->thumbnail ? (str_starts_with($course->thumbnail, 'http') ? $course->thumbnail : asset('storage/' . $course->thumbnail)) : null;
+            @endphp
+            
+            @if($thumbnailUrl)
+                <img src="{{ $thumbnailUrl }}" class="w-full h-full object-cover shadow-inner opacity-90 mix-blend-overlay" alt="{{ $course->title }}">
             @else
                 <div class="absolute inset-0 flex items-center justify-center opacity-30 text-white">
                     <svg class="w-24 h-24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>
                 </div>
             @endif
-            {{-- Efecto oscuro inferior para que contraste --}}
             <div class="absolute inset-0 bg-gradient-to-t from-blue-950/80 to-transparent"></div>
         </div>
 
         {{-- Columna Derecha: Información y Botones --}}
-        <div class="p-8 sm:p-10 w-full md:w-3/5 lg:w-2/3 flex flex-col justify-center bg-gradient-to-r from-blue-900 to-blue-800 text-white">
+        <div class="p-8 sm:p-10 w-full md:w-3/5 lg:w-2/3 flex flex-col justify-center bg-gradient-to-r from-blue-900 to-blue-800 text-white relative">
             
             @if($course->category)
-                <span class="inline-block px-3 py-1 bg-red-600/20 text-red-300 border border-red-500/30 text-[10px] font-black uppercase tracking-widest rounded-lg w-max mb-4 backdrop-blur-sm">
+                <span class="inline-block px-3 py-1 bg-red-600/20 text-red-300 border border-red-500/30 text-[10px] font-black uppercase tracking-widest rounded-lg w-max mb-4 backdrop-blur-sm shadow-sm">
                     {{ $course->category->name }}
                 </span>
             @endif
@@ -67,20 +66,16 @@
                     {{ $course->instructor->name ?? 'INCES' }}
                 </span>
                 <span class="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-xl border border-white/20 capitalize">
-                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
+                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
                     {{ $course->level_label ?? 'Básico' }}
                 </span>
                 <span class="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-xl border border-white/20">
                     <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
                     {{ $course->duration_hours ?? '40' }} horas
                 </span>
-                <span class="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-xl border border-white/20">
-                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" /></svg>
-                    Virtual
-                </span>
             </div>
 
-            {{-- Botones de Acción (Inscripción o Retiro) --}}
+            {{-- Botones de Acción --}}
             <div>
                 @if(isset($isEnrolled) && $isEnrolled)
                     <div class="flex flex-col sm:flex-row gap-3">
@@ -95,7 +90,7 @@
                         </button>
                     </div>
 
-                    {{-- Modal de Retiro (Alpine.js) --}}
+                    {{-- Modal de Retiro --}}
                     <div x-show="showWithdrawModal" style="display: none;" 
                          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm text-gray-900" 
                          x-transition.opacity>
@@ -112,7 +107,7 @@
                             
                             <h3 class="text-2xl font-black text-center text-gray-900 dark:text-white mb-2">¿Estás seguro?</h3>
                             <p class="text-center text-gray-500 dark:text-slate-400 mb-8 text-sm">
-                                Estás a punto de retirarte de <b class="text-gray-700 dark:text-slate-300">{{ $course->title }}</b>. Perderás todo tu progreso actual y tendrás que volver a inscribirte si deseas continuar luego.
+                                Estás a punto de retirarte de <b class="text-gray-700 dark:text-slate-300">{{ $course->title }}</b>. Perderás todo tu progreso actual.
                             </p>
                             
                             <div class="flex flex-col sm:flex-row gap-3">
@@ -143,12 +138,10 @@
         </div>
     </div>
 
-    {{-- =========================================================================
-         CONTENIDO PRINCIPAL (Objetivos, Plan de Estudio y Perfil del MTP)
-         ========================================================================= --}}
+    {{-- CONTENIDO PRINCIPAL --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {{-- Columna Izquierda (Plan de Estudio - 2/3) --}}
+        {{-- Columna Izquierda (Plan de Estudio) --}}
         <div class="lg:col-span-2 space-y-8">
             
             @if($course->objectives || $course->description)
@@ -175,10 +168,9 @@
                 
                 <div class="space-y-3">
                     @forelse($course->modules ?? [] as $module)
-                    {{-- Convertimos el módulo en un componente desplegable de Alpine --}}
                     <div x-data="{ open: false }" class="bg-gray-50 dark:bg-[#0f172a] rounded-2xl border border-gray-100 dark:border-slate-700 overflow-hidden transition-all duration-300">
                         
-                        {{-- Botón (Cabecera del Módulo) --}}
+                        {{-- Cabecera del Módulo --}}
                         <button @click="open = !open" type="button" class="w-full p-4 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors">
                             <div class="flex items-center gap-4 text-left">
                                 <span class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded-xl flex items-center justify-center text-sm font-black shadow-inner border border-blue-200 dark:border-blue-800/50 shrink-0">
@@ -191,12 +183,11 @@
                                 <span class="text-xs font-bold text-gray-500 dark:text-slate-400 shrink-0 bg-white dark:bg-[#1e293b] px-3 py-1.5 rounded-lg border border-gray-100 dark:border-slate-600">
                                     {{ $module->resources->count() ?? 0 }} recursos
                                 </span>
-                                {{-- Icono de flecha que gira al abrir --}}
                                 <svg :class="open ? 'rotate-180' : ''" class="w-5 h-5 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </div>
                         </button>
 
-                        {{-- Lista de Recursos (Cuerpo del Acordeón) --}}
+                        {{-- Lista de Recursos --}}
                         <div x-show="open" 
                              x-transition:enter="transition ease-out duration-200"
                              x-transition:enter-start="opacity-0 -translate-y-2"
@@ -209,7 +200,6 @@
                                     <li class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
                                         
                                         <div class="flex items-center gap-3">
-                                            {{-- Icono dinámico según el tipo de recurso --}}
                                             <span class="shrink-0">
                                                 @if(isset($resource->type) && $resource->type === 'pdf')
                                                     <svg class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
@@ -226,31 +216,24 @@
                                             </span>
                                         </div>
 
-                                        {{-- Lógica de Acceso: Solo si está inscrito puede ver/descargar --}}
+                                        {{-- BOTONES DE DESCARGA SEGUROS --}}
                                         <div class="shrink-0 flex items-center justify-end">
                                             @if(isset($isEnrolled) && $isEnrolled)
-                                                
                                                 @php
-                                                    // Verificamos si es un enlace externo o un archivo guardado en local
                                                     $isExternal = str_starts_with($resource->file_path, 'http');
-                                                    $url = $isExternal ? $resource->file_path : asset('storage/' . $resource->file_path);
+                                                    // Usamos la ruta protegida del estudiante para evitar accesos directos
+                                                    $secureUrl = $isExternal ? $resource->file_path : route('student.resources.show', $resource->id);
                                                 @endphp
 
-                                                <div class="flex items-center gap-2">
-                                                    <a href="{{ $url }}" target="_blank" class="px-4 py-2 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 dark:text-blue-400 dark:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg transition-colors flex items-center gap-1.5">
-                                                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
-                                                        Ver
-                                                    </a>
-                                                    
-                                                    {{-- Solo mostramos descargar si no es un link externo --}}
-                                                    @if(!$isExternal)
-                                                    <a href="{{ $url }}" download class="px-4 py-2 text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg transition-colors flex items-center gap-1.5">
+                                                <a href="{{ $secureUrl }}" {{ $isExternal ? 'target="_blank"' : '' }} class="px-4 py-2 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 dark:text-blue-400 dark:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg transition-colors flex items-center gap-1.5">
+                                                    @if($isExternal)
+                                                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                                                        Abrir Enlace
+                                                    @else
                                                         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                                                         Descargar
-                                                    </a>
                                                     @endif
-                                                </div>
-
+                                                </a>
                                             @else
                                                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 dark:bg-red-500/10 dark:text-red-400 rounded-lg border border-red-100 dark:border-red-900/30">
                                                     <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
@@ -276,11 +259,10 @@
             </div>
         </div>
 
-        {{-- Columna Derecha (Perfil del Instructor - 1/3) --}}
+        {{-- Columna Derecha (Perfil del Instructor) --}}
         <div class="lg:col-span-1 space-y-8">
             <div class="bg-white dark:bg-[#1e293b] rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-slate-700/50 sticky top-24">
                 
-                {{-- Etiqueta del bloque --}}
                 <div class="text-center mb-6">
                     <span class="inline-block bg-[#0088cc] text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest shadow-md">
                         Maestro Técnico Productivo
@@ -289,8 +271,15 @@
                 
                 <div class="flex flex-col items-center text-center">
                     <div class="w-24 h-24 mb-4 rounded-full p-1 bg-white dark:bg-[#0f172a] shadow-md border border-gray-100 dark:border-slate-700">
-                        @if(isset($course->instructor->avatar_url) && $course->instructor->avatar_url)
-                            <img src="{{ $course->instructor->avatar_url }}" class="w-full h-full rounded-full object-cover" alt="{{ $course->instructor->name ?? 'MTP' }}">
+                        @php
+                            $avatarUrl = $course->instructor->avatar_url ?? null;
+                            if($avatarUrl && !str_starts_with($avatarUrl, 'http')) {
+                                $avatarUrl = asset('storage/' . $avatarUrl);
+                            }
+                        @endphp
+                        
+                        @if($avatarUrl)
+                            <img src="{{ $avatarUrl }}" class="w-full h-full rounded-full object-cover" alt="{{ $course->instructor->name ?? 'MTP' }}">
                         @else
                             <img src="https://ui-avatars.com/api/?name={{ urlencode($course->instructor->name ?? 'INCES') }}&background=0088cc&color=fff&size=128" class="w-full h-full rounded-full object-cover" alt="Avatar">
                         @endif
@@ -329,9 +318,7 @@
         </div>
     </div>
 
-    {{-- =========================================================================
-         SECCIÓN DE LA EVALUACIÓN FINAL (Solo para estudiantes inscritos)
-         ========================================================================= --}}
+    {{-- EVALUACIÓN FINAL --}}
     @if(isset($isEnrolled) && $isEnrolled && $course->quiz && $course->quiz->is_active)
         <div class="mt-8 bg-gradient-to-r from-blue-900 to-blue-950 dark:from-slate-800 dark:to-slate-900 rounded-3xl shadow-xl border border-blue-800 dark:border-slate-700 p-8 sm:p-10 relative overflow-hidden">
             <div class="absolute inset-0 bg-white/5 opacity-20" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 20px 20px;"></div>
@@ -351,7 +338,6 @@
 
                 <div class="shrink-0 w-full md:w-auto text-center md:text-right">
                     @php
-                        // Buscamos la nota en la tabla pivote para este estudiante
                         $enrollment = $course->students()->where('user_id', Auth::id())->first();
                     @endphp
 
