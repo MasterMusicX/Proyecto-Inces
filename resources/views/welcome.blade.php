@@ -61,9 +61,44 @@
                 <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors focus:outline-none">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                 </button>
+                
+                {{-- Botón corregido con la lógica de cambio de ícono --}}
                 <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2.5 rounded-xl text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <svg x-show="mobileMenuOpen" style="display: none;" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
+            </div>
+        </div>
+
+        {{-- Panel desplegable del menú restaurado --}}
+        <div x-show="mobileMenuOpen" 
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 -translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-2"
+             @click.away="mobileMenuOpen = false"
+             class="md:hidden absolute w-full bg-white dark:bg-[#0b1120] border-b border-gray-200 dark:border-slate-800 shadow-xl"
+             style="display: none;">
+            <div class="px-4 pt-2 pb-6 space-y-4 flex flex-col">
+                <a href="#beneficios" @click="mobileMenuOpen = false" class="block px-4 py-3 text-base font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-xl transition-colors">Beneficios</a>
+                <a href="#nosotros" @click="mobileMenuOpen = false" class="block px-4 py-3 text-base font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-xl transition-colors">Sobre el INCES</a>
+                
+                <div class="pt-4 border-t border-gray-100 dark:border-slate-800">
+                    @auth
+                        @php
+                            $dashboardRoute = auth()->user()->role === 'admin' ? route('admin.dashboard') : (auth()->user()->role === 'instructor' ? route('instructor.dashboard') : route('student.dashboard'));
+                        @endphp
+                        <a href="{{ $dashboardRoute }}" class="block w-full text-center px-6 py-3 bg-blue-800 hover:bg-blue-900 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold rounded-xl transition-colors">
+                            Ir a mi Panel
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" class="block w-full text-center px-6 py-3 bg-blue-800 hover:bg-blue-900 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold rounded-xl transition-colors">
+                            Ingresar al Sistema
+                        </a>
+                    @endauth
+                </div>
             </div>
         </div>
     </header>
