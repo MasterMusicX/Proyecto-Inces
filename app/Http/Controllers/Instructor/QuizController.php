@@ -28,27 +28,31 @@ class QuizController extends Controller
     {
         Gate::authorize('update', $course);
 
-        // 1. Validar los datos básicos (Agregué validación de nota máxima 20)
+        // 1. Validaciones estrictas
         $request->validate([
-            'title'               => 'required|string|max:255',
-            'passing_score'       => 'required|numeric|min:1|max:20',
-            'time_limit'          => 'required|integer|min:1',
-            'max_attempts'        => 'nullable|integer|min:1',
-            'questions'           => 'required|array|min:1',
-            'questions.*.text'    => 'required|string',
-            'questions.*.points'  => 'required|integer|min:1',
-            'questions.*.options' => 'required|array|min:2',
+            'title'                     => 'required|string|max:255',
+            'passing_score'             => 'required|numeric|min:1|max:20',
+            'time_limit'                => 'required|integer|min:1',
+            'max_attempts'              => 'nullable|integer|min:1',
+            'questions'                 => 'required|array|min:1',
+            'questions.*.text'          => 'required|string',
+            'questions.*.points'        => 'required|integer|min:1',
+            'questions.*.options'       => 'required|array|min:2',
+            // 🔥 MEJORA: Obligamos a que el profe marque una respuesta correcta
+            'questions.*.correct_index' => 'required|integer', 
+        ], [
+            'questions.*.correct_index.required' => 'Debes marcar el círculo de la respuesta correcta en todas las preguntas.',
         ]);
 
         try {
             DB::beginTransaction();
 
-            // 🔥 CORRECCIÓN 1: Si ya existía un examen viejo, lo borramos para no acumular basura
+            // Si ya existía un examen viejo, lo borramos para no acumular basura
             if ($course->quiz) {
                 $course->quiz->delete();
             }
 
-            // 🔥 CORRECCIÓN 2: Usamos quiz() en SINGULAR
+            // Usamos quiz() en SINGULAR
             $quiz = $course->quiz()->create([
                 'title'         => $request->title,
                 'time_limit'    => $request->time_limit,
@@ -57,7 +61,7 @@ class QuizController extends Controller
                 'is_active'     => false, // Por seguridad, nace apagado
             ]);
 
-            // 3. Recorrer y guardar preguntas
+            // Recorrer y guardar preguntas
             foreach ($request->questions as $index => $qData) {
                 $question = $quiz->questions()->create([
                     'question_text' => $qData['text'],
@@ -65,11 +69,11 @@ class QuizController extends Controller
                     'type'          => 'multiple_choice',
                 ]);
 
-                // 4. Guardar las opciones de cada pregunta
+                // Guardar las opciones de cada pregunta
                 foreach ($qData['options'] as $oIndex => $oData) {
                     $question->options()->create([
                         'option_text' => $oData['text'],
-                        'is_correct'  => ($request->questions[$index]['correct_index'] == $oIndex),
+                        'is_correct'  => ($qData['correct_index'] == $oIndex),
                     ]);
                 }
             }
