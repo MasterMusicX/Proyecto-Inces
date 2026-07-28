@@ -11,14 +11,15 @@ class Resource extends Model
     protected $fillable = [
         'course_id', 'module_id', 'created_by', 'title', 'description',
         'type', 'file_path', 'external_url', 'mime_type', 'file_size',
-        'order', 'metadata', 'is_downloadable', 'is_published'
+        'order', 'metadata', 'is_downloadable', 'is_published', 'is_visible'
     ];
 
     protected function casts(): array {
         return [
-            'metadata'       => 'array',
+            'metadata'        => 'array',
             'is_downloadable' => 'boolean',
             'is_published'    => 'boolean',
+            'is_visible'      => 'boolean',
         ];
     }
 
@@ -29,8 +30,23 @@ class Resource extends Model
     public function views()    { return $this->hasMany(ResourceView::class); }
 
     public function getFileUrlAttribute(): ?string {
-        if ($this->file_path) return asset('storage/' . $this->file_path);
+        if ($this->file_path) {
+            if (str_starts_with($this->file_path, 'http://') || str_starts_with($this->file_path, 'https://')) {
+                return $this->file_path;
+            }
+            return asset('storage/' . $this->file_path);
+        }
         return $this->external_url;
+    }
+
+    public function getIsPublishedAttribute(): bool {
+        if (array_key_exists('is_visible', $this->attributes)) {
+            return (bool) $this->attributes['is_visible'];
+        }
+        if (array_key_exists('is_published', $this->attributes)) {
+            return (bool) $this->attributes['is_published'];
+        }
+        return true;
     }
     public function getFileSizeHumanAttribute(): string {
         if (!$this->file_size) return 'N/A';

@@ -24,9 +24,12 @@
                         <p class="text-gray-500 mt-1">{{ $resource->description }}</p>
                     @endif
                 </div>
-                @if($resource->is_downloadable && $resource->file_url)
-                <a href="{{ $resource->file_url }}" download
-                    class="flex-shrink-0 btn-primary text-sm ml-4">⬇️ Descargar</a>
+                @if($resource->is_downloadable)
+                <a href="{{ route('student.resources.download', $resource) }}"
+                    class="flex-shrink-0 btn-primary text-sm ml-4 font-bold flex items-center gap-1.5 shadow-md hover:-translate-y-0.5 transition-transform">
+                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                    Descargar Recurso
+                </a>
                 @endif
             </div>
             <div class="flex flex-wrap gap-4 mt-3 text-sm text-gray-400">
@@ -75,7 +78,10 @@
                         <h3 class="font-semibold text-gray-700 dark:text-gray-300 mb-2">{{ strtoupper($resource->type) }}</h3>
                         <p class="text-gray-400 text-sm mb-5">Descarga el archivo para visualizarlo con la aplicación correspondiente.</p>
                         @if($resource->is_downloadable)
-                            <a href="{{ $resource->file_url }}" download class="btn-primary">⬇️ Descargar Archivo</a>
+                            <a href="{{ route('student.resources.download', $resource) }}" class="btn-primary font-bold inline-flex items-center gap-2">
+                                <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                                Descargar Archivo
+                            </a>
                         @else
                             <p class="text-gray-400 italic">Este recurso no está disponible para descarga.</p>
                         @endif

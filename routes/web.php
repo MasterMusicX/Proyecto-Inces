@@ -122,7 +122,8 @@ Route::middleware(['auth', PreventBackHistory::class])->group(function () {
         Route::get('/courses/{course}/learn',     [StudentCourses::class, 'learn']  )->name('courses.learn');
         Route::post('/courses/{course}/progress', [StudentCourses::class, 'updateProgress'])->name('courses.progress');
         
-        Route::get('/resources/{resource}',       [StudentResources::class,'show']  )->name('resources.show');
+        Route::get('/resources/{resource}',          [StudentResources::class,'show']  )->name('resources.show');
+        Route::get('/resources/{resource}/download', [StudentResources::class,'download'])->name('resources.download');
         Route::get('/profile',                    [StudentProfile::class, 'show']   )->name('profile');
         Route::post('/profile',                   [StudentProfile::class, 'update'] )->name('profile.update');
         Route::post('/profile/password',          [StudentProfile::class, 'changePassword'])->name('profile.password');

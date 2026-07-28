@@ -53,30 +53,42 @@
                 <div class="p-2">
                     
                     {{-- Ciclo de Recursos (PDFs, Videos, etc) --}}
-                    @forelse($module->resources->where('is_published', true) as $resource)
-                        <a href="{{ route('student.resources.show', $resource) }}" class="flex items-center gap-4 p-4 hover:bg-white dark:hover:bg-[#1e293b] rounded-2xl transition-all border border-transparent hover:border-gray-200 dark:hover:border-slate-600 hover:shadow-sm group my-1">
+                    @php $publishedResources = $module->resources->filter(fn($r) => $r->is_published); @endphp
+                    @forelse($publishedResources as $resource)
+                        <div class="flex items-center gap-4 p-4 hover:bg-white dark:hover:bg-[#1e293b] rounded-2xl transition-all border border-transparent hover:border-gray-200 dark:hover:border-slate-600 hover:shadow-sm group my-1">
                             
-                            <span class="text-2xl flex-shrink-0 group-hover:scale-110 transition-transform">{{ $resource->type_icon ?? '📄' }}</span>
-                            
-                            <div class="flex-1 min-w-0">
-                                <p class="font-bold text-sm text-gray-900 dark:text-white truncate group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">{{ $resource->title }}</p>
-                                @if($resource->description)
-                                    <p class="text-xs text-gray-500 dark:text-slate-400 truncate mt-0.5">{{ $resource->description }}</p>
-                                @endif
-                            </div>
+                            <a href="{{ route('student.resources.show', $resource) }}" class="flex items-center gap-4 flex-1 min-w-0">
+                                <span class="text-2xl flex-shrink-0 group-hover:scale-110 transition-transform">{{ $resource->type_icon ?? '📄' }}</span>
+                                
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-bold text-sm text-gray-900 dark:text-white truncate group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">{{ $resource->title }}</p>
+                                    @if($resource->description)
+                                        <p class="text-xs text-gray-500 dark:text-slate-400 truncate mt-0.5">{{ $resource->description }}</p>
+                                    @endif
+                                </div>
+                            </a>
 
-                            <div class="flex items-center gap-4 flex-shrink-0">
+                            <div class="flex items-center gap-3 flex-shrink-0">
                                 <div class="text-right hidden sm:block">
                                     <span class="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest block">{{ $resource->type ?? 'Documento' }}</span>
                                     @if($resource->file_size)
                                         <span class="text-[10px] font-bold text-gray-400">{{ $resource->file_size_human }}</span>
                                     @endif
                                 </div>
-                                <span class="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 group-hover:text-blue-600 dark:group-hover:text-blue-400 flex items-center justify-center transition-colors">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                                </span>
+
+                                <a href="{{ route('student.resources.show', $resource) }}" title="Ver Recurso" class="px-3 py-1.5 text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-lg transition-colors flex items-center gap-1">
+                                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                                    <span class="hidden md:inline">Ver</span>
+                                </a>
+
+                                @if($resource->is_downloadable)
+                                    <a href="{{ route('student.resources.download', $resource) }}" title="Descargar Recurso" class="px-3 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 dark:text-blue-400 dark:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg transition-colors flex items-center gap-1">
+                                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                                        <span class="hidden md:inline">Descargar</span>
+                                    </a>
+                                @endif
                             </div>
-                        </a>
+                        </div>
                     @empty
                         <div class="px-6 py-8 text-center">
                             <p class="text-sm font-bold text-gray-400 dark:text-slate-500 italic">Este módulo aún no tiene recursos publicados por el instructor.</p>
@@ -84,7 +96,7 @@
                     @endforelse
 
                     {{-- 🔥 MEJORA: BOTÓN DE PROGRESO EN TIEMPO REAL 🔥 --}}
-                    @if($module->resources->where('is_published', true)->count() > 0)
+                    @if($publishedResources->count() > 0)
                         <div class="mt-4 mb-2 mx-2">
                             <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
                                 <div>
