@@ -6,7 +6,7 @@
     
     <div class="mb-8">
         {{-- 🔥 Botón de regreso con SVG animado 🔥 --}}
-        <a href="{{ route('instructor.courses.show', $course->id) }}" class="inline-flex items-center text-sm font-bold text-gray-500 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-400 transition-colors mb-4 group">
+        <a href="{{ route('instructor.courses.show', $course) }}" class="inline-flex items-center text-sm font-bold text-gray-500 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-400 transition-colors mb-4 group">
             <svg class="w-4 h-4 mr-1.5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             Volver al Curso
         </a>
@@ -19,8 +19,7 @@
         <p class="text-gray-500 dark:text-slate-400 mt-2">Diseña las preguntas y opciones para el curso: <span class="font-bold text-blue-600 dark:text-blue-400">{{ $course->title }}</span></p>
     </div>
 
-    {{-- 🔥 CORRECCIÓN 404: Ruta enviada como arreglo explícito 🔥 --}}
-    <form action="{{ route('instructor.courses.quizzes.store', ['course' => $course->id]) }}" method="POST" class="space-y-8">
+    <form action="{{ route('instructor.courses.quizzes.store', $course) }}" method="POST" class="space-y-8">
         @csrf
 
         @if ($errors->any())
@@ -149,7 +148,7 @@
         </div>
 
         <div class="flex items-center justify-end gap-4 pt-4 border-t border-gray-200 dark:border-slate-700/50 mt-8">
-            <a href="{{ route('instructor.courses.show', ['course' => $course->id]) }}" class="px-6 py-3 font-bold text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+            <a href="{{ route('instructor.courses.show', $course) }}" class="px-6 py-3 font-bold text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors">
                 Cancelar
             </a>
             <button type="submit" class="px-8 py-3.5 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl shadow-lg shadow-red-600/30 transition-all hover:-translate-y-1 flex items-center gap-2">

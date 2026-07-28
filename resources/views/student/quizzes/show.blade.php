@@ -26,7 +26,7 @@
             <div class="flex flex-col md:flex-row gap-6">
                 
                 <div class="w-full md:w-3/4 bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <form action="{{ route('student.quizzes.submit', $quiz->id) }}" method="POST" id="quiz-form">
+                    <form action="{{ route('student.quizzes.submit', [$course, $quiz]) }}" method="POST" id="quiz-form">
                         @csrf
                         
                         <input type="hidden" name="proctoring_image" id="proctoring_image">

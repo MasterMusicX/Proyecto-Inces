@@ -79,7 +79,7 @@ class QuizController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('instructor.courses.show', $course->id)
+            return redirect()->route('instructor.courses.show', $course)
                              ->with('success', '¡Evaluación creada y guardada exitosamente!');
 
         } catch (\Exception $e) {
