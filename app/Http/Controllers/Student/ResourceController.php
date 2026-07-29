@@ -34,7 +34,7 @@ class ResourceController extends Controller
         abort_unless($isEnrolled, 403, 'Debes inscribirte en el curso para acceder a este recurso.');
 
         if (!$resource->is_downloadable) {
-            return back()->with('error', 'Este recurso no está disponible para descarga.');
+            return back()->with('error', 'Este recurso no está habilitado para descarga por el instructor.');
         }
 
         if ($resource->external_url && !$resource->file_path) {
@@ -46,18 +46,22 @@ class ResourceController extends Controller
                 return redirect()->away($resource->file_path);
             }
 
-            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($resource->file_path)) {
-                $extension = pathinfo($resource->file_path, PATHINFO_EXTENSION);
+            $cleanPath = preg_replace('#^/?(storage/)?#', '', $resource->file_path);
+            $fullPath = storage_path('app/public/' . $cleanPath);
+
+            if (file_exists($fullPath)) {
+                $extension = pathinfo($fullPath, PATHINFO_EXTENSION);
                 $filename = \Illuminate\Support\Str::slug($resource->title) . '.' . ($extension ?: 'file');
                 
-                // Incrementar contador de descargas si existe la columna
-                $resource->increment('download_count');
+                try {
+                    $resource->increment('download_count');
+                } catch (\Exception $e) {}
 
-                return \Illuminate\Support\Facades\Storage::disk('public')->download($resource->file_path, $filename);
+                return response()->download($fullPath, $filename);
             }
         }
 
-        return back()->with('error', 'El archivo no se encuentra disponible en el servidor en este momento.');
+        return back()->with('error', 'El archivo físico no se encuentra en el servidor. Pide al instructor resubir el recurso.');
     }
 
     public function file(Resource $resource)
@@ -75,8 +79,10 @@ class ResourceController extends Controller
                 return redirect()->away($resource->file_path);
             }
 
-            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($resource->file_path)) {
-                $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($resource->file_path);
+            $cleanPath = preg_replace('#^/?(storage/)?#', '', $resource->file_path);
+            $fullPath = storage_path('app/public/' . $cleanPath);
+
+            if (file_exists($fullPath)) {
                 $mimeType = $resource->mime_type ?: (mime_content_type($fullPath) ?: 'application/octet-stream');
 
                 return response()->file($fullPath, [
@@ -86,6 +92,6 @@ class ResourceController extends Controller
             }
         }
 
-        abort(404, 'El archivo no fue encontrado en el servidor.');
+        abort(404, 'El archivo físico no se encuentra disponible en el servidor.');
     }
 }
