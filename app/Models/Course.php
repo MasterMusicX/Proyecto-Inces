@@ -99,6 +99,16 @@ class Course extends Model
      * Relación: Un curso tiene muchas inscripciones (matrículas).
      */
     public function enrollments(){ return $this->hasMany(Enrollment::class); }
+
+    /**
+     * Relación: Un curso tiene una evaluación final (Quiz).
+     */
+    public function quiz()       { return $this->hasOne(Quiz::class); }
+
+    /**
+     * Relación: Un curso puede tener evaluaciones asociadas.
+     */
+    public function quizzes()    { return $this->hasMany(Quiz::class); }
     
     /**
      * Relación: Un curso tiene muchas asistencias registradas.
