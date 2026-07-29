@@ -251,8 +251,46 @@
                     @empty
                     <p class="text-gray-500 text-center py-4 text-sm font-medium border border-dashed border-gray-300 dark:border-slate-700 rounded-xl">Aún no hay módulos publicados para esta formación.</p>
                     @endforelse
+            {{-- 🔥 SECCIÓN DE EVALUACIÓN FINAL DEL CURSO 🔥 --}}
+            @if($course->quiz)
+            <div class="bg-gradient-to-r from-blue-900 to-indigo-950 dark:from-slate-800 dark:to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-blue-800 dark:border-slate-700 relative overflow-hidden mt-8">
+                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-5">
+                        <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-white shrink-0 border border-white/20 shadow-inner">
+                            <svg class="w-8 h-8 text-blue-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12" /></svg>
+                        </div>
+                        <div>
+                            <span class="px-3 py-1 bg-blue-500/20 text-blue-300 text-[10px] font-black uppercase tracking-widest rounded-md border border-blue-400/30 mb-2 inline-block">Evaluación Obligatoria</span>
+                            <h3 class="text-xl font-black text-white tracking-tight">{{ $course->quiz->title }}</h3>
+                            <p class="text-xs text-blue-200 dark:text-slate-300 mt-1">
+                                ⏱️ Tiempo: <strong>{{ $course->quiz->time_limit }} min</strong> &nbsp;•&nbsp; 🎯 Nota mín: <strong>{{ $course->quiz->passing_score }}/20 pts</strong>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="shrink-0 w-full md:w-auto">
+                        @if($isEnrolled)
+                            @if($course->quiz->is_active)
+                                <a href="{{ route('student.quizzes.show', [$course->slug ?? $course->id, $course->quiz->id]) }}" class="w-full md:w-auto px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2 text-sm group">
+                                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                                    <span>Presentar Evaluación Final</span>
+                                    <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                </a>
+                            @else
+                                <span class="px-6 py-3.5 bg-gray-700/50 text-gray-300 font-bold rounded-xl text-xs flex items-center gap-2 border border-gray-600/50">
+                                    <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+                                    Evaluación Temporalmente Cerrada
+                                </span>
+                            @endif
+                        @else
+                            <span class="px-6 py-3.5 bg-white/10 text-blue-200 font-bold rounded-xl text-xs flex items-center gap-2 border border-white/20">
+                                Inscríbete para presentar el examen
+                            </span>
+                        @endif
+                    </div>
                 </div>
             </div>
+            @endif
         </div>
 
         {{-- Columna Derecha (Perfil del Instructor) --}}

@@ -62,7 +62,7 @@ class QuizController extends Controller
                 'time_limit'    => $request->time_limit,
                 'passing_score' => $request->passing_score,
                 'max_attempts'  => $request->max_attempts ?? 1,
-                'is_active'     => false, // Por seguridad, nace apagado (modo borrador)
+                'is_active'     => true, // Activa por defecto al ser creada por el instructor
             ]);
 
             // Recorrer el array de preguntas que mandó Alpine.js

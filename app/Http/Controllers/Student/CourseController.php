@@ -24,7 +24,7 @@ class CourseController extends Controller
     {
         $field = is_numeric($identifier) ? 'id' : 'slug';
 
-        $course = Course::with(['instructor', 'modules.resources', 'category'])
+        $course = Course::with(['instructor', 'modules.resources', 'category', 'quiz'])
             ->where($field, $identifier)
             ->firstOrFail();
 
@@ -109,7 +109,7 @@ class CourseController extends Controller
     {
         $field = is_numeric($identifier) ? 'id' : 'slug';
         
-        $course = Course::with(['modules.resources', 'instructor'])
+        $course = Course::with(['modules.resources', 'instructor', 'quiz'])
             ->where($field, $identifier)
             ->firstOrFail();
 

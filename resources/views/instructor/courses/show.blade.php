@@ -167,7 +167,7 @@
         </div>
     </div>
 
-    {{-- 🔥 SECCIÓN NUEVA: GESTIÓN DE EVALUACIÓN (EXAMEN) 🔥 --}}
+    {{-- 🔥 SECCIÓN GESTIÓN DE EVALUACIÓN (EXAMEN) 🔥 --}}
     <div class="bg-gradient-to-r from-blue-900 to-blue-950 dark:from-slate-800 dark:to-slate-900 rounded-3xl shadow-xl border border-blue-800 dark:border-slate-700 overflow-hidden relative">
         <div class="absolute inset-0 bg-white/5 opacity-20" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 20px 20px;"></div>
         
@@ -177,18 +177,49 @@
                     <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75" /></svg>
                 </div>
                 <div>
-                    <h2 class="text-2xl font-black text-white tracking-tight mb-2">Evaluación Final del Curso</h2>
+                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3 mb-2">
+                        <h2 class="text-2xl font-black text-white tracking-tight">Evaluación Final del Curso</h2>
+                        @if($course->quiz)
+                            @if($course->quiz->is_active)
+                                <span class="px-3 py-1 bg-green-500/20 text-green-300 text-xs font-black uppercase tracking-widest rounded-lg border border-green-500/30 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> Activa y Visible
+                                </span>
+                            @else
+                                <span class="px-3 py-1 bg-amber-500/20 text-amber-300 text-xs font-black uppercase tracking-widest rounded-lg border border-amber-500/30 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-amber-400"></span> Oculta (Borrador)
+                                </span>
+                            @endif
+                        @endif
+                    </div>
                     <p class="text-blue-200 dark:text-slate-300 font-medium text-sm max-w-xl">
-                        Configura las preguntas, opciones correctas y el estado del examen final. Esta evaluación es obligatoria para que los estudiantes del INCES puedan obtener su calificación final de forma automática.
+                        @if($course->quiz)
+                            <strong>{{ $course->quiz->title }}</strong> • {{ $course->quiz->time_limit }} min • Mín. {{ $course->quiz->passing_score }}/20 pts.
+                        @else
+                            Configura las preguntas, opciones correctas y el estado del examen final para calificar a los estudiantes del INCES.
+                        @endif
                     </p>
                 </div>
             </div>
 
-            <div class="shrink-0 w-full md:w-auto">
-                <a href="{{ route('instructor.courses.quizzes.create', $course) }}" class="w-full md:w-auto px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all hover:-translate-y-1 flex items-center justify-center gap-2 group">
-                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
-                    <span>Gestionar Examen</span>
-                    <svg class="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+            <div class="shrink-0 w-full md:w-auto flex flex-col sm:flex-row items-center gap-3">
+                @if($course->quiz)
+                    <form action="{{ route('instructor.courses.quizzes.toggle', [$course, $course->quiz]) }}" method="POST" class="w-full sm:w-auto m-0">
+                        @csrf
+                        <button type="submit" class="w-full sm:w-auto px-5 py-3.5 {{ $course->quiz->is_active ? 'bg-amber-600 hover:bg-amber-700' : 'bg-green-600 hover:bg-green-700' }} text-white font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-sm">
+                            @if($course->quiz->is_active)
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                                Ocultar Examen
+                            @else
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                                Activar Examen
+                            @endif
+                        </button>
+                    </form>
+                @endif
+
+                <a href="{{ route('instructor.courses.quizzes.create', $course) }}" class="w-full sm:w-auto px-6 py-3.5 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all hover:-translate-y-1 flex items-center justify-center gap-2 text-sm group">
+                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>
+                    <span>{{ $course->quiz ? 'Reconfigurar Examen' : 'Crear Examen' }}</span>
                 </a>
             </div>
         </div>
