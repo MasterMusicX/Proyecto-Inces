@@ -51,6 +51,9 @@ class User extends Authenticatable
     public function chatbotConversations() {
         return $this->hasMany(ChatbotConversation::class);
     }
+    public function submissions() {
+        return $this->hasMany(StudentSubmission::class);
+    }
     public function resourcesUploaded() {
         return $this->hasMany(Resource::class, 'created_by');
     }

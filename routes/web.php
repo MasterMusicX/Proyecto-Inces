@@ -12,11 +12,13 @@ use App\Http\Controllers\Instructor\DashboardController  as InstructorDash;
 use App\Http\Controllers\Instructor\CourseController     as InstructorCourses;
 use App\Http\Controllers\Instructor\ResourceController   as InstructorResources;
 use App\Http\Controllers\Instructor\QuizController       as InstructorQuizzes;
+use App\Http\Controllers\Instructor\SubmissionController as InstructorSubmissions;
 use App\Http\Controllers\Student\DashboardController     as StudentDash;
 use App\Http\Controllers\Student\CourseController        as StudentCourses;
 use App\Http\Controllers\Student\ResourceController      as StudentResources;
 use App\Http\Controllers\Student\ProfileController       as StudentProfile;
 use App\Http\Controllers\Student\QuizController          as StudentQuizzes;
+use App\Http\Controllers\Student\SubmissionController    as StudentSubmissions;
 use App\Http\Controllers\Api\ChatbotController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
@@ -106,6 +108,9 @@ Route::middleware(['auth', PreventBackHistory::class])->group(function () {
             });
 
             Route::get('/reportes/asistencia/{date}', [ReportController::class, 'downloadAttendance'])->name('reports.attendance');
+
+            Route::get('/submissions',                         [InstructorSubmissions::class, 'index'])->name('submissions.index');
+            Route::post('/submissions/{submission}/review',    [InstructorSubmissions::class, 'review'])->name('submissions.review');
         });
 
         Route::resource('courses', InstructorCourses::class); 
@@ -135,6 +140,11 @@ Route::middleware(['auth', PreventBackHistory::class])->group(function () {
         
         Route::get('/courses/{course}/quizzes/{quiz}',  [StudentQuizzes::class, 'show'])->name('quizzes.show');
         Route::post('/courses/{course}/quizzes/{quiz}', [StudentQuizzes::class, 'submit'])->name('quizzes.submit');
+
+        Route::get('/submissions',                     [StudentSubmissions::class, 'index'])->name('submissions.index');
+        Route::post('/submissions',                    [StudentSubmissions::class, 'store'])->name('submissions.store');
+        Route::get('/submissions/{submission}/file',   [StudentSubmissions::class, 'file'])->name('submissions.file');
+        Route::delete('/submissions/{submission}',     [StudentSubmissions::class, 'destroy'])->name('submissions.destroy');
     });
 
 });

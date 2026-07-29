@@ -109,6 +109,7 @@ class Course extends Model
      * Relación: Un curso puede tener evaluaciones asociadas.
      */
     public function quizzes()    { return $this->hasMany(Quiz::class); }
+    public function submissions(){ return $this->hasMany(StudentSubmission::class); }
     
     /**
      * Relación: Un curso tiene muchas asistencias registradas.
