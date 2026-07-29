@@ -58,13 +58,13 @@
         </div>
 
         @php
-            // Lógica para que el archivo se vea. Prioriza URL externa o construye la ruta local correcta
-            if($resource->type === 'url'){
+            // Lógica para visualizar el archivo de forma segura y compatible en cualquier servidor (Railway/Docker/Local)
+            if ($resource->type === 'url') {
                 $fileUrl = $resource->external_url;
+            } elseif ($resource->file_path && Str::startsWith($resource->file_path, ['http://', 'https://'])) {
+                $fileUrl = $resource->file_path;
             } else {
-                $fileUrl = Str::startsWith($resource->file_path, ['http://', 'https://']) 
-                    ? $resource->file_path 
-                    : asset('storage/' . $resource->file_path);
+                $fileUrl = route('student.resources.file', $resource);
             }
         @endphp
 

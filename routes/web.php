@@ -123,6 +123,7 @@ Route::middleware(['auth', PreventBackHistory::class])->group(function () {
         Route::post('/courses/{course}/progress', [StudentCourses::class, 'updateProgress'])->name('courses.progress');
         
         Route::get('/resources/{resource}',          [StudentResources::class,'show']  )->name('resources.show');
+        Route::get('/resources/{resource}/file',     [StudentResources::class,'file']  )->name('resources.file');
         Route::get('/resources/{resource}/download', [StudentResources::class,'download'])->name('resources.download');
         Route::get('/profile',                    [StudentProfile::class, 'show']   )->name('profile');
         Route::post('/profile',                   [StudentProfile::class, 'update'] )->name('profile.update');
@@ -137,3 +138,20 @@ Route::middleware(['auth', PreventBackHistory::class])->group(function () {
     });
 
 });
+
+// Fallback para servir archivos subidos a storage en entornos como Railway/Docker si no hay symlink
+Route::get('/storage/{path}', function ($path) {
+    $path = ltrim($path, '/');
+    $fullPath = storage_path('app/public/' . $path);
+
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+
+    $mimeType = mime_content_type($fullPath) ?: 'application/octet-stream';
+
+    return response()->file($fullPath, [
+        'Content-Type'  => $mimeType,
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*')->name('storage.fallback');

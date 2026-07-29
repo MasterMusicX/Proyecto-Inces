@@ -59,4 +59,33 @@ class ResourceController extends Controller
 
         return back()->with('error', 'El archivo no se encuentra disponible en el servidor en este momento.');
     }
+
+    public function file(Resource $resource)
+    {
+        // Check enrollment
+        $isEnrolled = $resource->course->students()->where('users.id', Auth::id())->exists();
+        abort_unless($isEnrolled, 403, 'Debes inscribirte en el curso para acceder a este recurso.');
+
+        if ($resource->external_url && !$resource->file_path) {
+            return redirect()->away($resource->external_url);
+        }
+
+        if ($resource->file_path) {
+            if (str_starts_with($resource->file_path, 'http://') || str_starts_with($resource->file_path, 'https://')) {
+                return redirect()->away($resource->file_path);
+            }
+
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($resource->file_path)) {
+                $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($resource->file_path);
+                $mimeType = $resource->mime_type ?: (mime_content_type($fullPath) ?: 'application/octet-stream');
+
+                return response()->file($fullPath, [
+                    'Content-Type'        => $mimeType,
+                    'Content-Disposition' => 'inline; filename="' . basename($fullPath) . '"',
+                ]);
+            }
+        }
+
+        abort(404, 'El archivo no fue encontrado en el servidor.');
+    }
 }
