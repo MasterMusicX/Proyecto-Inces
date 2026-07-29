@@ -83,6 +83,9 @@ Route::middleware(['auth', PreventBackHistory::class])->group(function () {
         
         Route::get('/dashboard', [InstructorDash::class, 'index'])->name('dashboard');
 
+        Route::get('/submissions',                         [InstructorSubmissions::class, 'index'])->name('submissions.index');
+        Route::post('/submissions/{submission}/review',    [InstructorSubmissions::class, 'review'])->name('submissions.review');
+
         Route::prefix('courses/{course}')->name('courses.')->group(function () {
             
             Route::get('/students', [InstructorCourses::class, 'students'])->name('students');
@@ -108,9 +111,6 @@ Route::middleware(['auth', PreventBackHistory::class])->group(function () {
             });
 
             Route::get('/reportes/asistencia/{date}', [ReportController::class, 'downloadAttendance'])->name('reports.attendance');
-
-            Route::get('/submissions',                         [InstructorSubmissions::class, 'index'])->name('submissions.index');
-            Route::post('/submissions/{submission}/review',    [InstructorSubmissions::class, 'review'])->name('submissions.review');
         });
 
         Route::resource('courses', InstructorCourses::class); 
