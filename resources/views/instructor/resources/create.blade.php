@@ -32,14 +32,14 @@
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Tipo de Recurso *</label>
-                <select name="type" x-model="type" required class="w-full sm:w-1/2 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-                    <option value="pdf">📄 PDF</option>
-                    <option value="docx">📝 Word (DOCX)</option>
-                    <option value="xlsx">📊 Excel (XLSX)</option>
-                    <option value="pptx">📋 PowerPoint (PPTX)</option>
-                    <option value="video">🎬 Video</option>
-                    <option value="image">🖼️ Imagen</option>
-                    <option value="url">🔗 URL Externa</option>
+                <select name="type" x-model="type" required class="w-full sm:w-1/2 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm font-medium">
+                    <option value="pdf">Documento PDF</option>
+                    <option value="docx">Documento Word (DOCX)</option>
+                    <option value="xlsx">Hoja de Cálculo Excel (XLSX)</option>
+                    <option value="pptx">Presentación PowerPoint (PPTX)</option>
+                    <option value="video">Video</option>
+                    <option value="image">Imagen</option>
+                    <option value="url">URL Externa</option>
                 </select>
             </div>
 
@@ -89,11 +89,13 @@
                 </label>
             </div>
 
-            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-xl p-4 flex gap-3 mt-4">
-                <div class="text-2xl">🤖</div>
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-xl p-4 flex items-start gap-3 mt-4">
+                <div class="p-2 bg-blue-100 dark:bg-blue-800 text-blue-600 dark:text-blue-200 rounded-lg shrink-0">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" /></svg>
+                </div>
                 <div>
-                    <p class="text-sm font-bold text-blue-800 dark:text-blue-300 mb-1">Análisis IA:</p>
-                    <p class="text-sm text-blue-600 dark:text-blue-400 leading-relaxed">
+                    <p class="text-sm font-bold text-blue-800 dark:text-blue-300 mb-0.5">Análisis IA Automatizado</p>
+                    <p class="text-xs text-blue-600 dark:text-blue-400 leading-relaxed">
                         Los documentos (PDF, Word, Excel, PowerPoint) serán analizados automáticamente por IA para generar resúmenes y palabras clave.
                     </p>
                 </div>

@@ -58,7 +58,7 @@
                         <div class="flex items-center gap-4 p-4 hover:bg-white dark:hover:bg-[#1e293b] rounded-2xl transition-all border border-transparent hover:border-gray-200 dark:hover:border-slate-600 hover:shadow-sm group my-1">
                             
                             <a href="{{ route('student.resources.show', $resource) }}" class="flex items-center gap-4 flex-1 min-w-0">
-                                <span class="text-2xl flex-shrink-0 group-hover:scale-110 transition-transform">{{ $resource->type_icon ?? '📄' }}</span>
+                                <span class="p-2 rounded-lg bg-gray-100 dark:bg-slate-800 flex-shrink-0 group-hover:scale-110 transition-transform">{!! $resource->type_icon !!}</span>
                                 
                                 <div class="flex-1 min-w-0">
                                     <p class="font-bold text-sm text-gray-900 dark:text-white truncate group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">{{ $resource->title }}</p>
