@@ -54,6 +54,9 @@ class User extends Authenticatable
     public function submissions() {
         return $this->hasMany(StudentSubmission::class);
     }
+    public function moduleApprovals() {
+        return $this->hasMany(StudentModuleApproval::class);
+    }
     public function resourcesUploaded() {
         return $this->hasMany(Resource::class, 'created_by');
     }

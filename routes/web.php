@@ -90,6 +90,7 @@ Route::middleware(['auth', PreventBackHistory::class])->group(function () {
             
             Route::get('/students', [InstructorCourses::class, 'students'])->name('students');
             Route::post('/students/{student}/grade', [InstructorCourses::class, 'updateGrade'])->name('students.grade');
+            Route::post('/students/{student}/modules/{module}/toggle', [InstructorCourses::class, 'toggleModuleApproval'])->name('students.modules.toggle');
             Route::get('/export-students', [InstructorCourses::class, 'exportStudents'])->name('export-students'); 
             
             // RUTA DE DESCARGA CORREGIDA: 

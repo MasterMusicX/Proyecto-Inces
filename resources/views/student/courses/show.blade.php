@@ -171,6 +171,15 @@
                     <div x-data="{ open: false }" class="bg-gray-50 dark:bg-[#0f172a] rounded-2xl border border-gray-100 dark:border-slate-700 overflow-hidden transition-all duration-300">
                         
                         {{-- Cabecera del Módulo --}}
+                        @php
+                            $isModuleApproved = false;
+                            if (Auth::check()) {
+                                $isModuleApproved = \App\Models\StudentModuleApproval::where('user_id', Auth::id())
+                                    ->where('module_id', $module->id)
+                                    ->where('is_approved', true)
+                                    ->exists();
+                            }
+                        @endphp
                         <button @click="open = !open" type="button" class="w-full p-4 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors">
                             <div class="flex items-center gap-4 text-left">
                                 <span class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded-xl flex items-center justify-center text-sm font-black shadow-inner border border-blue-200 dark:border-blue-800/50 shrink-0">
@@ -180,6 +189,19 @@
                             </div>
                             
                             <div class="flex items-center gap-3">
+                                @if(isset($isEnrolled) && $isEnrolled)
+                                    @if($isModuleApproved)
+                                        <span class="text-xs font-bold text-green-700 bg-green-50 dark:bg-green-500/10 dark:text-green-400 px-3 py-1.5 rounded-lg border border-green-200 dark:border-green-800/40 flex items-center gap-1">
+                                            <svg class="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                                            Aprobado por MTP
+                                        </span>
+                                    @else
+                                        <span class="text-xs font-bold text-amber-700 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-400 px-3 py-1.5 rounded-lg border border-amber-200 dark:border-amber-800/40 flex items-center gap-1">
+                                            <svg class="w-3.5 h-3.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                                            En Proceso
+                                        </span>
+                                    @endif
+                                @endif
                                 <span class="text-xs font-bold text-gray-500 dark:text-slate-400 shrink-0 bg-white dark:bg-[#1e293b] px-3 py-1.5 rounded-lg border border-gray-100 dark:border-slate-600">
                                     {{ $module->resources->count() ?? 0 }} recursos
                                 </span>
@@ -351,62 +373,6 @@
             </div>
         </div>
     </div>
-
-    {{-- EVALUACIÓN FINAL --}}
-    @if(isset($isEnrolled) && $isEnrolled && $course->quiz && $course->quiz->is_active)
-        <div class="mt-8 bg-gradient-to-r from-blue-900 to-blue-950 dark:from-slate-800 dark:to-slate-900 rounded-3xl shadow-xl border border-blue-800 dark:border-slate-700 p-8 sm:p-10 relative overflow-hidden">
-            <div class="absolute inset-0 bg-white/5 opacity-20" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 20px 20px;"></div>
-            
-            <div class="relative flex flex-col md:flex-row items-center justify-between gap-8">
-                <div class="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6">
-                    <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-white shadow-inner border border-white/20 shrink-0">
-                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" /></svg>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-black text-white tracking-tight mb-2">Evaluación Final: {{ $course->quiz->title }}</h2>
-                        <p class="text-blue-200 dark:text-slate-300 font-medium text-sm max-w-xl">
-                            Demuestra los conocimientos adquiridos en el curso. Tienes <strong>{{ $course->quiz->time_limit }} minutos</strong> para completarla. Calificación mínima aprobatoria: <strong>{{ $course->quiz->passing_score }} pts</strong>.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="shrink-0 w-full md:w-auto text-center md:text-right">
-                    @php
-                        $enrollment = $course->students()->where('user_id', Auth::id())->first();
-                    @endphp
-
-                    @if($enrollment && $enrollment->pivot->status === 'approved')
-                        <div class="bg-green-500/20 border border-green-500/50 rounded-xl px-8 py-4 text-center shadow-inner">
-                            <p class="text-green-300 text-xs font-black uppercase tracking-widest mb-1 flex items-center justify-center gap-1">
-                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
-                                Aprobado
-                            </p>
-                            <p class="text-4xl font-black text-white">{{ $enrollment->pivot->final_grade }} <span class="text-xl text-green-200">/ 20</span></p>
-                        </div>
-                    @elseif($enrollment && $enrollment->pivot->status === 'failed')
-                        <div class="bg-red-500/20 border border-red-500/50 rounded-xl px-8 py-4 text-center shadow-inner mb-4">
-                            <p class="text-red-300 text-xs font-black uppercase tracking-widest mb-1 flex items-center justify-center gap-1">
-                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                                Reprobado
-                            </p>
-                            <p class="text-4xl font-black text-white">{{ $enrollment->pivot->final_grade }} <span class="text-xl text-red-200">/ 20</span></p>
-                        </div>
-                        <p class="text-xs text-blue-200 font-bold mb-3">¿Deseas intentarlo de nuevo?</p>
-                        <a href="{{ route('student.quizzes.show', [$course, $course->quiz]) }}" class="w-full md:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30 hover:-translate-y-0.5">
-                            <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
-                            Reintentar
-                        </a>
-                    @else
-                        <a href="{{ route('student.quizzes.show', [$course, $course->quiz]) }}" class="w-full md:w-auto px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all hover:-translate-y-1 flex items-center justify-center gap-2 group">
-                            <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
-                            <span>Iniciar Evaluación</span>
-                            <svg class="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
-                        </a>
-                    @endif
-                </div>
-            </div>
-        </div>
-    @endif
 
 </div>
 @endsection

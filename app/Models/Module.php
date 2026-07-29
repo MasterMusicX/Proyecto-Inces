@@ -14,4 +14,5 @@ class Module extends Model
 
     public function course()    { return $this->belongsTo(Course::class); }
     public function resources() { return $this->hasMany(Resource::class)->orderBy('sort_order'); }
+    public function approvals() { return $this->hasMany(StudentModuleApproval::class); }
 }

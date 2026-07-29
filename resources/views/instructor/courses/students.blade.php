@@ -9,8 +9,8 @@
         studentId: '', 
         status: 'in_progress',
         moduleGrades: {},
+        expandedStudent: null,
         
-        // Calcula el promedio en tiempo real
         get averageGrade() {
             let total = 0;
             let count = 0;
@@ -28,16 +28,10 @@
             this.studentId = id;
             this.studentName = name;
             this.status = currentStatus || 'in_progress';
-            
-            // Si el backend ya mandó notas de módulos (columna JSON), las carga.
-            // Si no, lo deja vacío para que el profesor las llene.
             this.moduleGrades = gradesData && Object.keys(gradesData).length > 0 ? gradesData : {};
-            
-            // Si no hay módulos pero hay una nota final previa guardada
             if(Object.keys(this.moduleGrades).length === 0 && finalGradeFallback) {
                 this.moduleGrades['final'] = finalGradeFallback;
             }
-
             this.showModal = true;
         }
      }">
@@ -49,13 +43,12 @@
                 Volver a Detalles del Curso
             </a>
             <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                Estudiantes Inscritos
+                Estudiantes Inscritos y Aprobación de Módulos
             </h1>
             <p class="text-gray-500 dark:text-slate-400 mt-1">Curso: <span class="font-bold text-blue-600 dark:text-blue-400">{{ $course->title }}</span></p>
         </div>
         
         <div class="flex flex-col sm:flex-row items-center gap-4">
-            {{-- 🔥 BOTÓN NUEVO: Exportar Lista de Asistencia 🔥 --}}
             <a href="{{ route('instructor.courses.export-students', $course->id) }}" target="_blank" class="w-full sm:w-auto px-5 py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-600/30 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Lista de Asistencia
@@ -73,7 +66,6 @@
         </div>
     </div>
 
-    {{-- 🔥 MENSAJES DE ÉXITO O ERROR 🔥 --}}
     @if(session('success'))
         <div class="mb-6 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl text-green-700 dark:text-green-400 font-bold text-sm flex items-center gap-3 shadow-sm">
             <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -81,13 +73,14 @@
         </div>
     @endif
 
-    <div class="bg-white dark:bg-[#1e293b] rounded-2xl overflow-hidden shadow-sm border border-gray-200 dark:border-slate-700/50 transition-colors">
+    <div class="bg-white dark:bg-[#1e293b] rounded-3xl overflow-hidden shadow-sm border border-gray-200 dark:border-slate-700/50 transition-colors">
         <div class="overflow-x-auto w-full custom-scrollbar">
             <table class="w-full text-left text-sm text-gray-600 dark:text-slate-300 whitespace-nowrap">
                 <thead class="bg-gray-50 dark:bg-[#0f172a]/50 text-gray-500 dark:text-slate-400 border-b border-gray-200 dark:border-slate-700/50">
                     <tr>
                         <th scope="col" class="px-6 py-5 font-bold tracking-wide uppercase text-xs">Estudiante</th>
                         <th scope="col" class="px-6 py-5 font-bold tracking-wide uppercase text-xs text-center">Progreso</th>
+                        <th scope="col" class="px-6 py-5 font-bold tracking-wide uppercase text-xs text-center">Aprobación de Módulos</th>
                         <th scope="col" class="px-6 py-5 font-bold tracking-wide uppercase text-xs text-center">Estado</th>
                         <th scope="col" class="px-6 py-5 font-bold tracking-wide uppercase text-xs text-center">Nota Final</th>
                         <th scope="col" class="px-6 py-5 font-bold tracking-wide uppercase text-xs text-center">Acciones</th>
@@ -95,6 +88,11 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-slate-700/50">
                     @forelse($students as $student)
+                        @php
+                            $approvedModulesIds = $student->moduleApprovals->where('is_approved', true)->pluck('module_id')->toArray();
+                            $totalCourseModules = $course->modules->count();
+                            $approvedCount = count($approvedModulesIds);
+                        @endphp
                     <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/30 transition-colors">
                         
                         <td class="px-6 py-4">
@@ -120,6 +118,15 @@
                                 </div>
                                 <span class="text-[10px] font-black text-gray-500">{{ $student->pivot->progress_percentage ?? 0 }}%</span>
                             </div>
+                        </td>
+
+                        {{-- APROBACIÓN POR MÓDULOS --}}
+                        <td class="px-6 py-4 text-center">
+                            <button @click="expandedStudent = expandedStudent === {{ $student->id }} ? null : {{ $student->id }}"
+                                    class="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-bold border border-indigo-200 dark:border-indigo-800/40 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all">
+                                <span>Módulos: <strong>{{ $approvedCount }}/{{ $totalCourseModules }}</strong></span>
+                                <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': expandedStudent === {{ $student->id }} }" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                            </button>
                         </td>
 
                         <td class="px-6 py-4 text-center">
@@ -153,7 +160,6 @@
                         </td>
 
                         <td class="px-6 py-4 text-center">
-                            {{-- Convertimos las notas almacenadas (si existen) en un JSON para pasarlas a Alpine --}}
                             @php
                                 $gradesJson = json_encode($student->pivot->module_grades ?? (object)[]);
                             @endphp
@@ -165,9 +171,56 @@
                             </button>
                         </td>
                     </tr>
+
+                    {{-- FILA DESPLEGABLE DE GESTIÓN DE MÓDULOS --}}
+                    <tr x-show="expandedStudent === {{ $student->id }}" x-collapse class="bg-gray-50/80 dark:bg-slate-900/60">
+                        <td colspan="6" class="px-8 py-4">
+                            <div class="bg-white dark:bg-[#1e293b] p-4 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-inner space-y-3">
+                                <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-700 pb-2">
+                                    <h4 class="text-xs font-black text-gray-700 dark:text-slate-300 uppercase tracking-wider">
+                                        Gestión de Módulos para: <span class="text-blue-600 dark:text-blue-400">{{ $student->name }}</span>
+                                    </h4>
+                                    <span class="text-[11px] font-bold text-gray-500">
+                                        Haz clic en un módulo para cambiar el dictamen de aprobación
+                                    </span>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    @forelse($course->modules as $modIndex => $module)
+                                        @php
+                                            $isApproved = in_array($module->id, $approvedModulesIds);
+                                        @endphp
+                                        <form action="{{ route('instructor.courses.students.modules.toggle', [$course->id, $student->id, $module->id]) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="w-full text-left p-3 rounded-xl border transition-all flex items-center justify-between gap-3 shadow-sm {{ $isApproved ? 'bg-green-50/60 dark:bg-green-500/10 border-green-300 dark:border-green-700/50 hover:bg-green-100/70' : 'bg-gray-50 dark:bg-slate-800/40 border-gray-200 dark:border-slate-700 hover:bg-gray-100' }}">
+                                                <div class="min-w-0 flex-1">
+                                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Módulo {{ $modIndex + 1 }}</span>
+                                                    <p class="text-xs font-bold text-gray-800 dark:text-slate-200 truncate">{{ $module->title }}</p>
+                                                </div>
+                                                <div class="shrink-0">
+                                                    @if($isApproved)
+                                                        <span class="px-2.5 py-1 bg-green-500 text-white font-black text-[10px] uppercase rounded-lg shadow-sm flex items-center gap-1">
+                                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                                                            Aprobado
+                                                        </span>
+                                                    @else
+                                                        <span class="px-2.5 py-1 bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 font-black text-[10px] uppercase rounded-lg">
+                                                            Aprobar Módulo
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </button>
+                                        </form>
+                                    @empty
+                                        <p class="text-xs text-gray-500 italic">No hay módulos creados en este curso.</p>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-16">
+                        <td colspan="6" class="px-6 py-16">
                             <div class="flex flex-col items-center justify-center text-gray-400 dark:text-slate-500">
                                 <svg class="w-16 h-16 mb-4 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
                                 <span class="font-medium text-sm">Aún no hay estudiantes inscritos en este curso.</span>
@@ -180,7 +233,7 @@
         </div>
     </div>
 
-    {{-- 🔥 MODAL DE CALIFICACIÓN POR MÓDULOS 🔥 --}}
+    {{-- MODAL DE CALIFICACIÓN POR MÓDULOS Y NOTA FINAL --}}
     <div x-show="showModal" 
          class="fixed inset-0 z-50 overflow-y-auto" 
          style="display: none;"
@@ -202,7 +255,6 @@
                 <form :action="'/instructor/courses/{{ $course->id }}/students/' + studentId + '/grade'" method="POST" class="flex flex-col h-full overflow-hidden">
                     @csrf
                     
-                    {{-- Cabecera Fija del Modal --}}
                     <div class="px-6 pt-6 pb-4 sm:px-8 sm:pt-8 shrink-0 border-b border-gray-100 dark:border-slate-700/50">
                         <div class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 mb-4 mx-auto">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25v-.008zM12 8.25h.008v.008H12v-.008zm0 2.25h.008v.008H12v-.008zm0 2.25h.008v.008H12v-.008zm0 2.25h.008v.008H12v-.008zm0 2.25h.008v.008H12v-.008zM15.75 8.25h.008v.008H15.75v-.008zm0 2.25h.008v.008H15.75v-.008zm0 2.25h.008v.008H15.75v-.008zM3 13.5v-9A2.25 2.25 0 015.25 2.25h13.5A2.25 2.25 0 0121 4.5v9m-18 0v9a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 22.5v-9m-18 0h18" /></svg>
@@ -213,9 +265,7 @@
                         </div>
                     </div>
                     
-                    {{-- Cuerpo scrolleable del Modal (Dinámico según Módulos) --}}
                     <div class="p-6 sm:p-8 overflow-y-auto custom-scrollbar">
-                        
                         @if($course->modules->count() > 0)
                             <div class="space-y-4 mb-6">
                                 <h4 class="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest border-b border-gray-200 dark:border-slate-700 pb-2">Notas por Módulo (0 - 20)</h4>
@@ -231,7 +281,6 @@
                                 @endforeach
                             </div>
                         @else
-                            {{-- Si no hay módulos creados, mostramos un solo campo general --}}
                             <div class="mb-6">
                                 <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Nota Única (0 - 20)</label>
                                 <input type="number" name="module_grades[final]" x-model="moduleGrades['final']" min="0" max="20" step="0.1"
@@ -240,11 +289,9 @@
                         @endif
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-slate-700 border-dashed">
-                            {{-- PROMEDIO CALCULADO (Solo lectura, para que no rompa tu backend si solo espera final_grade) --}}
                             <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800/50 flex flex-col justify-center text-center">
                                 <label class="block text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Promedio Final</label>
                                 <div class="text-3xl font-black text-blue-800 dark:text-blue-300" x-text="averageGrade !== '' ? averageGrade : '-'"></div>
-                                {{-- Este input oculto asegura que tu controlador actual reciba el 'final_grade' sin problemas --}}
                                 <input type="hidden" name="final_grade" :value="averageGrade">
                             </div>
                             
@@ -265,7 +312,6 @@
                         </div>
                     </div>
                     
-                    {{-- Footer del Modal --}}
                     <div class="px-6 py-4 bg-gray-50 dark:bg-[#0f172a]/50 border-t border-gray-100 dark:border-slate-700/50 flex flex-col sm:flex-row-reverse gap-3 shrink-0">
                         <button type="submit" class="w-full sm:w-auto px-6 py-3 text-sm font-bold text-white bg-blue-800 hover:bg-blue-900 dark:bg-blue-600 dark:hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-800/30 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2">
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.5 19.25V5.5A2.5 2.5 0 0015 3H6a2.5 2.5 0 00-2.5 2.5v13.5A2.5 2.5 0 006 21h9.5a2.5 2.5 0 002.5-2.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 8.25H9m6 3H9m3 3H9" /></svg>

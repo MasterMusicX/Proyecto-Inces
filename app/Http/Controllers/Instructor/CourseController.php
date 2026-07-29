@@ -101,6 +101,9 @@ class CourseController extends Controller
         Gate::authorize('view', $course);
         
         $students = $course->students()
+            ->with(['moduleApprovals' => function($q) use ($course) {
+                $q->where('course_id', $course->id);
+            }])
             ->withPivot('id', 'status', 'progress_percentage', 'completed_at', 'created_at', 'final_grade', 'is_approved')
             ->orderByPivot('created_at', 'desc')
             ->paginate(20);
@@ -124,6 +127,46 @@ class CourseController extends Controller
         ]);
 
         return back()->with('success', '¡Calificación guardada y actualizada exitosamente!');
+    }
+
+    public function toggleModuleApproval(Request $request, Course $course, $studentId, \App\Models\Module $module)
+    {
+        Gate::authorize('update', $course);
+
+        $approval = \App\Models\StudentModuleApproval::where('user_id', $studentId)
+            ->where('module_id', $module->id)
+            ->first();
+
+        if ($approval) {
+            $approval->is_approved = !$approval->is_approved;
+            $approval->approved_by = Auth::id();
+            $approval->approved_at = $approval->is_approved ? now() : null;
+            $approval->save();
+        } else {
+            \App\Models\StudentModuleApproval::create([
+                'user_id'     => $studentId,
+                'course_id'   => $course->id,
+                'module_id'   => $module->id,
+                'approved_by' => Auth::id(),
+                'is_approved' => true,
+                'approved_at' => now(),
+            ]);
+        }
+
+        $totalModules = $course->modules()->count();
+        $approvedCount = \App\Models\StudentModuleApproval::where('user_id', $studentId)
+            ->where('course_id', $course->id)
+            ->where('is_approved', true)
+            ->count();
+
+        $progress = $totalModules > 0 ? min(100, round(($approvedCount / $totalModules) * 100)) : 0;
+        
+        $course->students()->updateExistingPivot($studentId, [
+            'progress_percentage' => $progress,
+            'status'              => ($progress >= 100) ? 'approved' : 'active',
+        ]);
+
+        return back()->with('success', 'Estatus del módulo actualizado exitosamente por el instructor.');
     }
 
     public function exportStudents(Course $course)

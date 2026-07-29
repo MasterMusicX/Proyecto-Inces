@@ -5,7 +5,6 @@
     <title>Lista de Asistencia - {{ $course->title }}</title>
     @vite('resources/css/app.css')
     <style>
-        /* Reglas especiales para que la impresora no corte las tablas */
         @media print {
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background-color: white !important; }
             .no-print { display: none !important; }
@@ -39,21 +38,19 @@
     <table class="w-full text-left text-sm border-collapse border border-black">
         <thead class="bg-gray-100">
             <tr>
-                <th class="border border-black px-3 py-2 text-center w-10">N°</th>
-                <th class="border border-black px-3 py-2">Cédula</th>
-                <th class="border border-black px-3 py-2">Apellidos y Nombres</th>
-                <th class="border border-black px-3 py-2 text-center w-32">Firma del Estudiante</th>
-                <th class="border border-black px-3 py-2 text-center w-16">Nota</th>
+                <th class="border border-black px-3 py-2 text-center w-12">N°</th>
+                <th class="border border-black px-3 py-2 w-32">Cédula</th>
+                <th class="border border-black px-3 py-2">Nombres y Apellidos</th>
+                <th class="border border-black px-3 py-2 text-center w-48">Firma del Estudiante</th>
             </tr>
         </thead>
         <tbody>
             @foreach($students as $index => $student)
             <tr>
-                <td class="border border-black px-3 py-2 text-center font-bold">{{ $index + 1 }}</td>
-                <td class="border border-black px-3 py-2">V-{{ $student->cedula ?? 'N/A' }}</td>
-                <td class="border border-black px-3 py-2 uppercase">{{ $student->name }}</td>
-                <td class="border border-black px-3 py-2"></td>
-                <td class="border border-black px-3 py-2 text-center font-bold">{{ $student->pivot->final_grade ?? '-' }}</td>
+                <td class="border border-black px-3 py-3 text-center font-bold">{{ $index + 1 }}</td>
+                <td class="border border-black px-3 py-3">V-{{ $student->cedula ?? 'N/A' }}</td>
+                <td class="border border-black px-3 py-3 uppercase font-semibold">{{ $student->name }}</td>
+                <td class="border border-black px-3 py-3"></td>
             </tr>
             @endforeach
         </tbody>
@@ -61,7 +58,7 @@
 
     <div class="mt-16 pt-8 border-t border-black w-64 text-center mx-auto">
         <p class="font-bold uppercase text-xs">Firma del MTP</p>
-        <p class="text-sm">{{ Auth::user()->name }}</p>
+        <p class="text-sm font-semibold">{{ Auth::user()->name }}</p>
     </div>
 
 </body>
