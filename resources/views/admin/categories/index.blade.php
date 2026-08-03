@@ -29,9 +29,12 @@
                                 <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors group">
                                     <td class="p-4 pl-6">
                                         <div class="flex items-center gap-4">
-                                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-sm border border-gray-100 dark:border-slate-700/50 flex-shrink-0 transition-transform group-hover:scale-105" 
+                                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 dark:border-slate-700/50 flex-shrink-0 transition-transform group-hover:scale-105" 
                                                  style="background-color: {{ $category->color }}15; border-color: {{ $category->color }}30;">
-                                                <span>{{ $category->icon ?? '🏷️' }}</span>
+                                                <svg class="w-6 h-6" style="color: {{ $category->color }};" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.659A2.25 2.25 0 0 0 9.568 3Z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" />
+                                                </svg>
                                             </div>
                                             <div>
                                                 <div class="font-bold text-gray-900 dark:text-white text-base">{{ $category->name }}</div>
@@ -101,17 +104,10 @@
                                   class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none">{{ old('description') }}</textarea>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-1.5">Color</label>
-                            <input type="color" name="color" value="{{ old('color', '#10b981') }}" 
-                                   class="h-11 w-full rounded-xl cursor-pointer bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 p-1">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-1.5">Ícono</label>
-                            <input type="text" name="icon" value="{{ old('icon', '💻') }}" placeholder="Ej: 💻" 
-                                   class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-center text-xl outline-none transition-all">
-                        </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-1.5">Color Distintivo</label>
+                        <input type="color" name="color" value="{{ old('color', '#3B82F6') }}" 
+                               class="h-11 w-full rounded-xl cursor-pointer bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 p-1">
                     </div>
 
                     <button type="submit" class="w-full py-3.5 px-4 mt-4 rounded-xl shadow-lg shadow-blue-500/30 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2">
