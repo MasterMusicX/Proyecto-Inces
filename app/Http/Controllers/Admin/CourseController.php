@@ -45,11 +45,14 @@ class CourseController extends Controller
             'instructor_id'   => 'required|exists:users,id',
             'category_id'     => 'nullable|exists:course_categories,id',
             'prerequisite_id' => 'nullable|exists:courses,id',
-            'level'           => 'required|in:basico,intermedio,avanzado',
+            'level'           => 'required|in:basico,intermedio,avanzado,beginner,intermediate,advanced',
             'duration_hours'  => 'nullable|integer|min:0',
             'max_students'    => 'nullable|integer|min:1',
             'status'          => 'required|in:draft,published,archived',
             'thumbnail'       => 'nullable|image|max:2048',
+        ], [
+            'level.in'        => 'El nivel seleccionado no es válido. Elige entre Básico, Intermedio o Avanzado.',
+            'status.in'       => 'El estado seleccionado no es válido. Elige entre Borrador, Publicado o Archivado.',
         ]);
 
         $data['is_featured'] = $request->has('is_featured');
@@ -94,11 +97,14 @@ class CourseController extends Controller
             'instructor_id'   => 'required|exists:users,id',
             'category_id'     => 'nullable|exists:course_categories,id',
             'prerequisite_id' => 'nullable|exists:courses,id',
-            'level'           => 'required|in:basico,intermedio,avanzado',
+            'level'           => 'required|in:basico,intermedio,avanzado,beginner,intermediate,advanced',
             'duration_hours'  => 'nullable|integer|min:0',
             'max_students'    => 'nullable|integer|min:1',
             'status'          => 'required|in:draft,published,archived',
             'thumbnail'       => 'nullable|image|max:2048',
+        ], [
+            'level.in'        => 'El nivel seleccionado no es válido. Elige entre Básico, Intermedio o Avanzado.',
+            'status.in'       => 'El estado seleccionado no es válido. Elige entre Borrador, Publicado o Archivado.',
         ]);
 
         $data['is_featured'] = $request->has('is_featured');
@@ -121,7 +127,7 @@ class CourseController extends Controller
 
         $course->update($data);
         
-        return redirect()->route('admin.courses.index')->with('success', 'Curso actualizado exitosamente.');
+        return redirect()->route('admin.courses.index')->with('success', 'Curso y su estado actualizados exitosamente.');
     }
 
     public function destroy(Course $course)
@@ -149,8 +155,8 @@ class CourseController extends Controller
             'enrollment_type' => 'required|in:full,module',
             'module_id'       => 'required_if:enrollment_type,module|nullable|exists:modules,id',
         ], [
-            'email.exists'             => 'El correo electrónico ingresado no coincide con ningún estudiante registrado.',
-            'module_id.required_if'    => 'Debes seleccionar el módulo específico para realizar la inscripción por módulo.',
+            'email.exists'          => 'El correo electrónico ingresado no coincide con ningún estudiante registrado.',
+            'module_id.required_if' => 'Debes seleccionar el módulo específico para realizar la inscripción por módulo.',
         ]);
 
         $student = User::where('email', $request->email)->first();
@@ -174,7 +180,6 @@ class CourseController extends Controller
             return back()->withInput()->with('error', 'El estudiante ya se encuentra inscrito en esta modalidad para esta formación.');
         }
 
-        // Crear registro de inscripción expres/prelado
         Enrollment::create([
             'user_id'             => $student->id,
             'course_id'           => $course->id,
@@ -184,11 +189,9 @@ class CourseController extends Controller
             'progress_percentage' => $request->enrollment_type === 'module' ? 10.00 : 1.00
         ]);
 
-        // Si la inscripción es a un módulo específico, habilitar/aprobar el módulo o módulos previos si corresponde
         if ($request->enrollment_type === 'module' && $request->module_id) {
             $selectedModule = Module::find($request->module_id);
             if ($selectedModule) {
-                // Registrar aprobación o habilitación activa de módulo
                 StudentModuleApproval::firstOrCreate([
                     'user_id'   => $student->id,
                     'module_id' => $selectedModule->id,

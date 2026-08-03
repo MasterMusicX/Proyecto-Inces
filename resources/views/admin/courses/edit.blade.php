@@ -5,13 +5,15 @@
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 animate-fade-in-up">
 
     <div class="mb-8">
-        <a href="{{ route('admin.courses.index') }}" class="inline-flex items-center text-sm font-bold text-gray-500 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-400 transition-colors mb-3">
-            ← Volver a Gestión de Cursos
+        <a href="{{ route('admin.courses.index') }}" class="inline-flex items-center text-sm font-bold text-gray-500 dark:text-slate-400 hover:text-blue-700 dark:hover:text-blue-400 transition-colors mb-3">
+            <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+            Volver a Gestión de Cursos
         </a>
         <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
-            <span class="text-3xl">📝</span> Editar: <span class="text-blue-800 dark:text-blue-400">{{ $course->title }}</span>
+            <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>
+            Editar: <span class="text-blue-800 dark:text-blue-400">{{ $course->title }}</span>
         </h1>
-        <p class="text-gray-500 dark:text-slate-400 mt-2">Modifica la información, imagen y configuración de este curso.</p>
+        <p class="text-gray-500 dark:text-slate-400 mt-2">Modifica la información, estado, imagen y configuración de este curso.</p>
     </div>
 
     <div class="bg-white dark:bg-[#1e293b] rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700/50 overflow-hidden">
@@ -21,8 +23,8 @@
             @method('PUT')
 
             @if($errors->any())
-                <div class="p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-800/50 rounded-xl mb-6">
-                    <ul class="list-disc list-inside text-xs font-bold text-red-600 dark:text-red-400">
+                <div class="p-4 bg-rose-50 dark:bg-rose-500/10 border-l-4 border-rose-500 rounded-r-xl mb-6">
+                    <ul class="list-disc list-inside text-xs font-bold text-rose-600 dark:text-rose-400 space-y-1">
                         @foreach($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
@@ -33,19 +35,19 @@
             <div>
                 <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Título del Curso *</label>
                 <input type="text" name="title" value="{{ old('title', $course->title) }}" required
-                       class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-800 transition-all">
+                       class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-600 transition-all">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Descripción *</label>
                 <textarea name="description" rows="4" required
-                          class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-800 transition-all resize-none">{{ old('description', $course->description) }}</textarea>
+                          class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-600 transition-all resize-none">{{ old('description', $course->description) }}</textarea>
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Objetivos de Aprendizaje</label>
                 <textarea name="objectives" rows="3" placeholder="¿Qué aprenderá el estudiante?"
-                          class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-800 transition-all resize-none">{{ old('objectives', $course->objectives) }}</textarea>
+                          class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-600 transition-all resize-none">{{ old('objectives', $course->objectives) }}</textarea>
             </div>
 
             <div class="w-full border-t border-gray-100 dark:border-slate-700/50 my-6"></div>
@@ -54,7 +56,7 @@
                 
                 <div>
                     <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Instructor *</label>
-                    <select name="instructor_id" required class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-800 transition-all cursor-pointer">
+                    <select name="instructor_id" required class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-600 transition-all cursor-pointer">
                         @foreach($instructors as $i)
                             <option value="{{ $i->id }}" {{ old('instructor_id', $course->instructor_id) == $i->id ? 'selected' : '' }}>{{ $i->name }}</option>
                         @endforeach
@@ -63,7 +65,7 @@
 
                 <div>
                     <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Categoría</label>
-                    <select name="category_id" class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-800 transition-all cursor-pointer">
+                    <select name="category_id" class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-600 transition-all cursor-pointer">
                         <option value="">Sin categoría</option>
                         @foreach($categories as $c)
                             <option value="{{ $c->id }}" {{ old('category_id', $course->category_id) == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
@@ -72,33 +74,39 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Nivel</label>
-                    <select name="level" class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-800 transition-all cursor-pointer">
-                        @foreach(['beginner' => 'Básico', 'intermediate' => 'Intermedio', 'advanced' => 'Avanzado'] as $v => $l)
-                            <option value="{{ $v }}" {{ old('level', $course->level) === $v ? 'selected' : '' }}>{{ $l }}</option>
-                        @endforeach
+                    <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Nivel *</label>
+                    @php
+                        $currLevel = old('level', $course->level);
+                    @endphp
+                    <select name="level" required class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-600 transition-all cursor-pointer">
+                        <option value="basico" {{ in_array($currLevel, ['basico', 'beginner']) ? 'selected' : '' }}>Básico</option>
+                        <option value="intermedio" {{ in_array($currLevel, ['intermedio', 'intermediate']) ? 'selected' : '' }}>Intermedio</option>
+                        <option value="avanzado" {{ in_array($currLevel, ['avanzado', 'advanced']) ? 'selected' : '' }}>Avanzado</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Estado</label>
-                    <select name="status" class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-800 transition-all cursor-pointer">
-                        @foreach(['draft' => 'Borrador', 'published' => 'Publicado', 'archived' => 'Archivado'] as $v => $l)
-                            <option value="{{ $v }}" {{ old('status', $course->status) === $v ? 'selected' : '' }}>{{ $l }}</option>
-                        @endforeach
+                    <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Estado del Curso *</label>
+                    @php
+                        $currStatus = old('status', $course->status);
+                    @endphp
+                    <select name="status" required class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-600 transition-all cursor-pointer">
+                        <option value="draft" {{ $currStatus === 'draft' ? 'selected' : '' }}>Borrador</option>
+                        <option value="published" {{ $currStatus === 'published' ? 'selected' : '' }}>Publicado</option>
+                        <option value="archived" {{ $currStatus === 'archived' ? 'selected' : '' }}>Archivado</option>
                     </select>
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Duración (Horas)</label>
                     <input type="number" name="duration_hours" value="{{ old('duration_hours', $course->duration_hours) }}" min="0"
-                           class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-800 transition-all">
+                           class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-600 transition-all">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Máximo Estudiantes</label>
                     <input type="number" name="max_students" value="{{ old('max_students', $course->max_students) }}" min="1" placeholder="Ej: 50"
-                           class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-800 transition-all">
+                           class="w-full bg-gray-50 dark:bg-[#0f172a] border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-600 transition-all">
                 </div>
             </div>
 
@@ -143,8 +151,9 @@
                 <a href="{{ route('admin.courses.index') }}" class="w-full sm:w-auto text-center px-6 py-3 text-sm font-bold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-sm">
                     Cancelar
                 </a>
-                <button type="submit" class="w-full sm:w-auto px-6 py-3 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-lg shadow-red-600/30 transition-all hover:-translate-y-0.5 flex justify-center items-center gap-2">
-                    💾 Actualizar Curso
+                <button type="submit" class="w-full sm:w-auto px-6 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-600/30 transition-all hover:-translate-y-0.5 flex justify-center items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                    <span>Actualizar Curso</span>
                 </button>
             </div>
             
