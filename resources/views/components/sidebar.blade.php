@@ -89,13 +89,25 @@
             <a href="{{ route('admin.courses.index') }}" title="Cursos"
                @class([
                    'flex items-center px-4 py-3 mb-1 rounded-xl transition-all group',
-                   'bg-blue-50 dark:bg-slate-800 text-blue-800 dark:text-white font-extrabold shadow-sm border border-blue-100 dark:border-transparent' => request()->routeIs('admin.courses.*'),
-                   'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800/50 hover:text-blue-700 dark:hover:text-blue-400 font-medium' => !request()->routeIs('admin.courses.*')
+                   'bg-blue-50 dark:bg-slate-800 text-blue-800 dark:text-white font-extrabold shadow-sm border border-blue-100 dark:border-transparent' => request()->routeIs('admin.courses.index') || request()->routeIs('admin.courses.create') || request()->routeIs('admin.courses.edit'),
+                   'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800/50 hover:text-blue-700 dark:hover:text-blue-400 font-medium' => !request()->routeIs('admin.courses.index')
                ])>
                 <span class="flex-shrink-0 w-8 flex justify-center group-hover:scale-110 transition-transform text-current">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                 </span>
                 <span x-show="sidebarOpen" x-transition.opacity class="ml-1 whitespace-nowrap">Cursos</span>
+            </a>
+
+            <a href="{{ route('admin.courses.force-enroll') }}" title="Inscripción Expresa"
+               @class([
+                   'flex items-center px-4 py-3 mb-1 rounded-xl transition-all group',
+                   'bg-blue-50 dark:bg-slate-800 text-blue-800 dark:text-white font-extrabold shadow-sm border border-blue-100 dark:border-transparent' => request()->routeIs('admin.courses.force-enroll*'),
+                   'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800/50 hover:text-blue-700 dark:hover:text-blue-400 font-medium' => !request()->routeIs('admin.courses.force-enroll*')
+               ])>
+                <span class="flex-shrink-0 w-8 flex justify-center group-hover:scale-110 transition-transform text-current">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></svg>
+                </span>
+                <span x-show="sidebarOpen" x-transition.opacity class="ml-1 whitespace-nowrap">Inscripción Expresa</span>
             </a>
 
             <a href="{{ route('admin.categories.index') }}" title="Categorías"

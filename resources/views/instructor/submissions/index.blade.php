@@ -44,9 +44,9 @@
                 <label class="block text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-2">Tipo de Documento</label>
                 <select name="type" onchange="this.form.submit()" class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-gray-800 dark:text-slate-200 font-bold focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     <option value="">Todos los tipos</option>
-                    <option value="assignment" {{ request('type') == 'assignment' ? 'selected' : '' }}>📝 Tareas Realizadas</option>
-                    <option value="medical_receipt" {{ request('type') == 'medical_receipt' ? 'selected' : '' }}>🩺 Récipes / Justificativos Médicos</option>
-                    <option value="other" {{ request('type') == 'other' ? 'selected' : '' }}>📄 Otros Documentos</option>
+                    <option value="assignment" {{ request('type') == 'assignment' ? 'selected' : '' }}>Tareas Realizadas</option>
+                    <option value="medical_receipt" {{ request('type') == 'medical_receipt' ? 'selected' : '' }}>Récipes / Justificativos Médicos</option>
+                    <option value="other" {{ request('type') == 'other' ? 'selected' : '' }}>Otros Documentos</option>
                 </select>
             </div>
 
@@ -209,11 +209,13 @@
                         <div class="grid grid-cols-2 gap-3">
                             <label class="border-2 border-gray-200 dark:border-slate-700 rounded-xl p-3 flex items-center gap-2 cursor-pointer hover:border-green-500 has-[:checked]:border-green-500 has-[:checked]:bg-green-500/10">
                                 <input type="radio" name="status" value="approved" required :checked="activeSub.status === 'approved'" class="text-green-600 focus:ring-green-500">
-                                <span class="text-xs font-black text-green-700 dark:text-green-300">✅ APROBAR</span>
+                                <svg class="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                                <span class="text-xs font-black text-green-700 dark:text-green-300">APROBAR</span>
                             </label>
                             <label class="border-2 border-gray-200 dark:border-slate-700 rounded-xl p-3 flex items-center gap-2 cursor-pointer hover:border-red-500 has-[:checked]:border-red-500 has-[:checked]:bg-red-500/10">
                                 <input type="radio" name="status" value="rejected" required :checked="activeSub.status === 'rejected'" class="text-red-600 focus:ring-red-500">
-                                <span class="text-xs font-black text-red-700 dark:text-red-300">❌ RECHAZAR</span>
+                                <svg class="w-4 h-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                                <span class="text-xs font-black text-red-700 dark:text-red-300">RECHAZAR</span>
                             </label>
                         </div>
                     </div>

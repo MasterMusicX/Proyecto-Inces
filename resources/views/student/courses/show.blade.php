@@ -26,7 +26,7 @@
     {{-- HERO SECTION --}}
     <div class="bg-white dark:bg-[#1e293b] rounded-3xl shadow-xl border border-gray-100 dark:border-slate-700/50 overflow-hidden mb-8 flex flex-col md:flex-row">
 
-        {{-- Columna Izquierda: Imagen del curso con Lógica Inteligente --}}
+        {{-- Columna Izquierda: Imagen del curso --}}
         <div class="w-full md:w-2/5 lg:w-1/3 relative h-64 md:h-auto bg-gradient-to-br from-blue-900 to-blue-700 shrink-0">
             @php
                 $thumbnailUrl = $course->thumbnail ? (str_starts_with($course->thumbnail, 'http') ? $course->thumbnail : asset('storage/' . $course->thumbnail)) : null;
@@ -45,11 +45,20 @@
         {{-- Columna Derecha: Información y Botones --}}
         <div class="p-8 sm:p-10 w-full md:w-3/5 lg:w-2/3 flex flex-col justify-center bg-gradient-to-r from-blue-900 to-blue-800 text-white relative">
             
-            @if($course->category)
-                <span class="inline-block px-3 py-1 bg-red-600/20 text-red-300 border border-red-500/30 text-[10px] font-black uppercase tracking-widest rounded-lg w-max mb-4 backdrop-blur-sm shadow-sm">
-                    {{ $course->category->name }}
-                </span>
-            @endif
+            <div class="flex flex-wrap items-center gap-2 mb-4">
+                @if($course->category)
+                    <span class="inline-block px-3 py-1 bg-red-600/20 text-red-300 border border-red-500/30 text-[10px] font-black uppercase tracking-widest rounded-lg backdrop-blur-sm shadow-sm">
+                        {{ $course->category->name }}
+                    </span>
+                @endif
+
+                @if($course->prerequisite)
+                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/30 text-[10px] font-black uppercase tracking-widest rounded-lg backdrop-blur-sm">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+                        Prelación: {{ $course->prerequisite->title }}
+                    </span>
+                @endif
+            </div>
 
             <h1 class="text-3xl sm:text-4xl font-black tracking-tight mb-4 drop-shadow-md">
                 {{ $course->title }}
@@ -66,7 +75,7 @@
                     {{ $course->instructor->name ?? 'INCES' }}
                 </span>
                 <span class="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-xl border border-white/20 capitalize">
-                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
+                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
                     {{ $course->level_label ?? 'Básico' }}
                 </span>
                 <span class="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-xl border border-white/20">
@@ -75,7 +84,7 @@
                 </span>
             </div>
 
-            {{-- Botones de Acción --}}
+            {{-- Botones de Acción Principal --}}
             <div>
                 @if(isset($isEnrolled) && $isEnrolled)
                     <div class="flex flex-col sm:flex-row gap-3">
@@ -96,10 +105,7 @@
                          x-transition.opacity>
                         
                         <div @click.away="showWithdrawModal = false" 
-                             class="bg-white dark:bg-[#1e293b] rounded-3xl shadow-2xl p-8 max-w-md w-full border border-gray-100 dark:border-slate-700"
-                             x-transition:enter="transition ease-out duration-300" 
-                             x-transition:enter-start="opacity-0 scale-95" 
-                             x-transition:enter-end="opacity-100 scale-100">
+                             class="bg-white dark:bg-[#1e293b] rounded-3xl shadow-2xl p-8 max-w-md w-full border border-gray-100 dark:border-slate-700">
                             
                             <div class="w-16 h-16 bg-red-50 dark:bg-red-500/10 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner border border-red-100 dark:border-red-900/30">
                                 <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
@@ -107,7 +113,7 @@
                             
                             <h3 class="text-2xl font-black text-center text-gray-900 dark:text-white mb-2">¿Estás seguro?</h3>
                             <p class="text-center text-gray-500 dark:text-slate-400 mb-8 text-sm">
-                                Estás a punto de retirarte de <b class="text-gray-700 dark:text-slate-300">{{ $course->title }}</b>. Perderás todo tu progreso actual.
+                                Estás a punto de retirarte de <b class="text-gray-700 dark:text-slate-300">{{ $course->title }}</b>. Perderás tu progreso actual.
                             </p>
                             
                             <div class="flex flex-col sm:flex-row gap-3">
@@ -126,11 +132,12 @@
                         </div>
                     </div>
                 @else
-                    <form method="POST" action="{{ route('student.courses.enroll', $course) }}" class="m-0">
+                    <form method="POST" action="{{ route('student.courses.enroll', $course) }}" class="m-0 flex flex-col sm:flex-row gap-3">
                         @csrf
+                        <input type="hidden" name="enrollment_type" value="full">
                         <button type="submit" class="inline-flex items-center justify-center px-8 py-3.5 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-lg shadow-red-600/30 transition-all hover:-translate-y-0.5 gap-2 w-full sm:w-auto">
                             <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                            Inscribirme Ahora
+                            Inscribirse al Curso Completo
                         </button>
                     </form>
                 @endif
@@ -138,19 +145,17 @@
         </div>
     </div>
 
-    {{-- CONTENIDO PRINCIPAL --}}
+    {{-- CONTENIDO PRINCIPAL CON HOJA DE RUTA (ROADMAP) --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {{-- Columna Izquierda (Plan de Estudio) --}}
+        {{-- Columna Izquierda (Perfil de Egreso + Hoja de Ruta de Módulos) --}}
         <div class="lg:col-span-2 space-y-8">
             
             @if($course->objectives || $course->description)
             <div class="bg-white dark:bg-[#1e293b] rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-slate-700/50">
                 <h2 class="text-xl font-extrabold text-blue-900 dark:text-blue-400 mb-5 flex items-center gap-2">
-                    <span class="text-blue-600 dark:text-blue-400">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" /></svg>
-                    </span>
-                    Perfil de Egreso
+                    <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" /></svg>
+                    Perfil de Egreso y Competencias
                 </h2>
                 <div class="text-sm text-gray-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">
                     {{ $course->objectives ?? 'El participante será capaz de aplicar las herramientas teóricas y prácticas adquiridas en esta formación para potenciar la producción nacional.' }}
@@ -158,19 +163,25 @@
             </div>
             @endif
 
+            {{-- 🔥 SECCIÓN DE HOJA DE RUTA (ROADMAP INTERACTIVO DE MÓDULOS) 🔥 --}}
             <div class="bg-white dark:bg-[#1e293b] rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-slate-700/50">
-                <h2 class="text-xl font-extrabold text-blue-900 dark:text-blue-400 mb-6 flex items-center gap-2">
-                    <span class="text-blue-600 dark:text-blue-400">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
-                    </span>
-                    Plan de Estudio (Módulos)
-                </h2>
                 
-                <div class="space-y-3">
+                <div class="flex items-center justify-between mb-8 pb-4 border-b border-gray-100 dark:border-slate-700/50">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-blue-900 dark:text-blue-400 flex items-center gap-2">
+                            <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689A1.125 1.125 0 0 0 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" /></svg>
+                            Hoja de Ruta del Curso (Módulos & Contenidos)
+                        </h2>
+                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Secuencia académica y ruta de aprendizaje diseñada para esta formación.</p>
+                    </div>
+                    <span class="text-xs font-bold text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-slate-700">
+                        {{ $course->modules->count() }} {{ Str::plural('Módulo', $course->modules->count()) }}
+                    </span>
+                </div>
+
+                {{-- TIMELINE INTERACTIVO --}}
+                <div class="relative pl-6 border-l-2 border-blue-200 dark:border-slate-700 space-y-8 my-4">
                     @forelse($course->modules ?? [] as $module)
-                    <div x-data="{ open: false }" class="bg-gray-50 dark:bg-[#0f172a] rounded-2xl border border-gray-100 dark:border-slate-700 overflow-hidden transition-all duration-300">
-                        
-                        {{-- Cabecera del Módulo --}}
                         @php
                             $isModuleApproved = false;
                             if (Auth::check()) {
@@ -180,99 +191,109 @@
                                     ->exists();
                             }
                         @endphp
-                        <button @click="open = !open" type="button" class="w-full p-4 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors">
-                            <div class="flex items-center gap-4 text-left">
-                                <span class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded-xl flex items-center justify-center text-sm font-black shadow-inner border border-blue-200 dark:border-blue-800/50 shrink-0">
-                                    {{ $loop->iteration }}
-                                </span>
-                                <span class="font-bold text-gray-900 dark:text-white text-base uppercase">{{ $module->title }}</span>
-                            </div>
+
+                        <div x-data="{ openModule: true }" class="relative group">
                             
-                            <div class="flex items-center gap-3">
-                                @if(isset($isEnrolled) && $isEnrolled)
-                                    @if($isModuleApproved)
-                                        <span class="text-xs font-bold text-green-700 bg-green-50 dark:bg-green-500/10 dark:text-green-400 px-3 py-1.5 rounded-lg border border-green-200 dark:border-green-800/40 flex items-center gap-1">
-                                            <svg class="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-                                            Aprobado por MTP
-                                        </span>
-                                    @else
-                                        <span class="text-xs font-bold text-amber-700 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-400 px-3 py-1.5 rounded-lg border border-amber-200 dark:border-amber-800/40 flex items-center gap-1">
-                                            <svg class="w-3.5 h-3.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                                            En Proceso
-                                        </span>
-                                    @endif
+                            {{-- Nodo de Conexión del Timeline --}}
+                            <div class="absolute -left-[35px] top-1.5 w-7 h-7 rounded-full flex items-center justify-center border-2 transition-transform group-hover:scale-110 shadow-sm
+                                        {{ $isModuleApproved ? 'bg-emerald-500 border-emerald-400 text-white' : ($isEnrolled ? 'bg-blue-600 border-blue-400 text-white' : 'bg-slate-200 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-300') }}">
+                                @if($isModuleApproved)
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                                @else
+                                    <span class="text-xs font-black">{{ $loop->iteration }}</span>
                                 @endif
-                                <span class="text-xs font-bold text-gray-500 dark:text-slate-400 shrink-0 bg-white dark:bg-[#1e293b] px-3 py-1.5 rounded-lg border border-gray-100 dark:border-slate-600">
-                                    {{ $module->resources->count() ?? 0 }} recursos
-                                </span>
-                                <svg :class="open ? 'rotate-180' : ''" class="w-5 h-5 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </div>
-                        </button>
 
-                        {{-- Lista de Recursos --}}
-                        <div x-show="open" 
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 -translate-y-2"
-                             x-transition:enter-end="opacity-100 translate-y-0"
-                             style="display: none;" 
-                             class="border-t border-gray-200 dark:border-slate-700 bg-white dark:bg-[#1e293b]">
-                            
-                            <ul class="divide-y divide-gray-100 dark:divide-slate-700/50">
-                                @forelse($module->resources as $resource)
-                                    <li class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                        
-                                        <div class="flex items-center gap-3">
-                                            <span class="shrink-0">
-                                                @if(isset($resource->type) && $resource->type === 'pdf')
-                                                    <svg class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
-                                                @elseif(isset($resource->type) && $resource->type === 'video')
-                                                    <svg class="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" /></svg>
-                                                @elseif(isset($resource->type) && $resource->type === 'link')
-                                                    <svg class="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" /></svg>
-                                                @else
-                                                    <svg class="w-6 h-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" /></svg>
-                                                @endif
+                            {{-- Tarjeta del Módulo --}}
+                            <div class="bg-gray-50 dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-slate-700/70 overflow-hidden shadow-sm transition-all hover:border-blue-300 dark:hover:border-blue-800">
+                                
+                                {{-- Cabecera --}}
+                                <div class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 dark:border-slate-800">
+                                    <div>
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+                                                Módulo {{ $loop->iteration }}
                                             </span>
-                                            <span class="text-sm font-medium text-gray-700 dark:text-slate-300 line-clamp-2">
-                                                {{ $resource->title }}
-                                            </span>
-                                        </div>
-
-                                        {{-- BOTONES DE DESCARGA SEGUROS --}}
-                                        <div class="shrink-0 flex items-center justify-end gap-2">
-                                            @if(isset($isEnrolled) && $isEnrolled)
-                                                <a href="{{ route('student.resources.show', $resource) }}" class="px-3 py-1.5 text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg transition-colors flex items-center gap-1">
-                                                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
-                                                    Ver Recurso
-                                                </a>
-
-                                                @if($resource->is_downloadable)
-                                                    <a href="{{ route('student.resources.download', $resource) }}" class="px-3 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 dark:text-blue-400 dark:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg transition-colors flex items-center gap-1">
-                                                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                                                        Descargar
-                                                    </a>
-                                                @endif
-                                            @else
-                                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 dark:bg-red-500/10 dark:text-red-400 rounded-lg border border-red-100 dark:border-red-900/30">
-                                                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
-                                                    Inscríbete para acceder
+                                            
+                                            @if($isModuleApproved)
+                                                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-500/10 dark:text-emerald-400 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800/40 flex items-center gap-1">
+                                                    <svg class="w-3 h-3 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                                                    Aprobado por MTP
+                                                </span>
+                                            @elseif($isEnrolled)
+                                                <span class="text-[10px] font-bold text-blue-700 bg-blue-50 dark:bg-blue-500/10 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800/40 flex items-center gap-1">
+                                                    <svg class="w-3 h-3 text-blue-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                                                    En Formación
                                                 </span>
                                             @endif
                                         </div>
+                                        <h3 class="text-base font-extrabold text-gray-900 dark:text-white uppercase">{{ $module->title }}</h3>
+                                        @if($module->description)
+                                            <p class="text-xs text-gray-500 dark:text-slate-400 mt-1 leading-relaxed">{{ $module->description }}</p>
+                                        @endif
+                                    </div>
 
-                                    </li>
-                                @empty
-                                    <li class="p-4 text-xs text-gray-500 dark:text-slate-400 text-center font-medium">
-                                        No hay recursos publicados en este módulo todavía.
-                                    </li>
-                                @endforelse
-                            </ul>
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        @if(!isset($isEnrolled) || !$isEnrolled)
+                                            <form method="POST" action="{{ route('student.courses.enroll', $course) }}" class="m-0">
+                                                @csrf
+                                                <input type="hidden" name="enrollment_type" value="module">
+                                                <input type="hidden" name="module_id" value="{{ $module->id }}">
+                                                <button type="submit" class="px-3 py-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800/50 rounded-xl transition-all flex items-center gap-1">
+                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                                                    Inscribir solo este Módulo
+                                                </button>
+                                            </form>
+                                        @endif
+
+                                        <button @click="openModule = !openModule" type="button" class="p-2 text-gray-400 hover:text-gray-600 rounded-xl transition-colors">
+                                            <svg :class="openModule ? 'rotate-180' : ''" class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {{-- Contenidos del Módulo --}}
+                                <div x-show="openModule" class="bg-white dark:bg-[#1e293b] p-4 border-t border-gray-100 dark:border-slate-800">
+                                    <h4 class="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-3">Recursos y Contenidos de Aprendizaje:</h4>
+                                    
+                                    <ul class="space-y-2">
+                                        @forelse($module->resources as $resource)
+                                            <li class="p-3 bg-gray-50 dark:bg-slate-900/50 rounded-xl flex items-center justify-between text-xs font-medium text-gray-700 dark:text-slate-300">
+                                                <div class="flex items-center gap-2.5">
+                                                    <span class="shrink-0">
+                                                        @if(isset($resource->type) && $resource->type === 'pdf')
+                                                            <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+                                                        @elseif(isset($resource->type) && $resource->type === 'video')
+                                                            <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+                                                        @else
+                                                            <svg class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+                                                        @endif
+                                                    </span>
+                                                    <span>{{ $resource->title }}</span>
+                                                </div>
+
+                                                @if(isset($isEnrolled) && $isEnrolled)
+                                                    <a href="{{ route('student.resources.show', $resource) }}" class="text-blue-600 hover:underline font-bold text-[11px] flex items-center gap-1">
+                                                        <span>Ver</span>
+                                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                                                    </a>
+                                                @endif
+                                            </li>
+                                        @empty
+                                            <li class="text-xs text-gray-400 dark:text-slate-500 italic p-2">Contenidos del módulo en preparación por el instructor.</li>
+                                        @endforelse
+                                    </ul>
+                                </div>
+
+                            </div>
                         </div>
-
-                    </div>
                     @empty
-                    <p class="text-gray-500 text-center py-4 text-sm font-medium border border-dashed border-gray-300 dark:border-slate-700 rounded-xl">Aún no hay módulos publicados para esta formación.</p>
+                        <p class="text-gray-500 text-center py-4 text-sm font-medium border border-dashed border-gray-300 dark:border-slate-700 rounded-xl">Aún no hay módulos registrados en la hoja de ruta de esta formación.</p>
                     @endforelse
+                </div>
+
+            </div>
+
             {{-- 🔥 SECCIÓN DE EVALUACIÓN FINAL DEL CURSO 🔥 --}}
             @if($course->quiz)
             <div class="bg-gradient-to-r from-blue-900 to-indigo-950 dark:from-slate-800 dark:to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-blue-800 dark:border-slate-700 relative overflow-hidden mt-8">
@@ -284,9 +305,17 @@
                         <div>
                             <span class="px-3 py-1 bg-blue-500/20 text-blue-300 text-[10px] font-black uppercase tracking-widest rounded-md border border-blue-400/30 mb-2 inline-block">Evaluación Obligatoria</span>
                             <h3 class="text-xl font-black text-white tracking-tight">{{ $course->quiz->title }}</h3>
-                            <p class="text-xs text-blue-200 dark:text-slate-300 mt-1">
-                                ⏱️ Tiempo: <strong>{{ $course->quiz->time_limit }} min</strong> &nbsp;•&nbsp; 🎯 Nota mín: <strong>{{ $course->quiz->passing_score }}/20 pts</strong>
-                            </p>
+                            <div class="flex items-center gap-3 text-xs text-blue-200 dark:text-slate-300 mt-1">
+                                <span class="flex items-center gap-1">
+                                    <svg class="w-4 h-4 text-blue-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                                    Tiempo: <strong>{{ $course->quiz->time_limit }} min</strong>
+                                </span>
+                                <span>•</span>
+                                <span class="flex items-center gap-1">
+                                    <svg class="w-4 h-4 text-blue-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                                    Nota mín: <strong>{{ $course->quiz->passing_score }}/20 pts</strong>
+                                </span>
+                            </div>
                         </div>
                     </div>
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 class Enrollment extends Model
 {
     protected $fillable = [
-        'user_id', 'course_id', 'status', 'progress_percentage', 'completed_at'
+        'user_id', 'course_id', 'module_id', 'enrollment_type', 'status', 'progress_percentage', 'completed_at'
     ];
 
     protected function casts(): array {
@@ -15,4 +15,5 @@ class Enrollment extends Model
 
     public function user()   { return $this->belongsTo(User::class); }
     public function course() { return $this->belongsTo(Course::class); }
+    public function module() { return $this->belongsTo(Module::class); }
 }
