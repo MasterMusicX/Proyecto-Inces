@@ -24,7 +24,7 @@ class Course extends Model
      */
     protected $fillable = [
         'title', 'slug', 'description', 'objectives',
-        'instructor_id', 'category_id', 'thumbnail',
+        'instructor_id', 'category_id', 'prerequisite_id', 'thumbnail',
         'status', 'level', 'duration_hours', 'max_students', 
         'is_featured', 'start_date', 'end_date',
     ];
@@ -84,6 +84,11 @@ class Course extends Model
      * Relación: Un curso pertenece a una categoría u ocupación productiva.
      */
     public function category()   { return $this->belongsTo(Category::class); }
+
+    /**
+     * Relación: Un curso puede tener un curso prelación (prerrequisito).
+     */
+    public function prerequisite() { return $this->belongsTo(Course::class, 'prerequisite_id'); }
 
     /**
      * Relación: Un curso tiene muchos módulos, ordenados por su campo 'sort_order'.
