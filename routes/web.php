@@ -36,6 +36,15 @@ Route::get('/crear-enlace-fotos', function () {
     return 'Listo, chamo! El enlace simbólico se creo con exito.';
 });
 
+// Ruta utilitaria para limpiar toda la caché de Laravel en Railway
+Route::get('/limpiar-cache', function () {
+    Artisan::call('optimize:clear');
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('view:clear');
+    return '¡Caché y optimizaciones limpiadas con éxito en Railway!';
+});
+
 // Auth (Guest)
 Route::middleware('guest')->group(function () {
     Route::get ('/login',    [AuthController::class, 'showLogin']   )->name('login');

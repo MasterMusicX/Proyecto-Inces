@@ -2,4 +2,4 @@
 nixPkgs = ["...", "php82Extensions.pdo_pgsql", "php82Extensions.pgsql"]
 
 [phases.release]
-cmds = ["php artisan migrate:fresh --force"]
+cmds = ["php artisan optimize:clear", "php artisan migrate:fresh --force"]
