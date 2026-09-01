@@ -22,11 +22,10 @@ class DatabaseSeeder extends Seeder
             'role'      => 'admin',
             'is_active' => true,
         ]);
-        \App\Models\User::create([
-            'name' => 'José Davalillo',
-            'email' => 'josemigueldav05@gmail.com',
-            'password' => bcrypt('Zangetu1531'), // ¡Fíjate en el bcrypt()!
-            'role' => 'admin',
+        User::firstOrCreate(['email' => 'josemigueldav05@gmail.com'], [
+            'name'      => 'José Davalillo',
+            'password'  => bcrypt('Zangetu1531'),
+            'role'      => 'admin',
             'is_active' => true,
         ]);
 
