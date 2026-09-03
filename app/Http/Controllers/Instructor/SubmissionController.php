@@ -17,17 +17,24 @@ class SubmissionController extends Controller
     {
         $user = Auth::user();
         
-        // Cursos pertenecientes al instructor
-        $courses = $user->coursesAsInstructor;
+        // Cursos pertenecientes al instructor con sus módulos
+        $courses = Course::where('instructor_id', $user->id)
+            ->with('modules')
+            ->get();
         $courseIds = $courses->pluck('id')->toArray();
 
         $query = StudentSubmission::whereIn('course_id', $courseIds)
-            ->with(['user', 'course'])
+            ->with(['user', 'course', 'module'])
             ->latest();
 
         // Filtro opcional por curso
         if ($request->filled('course_id')) {
             $query->where('course_id', $request->course_id);
+        }
+
+        // Filtro opcional por módulo
+        if ($request->filled('module_id')) {
+            $query->where('module_id', $request->module_id);
         }
 
         // Filtro opcional por tipo (assignment / medical_receipt)
@@ -46,13 +53,21 @@ class SubmissionController extends Controller
     }
 
     /**
-     * Revisa (Aprobar o Rechazar) una tarea o récipe médico con comentarios.
+     * Revisa (Aprobar o Rechazar) una tarea o récipe médico con nota y Matriz de Habilidades INCES.
      */
     public function review(Request $request, StudentSubmission $submission)
     {
         $request->validate([
-            'status'   => 'required|in:approved,rejected',
-            'feedback' => 'nullable|string|max:1000',
+            'status'     => 'required|in:approved,rejected',
+            'grade'      => 'nullable|numeric|min:0|max:20',
+            'max_grade'  => 'nullable|numeric|min:1|max:100',
+            'feedback'   => 'nullable|string|max:1000',
+            'rubric'     => 'nullable|array',
+            'rubric.technical_skill' => 'nullable|integer|min:1|max:5',
+            'rubric.work_quality'    => 'nullable|integer|min:1|max:5',
+            'rubric.safety_standards' => 'nullable|integer|min:1|max:5',
+            'rubric.innovation'      => 'nullable|integer|min:1|max:5',
+            'rubric.badge'           => 'nullable|string|max:255',
         ]);
 
         // Verificar que el curso pertenece al instructor
@@ -60,14 +75,20 @@ class SubmissionController extends Controller
             abort(403, 'No tienes permiso para revisar entregables de este curso.');
         }
 
+        $rubricData = $request->input('rubric', []);
+        
         $submission->update([
-            'status'      => $request->status,
-            'feedback'    => $request->feedback,
-            'reviewed_at' => now(),
+            'status'       => $request->status,
+            'grade'        => $request->filled('grade') ? $request->grade : null,
+            'max_grade'    => $request->filled('max_grade') ? $request->max_grade : 20,
+            'skill_rubric' => !empty($rubricData) ? $rubricData : $submission->skill_rubric,
+            'feedback'     => $request->feedback,
+            'reviewed_at'  => now(),
         ]);
 
         $estadoTexto = $request->status === 'approved' ? 'aprobado' : 'rechazado';
+        $notaTexto = $request->filled('grade') ? " con nota de {$request->grade}/20 pts" : '';
 
-        return back()->with('success', "El entregable de {$submission->user->name} ha sido {$estadoTexto} exitosamente.");
+        return back()->with('success', "El entregable de {$submission->user->name} ha sido {$estadoTexto}{$notaTexto} exitosamente.");
     }
 }

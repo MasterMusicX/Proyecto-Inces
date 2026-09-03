@@ -1,9 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Mis Entregables y Justificativos')
+@section('title', 'Mis Entregables, Notas y Justificativos')
 
 @section('content')
-<div class="max-w-7xl mx-auto space-y-8">
+<div class="max-w-7xl mx-auto space-y-8" x-data="{ 
+    selectedCourseId: '', 
+    courses: {{ json_encode($enrolledCourses) }},
+    availableModules: [],
+    updateModules() {
+        const found = this.courses.find(c => c.id == this.selectedCourseId);
+        this.availableModules = found && found.modules ? found.modules : [];
+    }
+}">
     
     {{-- Header Banner --}}
     <div class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-3xl p-8 text-white shadow-xl border border-blue-800/50 relative overflow-hidden">
@@ -11,15 +19,15 @@
         <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
                 <span class="px-3 py-1 bg-red-600/30 text-red-300 border border-red-500/40 text-xs font-black uppercase tracking-widest rounded-lg mb-3 inline-block">
-                    Gestión de Documentos PDF
+                    Gestión de Tareas, Notas & Módulos INCES
                 </span>
-                <h1 class="text-3xl font-black tracking-tight text-white">Tareas y Justificativos Médicos</h1>
+                <h1 class="text-3xl font-black tracking-tight text-white">Tareas, Entregables y Calificaciones</h1>
                 <p class="text-blue-200 text-sm mt-2 max-w-2xl font-medium">
-                    Sube tus tareas realizadas en formato PDF o adjunta tus récipes y justificativos médicos para el control y evaluación de tus profesores en el INCES.
+                    Sube tus tareas en PDF por módulos, consulta las calificaciones otorgadas por tus profesores y visualiza tu <strong>Matriz de Habilidades Técnicas INCES</strong>.
                 </p>
             </div>
             <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-white shrink-0 border border-white/20 shadow-inner">
-                <svg class="w-8 h-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+                <svg class="w-8 h-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>
             </div>
         </div>
     </div>
@@ -34,8 +42,8 @@
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                     </div>
                     <div>
-                        <h2 class="text-lg font-black text-gray-900 dark:text-white">Subir Nuevo Documento</h2>
-                        <p class="text-xs text-gray-500 dark:text-slate-400">Únicamente archivos en formato PDF</p>
+                        <h2 class="text-lg font-black text-gray-900 dark:text-white">Subir Nuevo Entregable</h2>
+                        <p class="text-xs text-gray-500 dark:text-slate-400">Asignación por módulo en PDF</p>
                     </div>
                 </div>
 
@@ -48,9 +56,9 @@
                             Tipo de Documento <span class="text-red-500">*</span>
                         </label>
                         <select name="type" required class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500 focus:outline-none transition-all font-medium">
-                            <option value="assignment">📝 Tarea / Entregable Realizado</option>
-                            <option value="medical_receipt">🩺 Récipe / Justificativo Médico</option>
-                            <option value="other">📄 Otro Documento PDF</option>
+                            <option value="assignment">Tarea / Entregable Realizado</option>
+                            <option value="medical_receipt">Récipe / Justificativo Médico</option>
+                            <option value="other">Otro Documento PDF</option>
                         </select>
                     </div>
 
@@ -59,11 +67,25 @@
                         <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                             Curso o Formación Relacionada
                         </label>
-                        <select name="course_id" class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500 focus:outline-none transition-all font-medium">
+                        <select name="course_id" x-model="selectedCourseId" @change="updateModules()" class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500 focus:outline-none transition-all font-medium">
                             <option value="">-- General / Ningún curso específico --</option>
                             @foreach($enrolledCourses as $c)
                                 <option value="{{ $c->id }}">{{ $c->title }}</option>
                             @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Módulo del Curso --}}
+                    <div x-show="selectedCourseId && availableModules.length > 0" x-transition class="space-y-2">
+                        <label class="block text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-.84-1.875-1.875-1.875s-1.875.84-1.875 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0c0 .355-.186.676-.401.959-.221.29-.349.634-.349 1.003 0 1.036.84 1.875 1.875 1.875s1.875-.84 1.875-1.875c0-.369-.128-.713-.349-1.003a2.25 2.25 0 0 1-.401-.959v0Z" /></svg>
+                            <span>Módulo Específico del Curso</span>
+                        </label>
+                        <select name="module_id" class="w-full bg-blue-50/50 dark:bg-slate-900 border border-blue-200 dark:border-blue-800 rounded-xl px-4 py-3 text-sm text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium">
+                            <option value="">-- Seleccionar Módulo (Opcional) --</option>
+                            <template x-for="mod in availableModules" :key="mod.id">
+                                <option :value="mod.id" x-text="mod.title"></option>
+                            </template>
                         </select>
                     </div>
 
@@ -72,7 +94,7 @@
                         <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                             Título o Descripción Corta <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="title" required placeholder="Ej: Tarea Módulo 1 - Algoritmos o Récipe Médico 25/07"
+                        <input type="text" name="title" required placeholder="Ej: Tarea Práctica Módulo 2 - Circuitos Eléctricos"
                                class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500 focus:outline-none transition-all font-medium">
                     </div>
 
@@ -115,27 +137,30 @@
                     <button type="submit" 
                             class="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-black rounded-xl shadow-lg shadow-red-600/30 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
-                        <span>Enviar Documento PDF</span>
+                        <span>Enviar Entregable por Módulo</span>
                     </button>
                 </form>
             </div>
         </div>
 
-        {{-- Historial de Documentos Subidos --}}
+        {{-- Historial de Documentos Subidos & Calificaciones --}}
         <div class="lg:col-span-2 space-y-6">
             <div class="bg-white dark:bg-[#1e293b] rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-slate-700/50">
                 <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 dark:border-slate-700">
                     <div>
-                        <h2 class="text-xl font-black text-gray-900 dark:text-white">Historial de Entregables</h2>
-                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Total de archivos subidos: {{ $submissions->total() }}</p>
+                        <h2 class="text-xl font-black text-gray-900 dark:text-white">Mis Entregables & Calificaciones</h2>
+                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Total de documentos y tareas enviadas: {{ $submissions->total() }}</p>
                     </div>
                 </div>
 
                 @forelse($submissions as $sub)
-                    <div class="mb-4 bg-gray-50/50 dark:bg-slate-900/40 rounded-2xl p-5 border border-gray-200/80 dark:border-slate-800 transition-all hover:border-blue-500/40">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    @php
+                        $rubric = $sub->skill_rubric_data;
+                    @endphp
+                    <div class="mb-6 bg-gray-50/70 dark:bg-slate-900/60 rounded-3xl p-6 border border-gray-200/80 dark:border-slate-800 transition-all hover:border-blue-500/40 shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                             
-                            {{-- Info --}}
+                            {{-- Info del Entregable --}}
                             <div class="flex items-start gap-4">
                                 <div class="w-12 h-12 rounded-2xl shrink-0 flex items-center justify-center shadow-inner {{ $sub->type === 'medical_receipt' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20' }}">
                                     @if($sub->type === 'medical_receipt')
@@ -145,15 +170,23 @@
                                     @endif
                                 </div>
 
-                                <div class="space-y-1">
+                                <div class="space-y-1.5">
                                     <div class="flex flex-wrap items-center gap-2">
                                         <span class="text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md {{ $sub->type === 'medical_receipt' ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300' }}">
                                             {{ $sub->type_label }}
                                         </span>
                                         
                                         @if($sub->course)
-                                            <span class="text-xs font-bold text-gray-500 dark:text-slate-400">
-                                                • {{ $sub->course->title }}
+                                            <span class="text-xs font-bold text-gray-700 dark:text-slate-300 bg-gray-200/60 dark:bg-slate-800 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>
+                                                <span>{{ $sub->course->title }}</span>
+                                            </span>
+                                        @endif
+
+                                        @if($sub->module)
+                                            <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md border border-indigo-200 dark:border-indigo-800 flex items-center gap-1">
+                                                <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-.84-1.875-1.875-1.875s-1.875.84-1.875 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0c0 .355-.186.676-.401.959-.221.29-.349.634-.349 1.003 0 1.036.84 1.875 1.875 1.875s1.875-.84 1.875-1.875c0-.369-.128-.713-.349-1.003a2.25 2.25 0 0 1-.401-.959v0Z" /></svg>
+                                                <span>Módulo: {{ $sub->module->title }}</span>
                                             </span>
                                         @endif
                                     </div>
@@ -163,7 +196,7 @@
                                     </h3>
 
                                     <p class="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-3">
-                                        <span>Subido el: {{ $sub->created_at->format('d/m/Y h:i A') }}</span>
+                                        <span>Subido: {{ $sub->created_at->format('d/m/Y h:i A') }}</span>
                                         <span>•</span>
                                         <span>PDF ({{ $sub->file_size_human }})</span>
                                     </p>
@@ -176,21 +209,32 @@
                                 </div>
                             </div>
 
-                            {{-- Estado y Acciones --}}
+                            {{-- NOTA DESTACADA & ESTADO --}}
                             <div class="flex flex-col sm:items-end justify-between gap-3 shrink-0">
-                                {{-- Status Badge --}}
-                                @if($sub->status === 'approved')
-                                    <span class="px-3 py-1 bg-green-500/20 text-green-700 dark:text-green-300 text-xs font-black rounded-lg border border-green-500/30 flex items-center gap-1.5 self-start sm:self-auto">
-                                        <span class="w-2 h-2 rounded-full bg-green-500"></span> Aprobado
-                                    </span>
-                                @elseif($sub->status === 'rejected')
-                                    <span class="px-3 py-1 bg-red-500/20 text-red-700 dark:text-red-300 text-xs font-black rounded-lg border border-red-500/30 flex items-center gap-1.5 self-start sm:self-auto">
-                                        <span class="w-2 h-2 rounded-full bg-red-500"></span> Rechazado
-                                    </span>
+                                
+                                {{-- NOTA OTORGADA SI FUE EVALUADO --}}
+                                @if($sub->grade !== null)
+                                    <div class="bg-gradient-to-br from-emerald-500 to-teal-700 text-white p-3 rounded-2xl shadow-md border border-emerald-400/40 text-center min-w-[130px]">
+                                        <span class="text-[10px] font-black uppercase tracking-wider text-emerald-100 block">Nota del Profesor</span>
+                                        <div class="text-2xl font-black tracking-tight leading-tight">
+                                            {{ number_format($sub->grade, 1) }} <span class="text-xs font-bold text-emerald-200">/ {{ number_format($sub->max_grade ?? 20, 0) }}</span>
+                                        </div>
+                                    </div>
                                 @else
-                                    <span class="px-3 py-1 bg-amber-500/20 text-amber-700 dark:text-amber-300 text-xs font-black rounded-lg border border-amber-500/30 flex items-center gap-1.5 self-start sm:self-auto">
-                                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Pendiente de Revisión
-                                    </span>
+                                    {{-- Status Badge --}}
+                                    @if($sub->status === 'approved')
+                                        <span class="px-3 py-1 bg-green-500/20 text-green-700 dark:text-green-300 text-xs font-black rounded-lg border border-green-500/30 flex items-center gap-1.5 self-start sm:self-auto">
+                                            <span class="w-2 h-2 rounded-full bg-green-500"></span> Aprobado
+                                        </span>
+                                    @elseif($sub->status === 'rejected')
+                                        <span class="px-3 py-1 bg-red-500/20 text-red-700 dark:text-red-300 text-xs font-black rounded-lg border border-red-500/30 flex items-center gap-1.5 self-start sm:self-auto">
+                                            <span class="w-2 h-2 rounded-full bg-red-500"></span> Rechazado
+                                        </span>
+                                    @else
+                                        <span class="px-3 py-1 bg-amber-500/20 text-amber-700 dark:text-amber-300 text-xs font-black rounded-lg border border-amber-500/30 flex items-center gap-1.5 self-start sm:self-auto">
+                                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Pendiente de Revisión
+                                        </span>
+                                    @endif
                                 @endif
 
                                 <div class="flex items-center gap-2">
@@ -215,25 +259,93 @@
                             </div>
                         </div>
 
-                        {{-- Comentario / Retroalimentación del Profesor --}}
-                        @if($sub->feedback)
-                            <div class="mt-4 pt-3 border-t border-gray-200 dark:border-slate-800 text-xs">
-                                <span class="font-extrabold text-blue-900 dark:text-blue-300 uppercase tracking-wider block mb-1">
-                                    💬 Retroalimentación del Profesor:
-                                </span>
-                                <p class="text-gray-700 dark:text-slate-300 font-medium">
-                                    {{ $sub->feedback }}
-                                </p>
+                        {{-- RETROALIMENTACIÓN Y MATRIZ DE HABILIDADES INCES (MODELO ÚNICO) --}}
+                        @if($sub->feedback || $sub->grade !== null)
+                            <div class="pt-4 border-t border-gray-200/80 dark:border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                                
+                                {{-- Retroalimentación Escrita --}}
+                                <div class="bg-white dark:bg-slate-800/80 p-4 rounded-2xl border border-gray-100 dark:border-slate-700/60 space-y-2">
+                                    <span class="font-black text-blue-900 dark:text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
+                                        <svg class="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" /></svg>
+                                        Observaciones del Profesor:
+                                    </span>
+                                    <p class="text-gray-700 dark:text-slate-300 font-medium leading-relaxed">
+                                        {{ $sub->feedback ?: 'Sin comentarios adicionales grabados por el docente.' }}
+                                    </p>
+                                    @if($sub->reviewed_at)
+                                        <span class="text-[10px] text-gray-400 block pt-1">Evaluado el: {{ $sub->reviewed_at->format('d/m/Y h:i A') }}</span>
+                                    @endif
+                                </div>
+
+                                {{-- MATRIZ DE COMPETENCIAS TÉCNICAS INCES (MODELO ÚNICO CON ICONOS SVG) --}}
+                                <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-4 rounded-2xl border border-indigo-500/30 space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[11px] font-black uppercase tracking-widest text-indigo-300 flex items-center gap-1.5">
+                                            <svg class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 0 3-3V9.75a3 3 0 0 0-3-3h-9a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-6.75a1.125 1.125 0 0 0-1.125 1.125V18.75" /></svg>
+                                            Matriz Vocacional INCES
+                                        </span>
+                                        @if(isset($rubric['badge']))
+                                            <span class="px-2.5 py-0.5 bg-indigo-500/30 text-indigo-200 border border-indigo-400/40 text-[10px] font-black rounded-lg flex items-center gap-1">
+                                                <svg class="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 0 3-3V9.75a3 3 0 0 0-3-3h-9a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-6.75a1.125 1.125 0 0 0-1.125 1.125V18.75" /></svg>
+                                                <span>{{ $rubric['badge'] }}</span>
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-2 text-[11px]">
+                                        <div>
+                                            <div class="flex justify-between text-slate-300 font-medium mb-1">
+                                                <span>Destreza Técnica:</span>
+                                                <span class="font-bold text-amber-400">{{ $rubric['technical_skill'] ?? 4 }}/5</span>
+                                            </div>
+                                            <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                                <div class="bg-amber-400 h-1.5 rounded-full" style="width: {{ (($rubric['technical_skill'] ?? 4) / 5) * 100 }}%"></div>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <div class="flex justify-between text-slate-300 font-medium mb-1">
+                                                <span>Calidad de Trabajo:</span>
+                                                <span class="font-bold text-emerald-400">{{ $rubric['work_quality'] ?? 4 }}/5</span>
+                                            </div>
+                                            <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                                <div class="bg-emerald-400 h-1.5 rounded-full" style="width: {{ (($rubric['work_quality'] ?? 4) / 5) * 100 }}%"></div>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <div class="flex justify-between text-slate-300 font-medium mb-1">
+                                                <span>Normas e Higiene:</span>
+                                                <span class="font-bold text-blue-400">{{ $rubric['safety_standards'] ?? 4 }}/5</span>
+                                            </div>
+                                            <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                                <div class="bg-blue-400 h-1.5 rounded-full" style="width: {{ (($rubric['safety_standards'] ?? 4) / 5) * 100 }}%"></div>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <div class="flex justify-between text-slate-300 font-medium mb-1">
+                                                <span>Innovación Práctica:</span>
+                                                <span class="font-bold text-purple-400">{{ $rubric['innovation'] ?? 4 }}/5</span>
+                                            </div>
+                                            <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                                <div class="bg-purple-400 h-1.5 rounded-full" style="width: {{ (($rubric['innovation'] ?? 4) / 5) * 100 }}%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         @endif
+
                     </div>
                 @empty
                     <div class="py-12 text-center">
                         <div class="w-16 h-16 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-gray-400 mb-4">
                             <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
                         </div>
-                        <h3 class="text-base font-extrabold text-gray-800 dark:text-white">Aún no has subido ningún documento</h3>
-                        <p class="text-xs text-gray-500 dark:text-slate-400 max-w-sm mx-auto mt-1">Usa el formulario lateral para adjuntar tu primera tarea o récipe médico en formato PDF.</p>
+                        <h3 class="text-base font-extrabold text-gray-800 dark:text-white">Aún no has subido ningún entregable</h3>
+                        <p class="text-xs text-gray-500 dark:text-slate-400 max-w-sm mx-auto mt-1">Usa el formulario lateral para adjuntar tu primera tarea por módulo o récipe médico en formato PDF.</p>
                     </div>
                 @endforelse
 

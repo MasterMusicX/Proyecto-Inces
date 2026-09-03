@@ -234,7 +234,13 @@
                                     </div>
 
                                     <div class="flex items-center gap-2 shrink-0">
-                                        @if(!isset($isEnrolled) || !$isEnrolled)
+                                        @if(isset($isEnrolled) && $isEnrolled)
+                                            <a href="{{ route('student.submissions.index', ['course_id' => $course->id, 'module_id' => $module->id]) }}" 
+                                               class="px-3 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 border border-red-200 dark:border-red-800/50 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                                                <span>Subir Tarea del Módulo</span>
+                                            </a>
+                                        @elseif(!isset($isEnrolled) || !$isEnrolled)
                                             <form method="POST" action="{{ route('student.courses.enroll', $course) }}" class="m-0">
                                                 @csrf
                                                 <input type="hidden" name="enrollment_type" value="module">

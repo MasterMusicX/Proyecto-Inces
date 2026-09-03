@@ -1,6 +1,6 @@
-# 🎓 INCES LMS — Plataforma de Aprendizaje con IA Conversacional
+# 🎓 INCES LMS — Plataforma de Aprendizaje con IA Conversacional y Matriz Vocacional
 
-**Sistema completo de Gestión de Aprendizaje (LMS)** con Asistente Virtual de Inteligencia Artificial para el **Instituto Nacional de Capacitación y Educación Socialista (INCES)** de Venezuela.
+**Sistema completo de Gestión de Aprendizaje (LMS)** con Asistente Virtual de Inteligencia Artificial y **Matriz Vocacional de Competencias Técnicas** para el **Instituto Nacional de Capacitación y Educación Socialista (INCES)** de Venezuela.
 
 ---
 
@@ -11,55 +11,57 @@
 | Backend | Laravel 11 (PHP 8.2+) |
 | Base de Datos | PostgreSQL 14+ |
 | Frontend | Blade + TailwindCSS CDN + Alpine.js |
+| Iconografía | SVG Inline Vectors (Heroicons Design System) |
 | IA / Chatbot | Google Gemini Pro API |
 | Documentos | PdfParser, PhpWord, PhpSpreadsheet |
 | Charts | Chart.js (CDN) |
 
 ---
 
-## 📦 Módulos Implementados
+## 📦 Módulos y Nuevas Funcionalidades Implementadas
 
-### 👤 3 Roles de Usuario
-| Rol | Acceso |
-|-----|--------|
-| **Administrador** | Control total: usuarios, cursos, módulos, categorías, estadísticas, base de conocimiento IA |
-| **Instructor** | Sus cursos, módulos, recursos, progreso de estudiantes |
-| **Estudiante** | Catálogo, inscripción, aprendizaje, chatbot, búsqueda, perfil |
+### 👤 Roles de Usuario
+| Rol | Acceso y Permisos |
+|-----|-------------------|
+| **Administrador** | Control total: usuarios, cursos, módulos, categorías, inscripción expresa, estadísticas, base de conocimiento IA |
+| **Instructor / MTP** | Sus cursos, módulos, recursos didácticos, evaluación modular, notas cuantitativas y **Matriz Vocacional INCES** |
+| **Estudiante** | Catálogo con prelaciones, inscripción, hoja de ruta, entrega de tareas por módulo, répes médicos, notas, chatbot IA |
 
-### 📚 Módulos Funcionales
+---
 
-**Panel Administrador**
-- Dashboard con estadísticas en tiempo real
-- Gráficos de registros, inscripciones y uso de IA (Chart.js)
-- CRUD completo de usuarios con roles y estado
-- CRUD completo de cursos con módulos anidados
-- Gestión de categorías con colores
-- **Base de Conocimiento IA** — FAQ que el chatbot consulta automáticamente
+### 🌟 Modelo Único Diferenciador: Matriz Vocacional de Habilidades Técnicas INCES
 
-**Panel Instructor**
-- Vista de sus cursos con estadísticas
-- Gestión de módulos por curso
-- Subida de recursos didácticos (PDF, DOCX, XLSX, PPTX, Video, URL, Imagen)
-- Lista de estudiantes con progreso
-- Análisis IA automático en background
+El sistema incluye un modelo de evaluación propio diseñado para la educación práctica e industrial del INCES:
 
-**Panel Estudiante**
-- Dashboard personalizado con progreso
-- Catálogo de cursos con filtros
-- Visualizador de recursos integrado (PDF, video, imagen)
-- **Preguntar a la IA sobre cualquier documento**
-- Perfil con cambio de foto y contraseña
+1. **Calificación Cuantitativa (0-20 Pts)**:
+   - Registro y visualización de notas numéricas otorgadas por el Maestro Técnico Productivo (MTP).
+2. **Evaluación Cualitativa en 4 Dimensiones Técnicas (1 a 5 Estrellas)**:
+   - 🛠️ **Destreza Técnica y Ejecución**: Habilidad operativa en el desarrollo de la tarea.
+   - 📐 **Calidad y Presentación**: Estándar del acabado del proyecto entregado.
+   - 🛡️ **Normas de Seguridad e Higiene**: Aplicación de medidas de protección laboral.
+   - 💡 **Innovación y Criterio Práctico**: Capacidad de resolución autónoma de problemas.
+3. **Insignias y Reconocimiento Especial INCES**:
+   - Distintivos otorgados por el instructor (*Excelencia Técnica INCES*, *Cumplimiento de Estándar Industrial*, *Dominio Práctico Destacado*).
 
-**Asistente Virtual IA**
-- Chatbot conversacional con Gemini Pro
-- Historial de conversaciones
-- Sugerencias rápidas
-- Respuestas enriquecidas (markdown formateado)
+---
 
-**Búsqueda Inteligente**
-- Búsqueda en cursos, recursos y documentos analizados
-- Debounce y resultados en tiempo real
-- Integración con análisis de documentos IA
+### 🧩 Entregables y Tareas por Módulos
+- **Asignación Modular de Tareas**: Los estudiantes pueden subir entregables en PDF asociados a un módulo específico del curso.
+- **Acceso Directo desde la Hoja de Ruta**: En la vista de detalle del curso, cada módulo cuenta con un botón directo `Subir Tarea del Módulo`.
+- **Módulo de Récipes y Justificativos Médicos**: Subida de justificativos de salud con revisión y dictamen por parte del docente.
+
+---
+
+### 📚 Cursos, Prelaciones e Inscripción Expresa
+- **Prerrequisitos y Prelaciones de Cursos**: Validación de cursos previos aprobados antes de poder inscribirse en módulos avanzados.
+- **Inscripción Expresa (Administrador)**: Inscripción directa e inmediata de participantes por el administrador sin pasar por la solicitud estándar.
+- **Evaluación Final y Cuestionarios (Quizzes)**: Exámenes cronometrados con porcentaje mínimo de aprobación para completar la formación.
+
+---
+
+### 🤖 Asistente Virtual IA & Búsqueda Inteligente
+- **Chatbot con Gemini Pro API**: Respuestas en lenguaje natural fundamentadas en la base de conocimiento institucional y documentos cargados.
+- **Búsqueda en Contenido de Documentos (Full-Text Search)**: Búsqueda indexada en archivos PDF, DOCX y PPTX subidos por los profesores.
 
 ---
 
@@ -67,7 +69,7 @@
 
 ### 1. Prerrequisitos
 ```bash
-# PHP 8.2 + extensiones
+# PHP 8.2 + extensiones necesarias
 sudo apt install php8.2 php8.2-pgsql php8.2-mbstring php8.2-xml php8.2-zip php8.2-gd php8.2-curl php8.2-fileinfo
 
 # Composer
@@ -81,7 +83,7 @@ sudo -u postgres psql -c "CREATE USER inces_user WITH PASSWORD 'secret';"
 sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE inces_lms TO inces_user;"
 ```
 
-### 2. Instalación del Proyecto
+### 2. Instalación y Configuración
 ```bash
 # Instalar dependencias PHP
 composer install
@@ -89,26 +91,20 @@ composer install
 # Copiar y configurar entorno
 cp .env.example .env
 
-# Editar configuración (DB + Gemini API Key)
-nano .env
-
 # Generar clave de aplicación
 php artisan key:generate
 
-# Ejecutar migraciones y datos de prueba
-php artisan migrate --seed
+# Ejecutar migraciones
+php artisan migrate
 
-# Crear enlace de almacenamiento público
+# Cargar datos iniciales y de prueba
+php artisan db:seed
+
+# Enlace de almacenamiento
 php artisan storage:link
 
-# Iniciar servidor de desarrollo
+# Iniciar servidor
 php artisan serve
-```
-
-### 3. Para producción con Cola de Trabajos (procesamiento de documentos)
-```bash
-# En una terminal separada o configurar como servicio systemd
-php artisan queue:work --queue=default --tries=3 --timeout=120
 ```
 
 ---
@@ -117,116 +113,25 @@ php artisan queue:work --queue=default --tries=3 --timeout=120
 
 | Rol | Email | Contraseña |
 |-----|-------|-----------|
-| Administrador | admin@inces.gob.ve | password |
-| Instructor | instructor@inces.gob.ve | password |
-| Estudiante | estudiante@inces.gob.ve | password |
-
-**URL:** `http://localhost:8000`
+| **Administrador** | `admin@inces.gob.ve` | `password` |
+| **Instructor / MTP** | `instructor@inces.gob.ve` | `password` |
+| **Estudiante** | `estudiante@inces.gob.ve` | `password` |
 
 ---
 
-## 🔑 Configuración Gemini AI
-
-En el archivo `.env`:
-```env
-GEMINI_API_KEY=AIzaSy...tu_clave_aqui
-GEMINI_MODEL=gemini-pro
-GEMINI_MAX_TOKENS=2048
-GEMINI_TEMPERATURE=0.7
-```
-➡ Obtén tu API Key gratis: https://makersuite.google.com/app/apikey
-
----
-
-## 🛠️ Comandos Artisan Personalizados
-
-```bash
-# Ver estadísticas de la plataforma
-php artisan lms:stats
-
-# Analizar todos los documentos sin procesar con IA
-php artisan lms:analyze-documents
-
-# Forzar re-análisis de todos los documentos
-php artisan lms:analyze-documents --force
-```
-
----
-
-## 📁 Estructura del Proyecto
-
-```
-inces-lms/
-├── app/
-│   ├── Console/Commands/
-│   │   ├── AnalyzeAllDocuments.php    # Analiza documentos pendientes
-│   │   └── LmsStats.php              # Estadísticas por consola
-│   ├── Http/
-│   │   ├── Controllers/
-│   │   │   ├── Admin/                 # Dashboard, Users, Courses, Modules, Categories, Stats, KB
-│   │   │   ├── Auth/                  # Login, Register, Logout
-│   │   │   ├── Instructor/            # Dashboard, Courses, Resources
-│   │   │   ├── Student/               # Dashboard, Courses, Resources, Profile
-│   │   │   └── Api/                   # Chatbot, Search, Document AI
-│   │   └── Middleware/               # RoleMiddleware, CheckActive
-│   ├── Jobs/
-│   │   └── ProcessDocumentJob.php    # Background job para análisis IA
-│   ├── Models/                       # 12 modelos Eloquent
-│   ├── Policies/
-│   │   └── CoursePolicy.php         # Autorización de cursos
-│   └── Services/
-│       ├── GeminiService.php        # Cliente Gemini Pro API
-│       ├── ChatbotService.php       # Lógica del chatbot
-│       └── DocumentProcessorService.php # Extracción de texto
-├── database/
-│   ├── migrations/                  # 7 archivos de migración
-│   └── seeders/DatabaseSeeder.php   # Datos demo completos
-├── resources/views/
-│   ├── admin/                       # Dashboard, users, courses, modules, categories, stats, KB
-│   ├── auth/                        # Login, register
-│   ├── chatbot/                     # Asistente virtual con historial
-│   ├── components/                  # Sidebar, Navbar
-│   ├── errors/                      # 403, 404
-│   ├── instructor/                  # Dashboard, cursos, módulos, recursos, estudiantes
-│   ├── layouts/                     # App layout (dark/light), Auth layout
-│   └── student/                     # Dashboard, perfil, cursos, recursos, búsqueda
-└── routes/
-    ├── web.php                      # Todas las rutas web por rol
-    └── api.php                      # API REST (chatbot, búsqueda, IA)
-```
-
----
-
-## 🛡️ Seguridad Implementada
-
-- ✅ Autenticación Laravel nativa con hash bcrypt
-- ✅ Protección CSRF en todos los formularios
-- ✅ Middleware de roles (admin/instructor/student)
-- ✅ Middleware de usuario activo (CheckActive)
-- ✅ Políticas de autorización (CoursePolicy)
-- ✅ Validación de tipos y tamaño de archivos
-- ✅ Soft deletes para auditoría de datos
-- ✅ Rate limiting en API endpoints
-- ✅ Sanitización de inputs XSS
-
----
-
-## 📊 Base de Datos PostgreSQL
+## 🛡️ Estructura de Base de Datos PostgreSQL
 
 ```sql
-users                  -- Usuarios del sistema
-categories             -- Categorías de cursos
-courses                -- Cursos educativos
-modules                -- Módulos/unidades
-enrollments            -- Inscripciones
-course_progress        -- Progreso por recurso
-resources              -- Materiales didácticos
-document_analysis      -- Análisis IA (con tsvector para búsqueda full-text)
-resource_views         -- Tracking de visualizaciones
-ai_queries             -- Historial de consultas al chatbot
-chatbot_conversations  -- Conversaciones del chatbot
-chatbot_messages       -- Mensajes individuales
-knowledge_base         -- FAQ y base de conocimiento INCES
+users                         -- Usuarios, roles y credenciales
+categories                    -- Categorías de cursos
+courses                       -- Cursos, prelaciones y niveles
+modules                       -- Módulos o unidades temáticas
+resources                     -- Recursos didácticos (PDF, Video, Docs)
+enrollments                   -- Inscripciones a cursos y módulos
+student_submissions           -- Tareas por módulo, récipes, notas (0-20 pts) y Matriz INCES (JSON)
+quizzes / quiz_questions      -- Cuestionarios y evaluaciones finales
+chatbot_conversations / msgs  -- Asistente virtual Gemini IA
+knowledge_base                -- Base de conocimientos institucional
 ```
 
 ---

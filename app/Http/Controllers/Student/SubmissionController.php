@@ -19,12 +19,12 @@ class SubmissionController extends Controller
         $user = Auth::user();
         
         $submissions = StudentSubmission::where('user_id', $user->id)
-            ->with('course')
+            ->with(['course', 'module'])
             ->latest()
             ->paginate(15);
 
-        // Cursos en los que el estudiante está inscrito
-        $enrolledCourses = $user->enrolledCourses;
+        // Cursos en los que el estudiante está inscrito con sus módulos
+        $enrolledCourses = $user->enrolledCourses()->with('modules')->get();
 
         return view('student.submissions.index', compact('submissions', 'enrolledCourses'));
     }
@@ -38,6 +38,7 @@ class SubmissionController extends Controller
             'title'     => 'required|string|max:255',
             'type'      => 'required|in:assignment,medical_receipt,other',
             'course_id' => 'nullable|exists:courses,id',
+            'module_id' => 'nullable|exists:modules,id',
             'notes'     => 'nullable|string|max:1000',
             'file'      => 'required|file|mimes:pdf|max:10240', // Obligatorio PDF, Máx 10 MB
         ], [
@@ -56,6 +57,7 @@ class SubmissionController extends Controller
         StudentSubmission::create([
             'user_id'   => Auth::id(),
             'course_id' => $request->course_id,
+            'module_id' => $request->module_id,
             'type'      => $request->type,
             'title'     => $request->title,
             'notes'     => $request->notes,
